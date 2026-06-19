@@ -1,0 +1,53 @@
+<svg viewBox="0 0 680 440" xmlns="http://www.w3.org/2000/svg" role="img" font-family="'Hiragino Sans','Helvetica Neue',sans-serif">
+<title>段階バー（信号風メーター）の適用イメージ</title>
+<desc>メーターを信号風の3段バーに統一。1本→2本→3本と増え、3本で定着してお休み。上に段階の凡例、下にMediumウィジェットとTodayリストへの適用例。完全モノクロ。</desc>
+<rect x="0" y="0" width="680" height="440" rx="16" fill="#EEEEEC" stroke="#E4E4E2"/>
+<rect x="24" y="24" width="632" height="110" rx="14" fill="#FFFFFF" stroke="#E6E6E4"/>
+<text x="48" y="54" font-size="15" fill="#1C1C1E">メーター＝なじみの段階（信号風3段）</text>
+<text x="48" y="76" font-size="12" fill="#8A8C90">見るほど増える。正確な回数は詳細だけに表示。</text>
+<rect x="200" y="98" width="4" height="6" rx="2" fill="#1C1C1E"/>
+<rect x="206.5" y="94" width="4" height="10" rx="2" fill="#D6D6D4"/>
+<rect x="213" y="90" width="4" height="14" rx="2" fill="#D6D6D4"/>
+<text x="208" y="126" text-anchor="middle" font-size="11" fill="#8A8C90">見はじめ</text>
+<text x="268" y="108" font-size="14" fill="#BCBEC2">›</text>
+<rect x="350" y="98" width="4" height="6" rx="2" fill="#1C1C1E"/>
+<rect x="356.5" y="94" width="4" height="10" rx="2" fill="#1C1C1E"/>
+<rect x="363" y="90" width="4" height="14" rx="2" fill="#D6D6D4"/>
+<text x="358" y="126" text-anchor="middle" font-size="11" fill="#8A8C90">なじみ中</text>
+<text x="418" y="108" font-size="14" fill="#BCBEC2">›</text>
+<rect x="500" y="98" width="4" height="6" rx="2" fill="#1C1C1E"/>
+<rect x="506.5" y="94" width="4" height="10" rx="2" fill="#1C1C1E"/>
+<rect x="513" y="90" width="4" height="14" rx="2" fill="#1C1C1E"/>
+<text x="512" y="126" text-anchor="middle" font-size="11" fill="#8A8C90">定着 → お休み</text>
+<rect x="24" y="150" width="632" height="266" rx="14" fill="#EEEEEC" stroke="none"/>
+<rect x="48" y="172" width="296" height="150" rx="18" fill="#FFFFFF" stroke="#E6E6E4"/>
+<text x="72" y="202" font-size="12" fill="#8A8C90">韓国旅行</text>
+<rect x="300" y="199" width="4" height="6" rx="2" fill="#1C1C1E"/>
+<rect x="306.5" y="195" width="4" height="10" rx="2" fill="#1C1C1E"/>
+<rect x="313" y="191" width="4" height="14" rx="2" fill="#D6D6D4"/>
+<text x="72" y="246" font-size="28" fill="#1C1C1E">감사합니다</text>
+<text x="72" y="270" font-size="13" fill="#5E6066">カムサハムニダ</text>
+<text x="72" y="292" font-size="14" fill="#1C1C1E">ありがとうございます</text>
+<text x="196" y="342" text-anchor="middle" font-size="11" fill="#8A8C90">Medium</text>
+<rect x="372" y="172" width="260" height="226" rx="16" fill="#FFFFFF" stroke="#E6E6E4"/>
+<text x="392" y="200" font-size="14" fill="#1C1C1E">Today</text>
+<line x1="392" y1="212" x2="612" y2="212" stroke="#EFEFED"/>
+<text x="392" y="242" font-size="16" fill="#1C1C1E">얼마예요?</text>
+<text x="392" y="260" font-size="11" fill="#5E6066">オルマエヨ</text>
+<rect x="586" y="246" width="4" height="6" rx="2" fill="#1C1C1E"/>
+<rect x="592.5" y="242" width="4" height="10" rx="2" fill="#D6D6D4"/>
+<rect x="599" y="238" width="4" height="14" rx="2" fill="#D6D6D4"/>
+<line x1="392" y1="268" x2="612" y2="268" stroke="#EFEFED"/>
+<text x="392" y="298" font-size="16" fill="#1C1C1E">어디예요?</text>
+<text x="392" y="316" font-size="11" fill="#5E6066">オディエヨ</text>
+<rect x="586" y="302" width="4" height="6" rx="2" fill="#1C1C1E"/>
+<rect x="592.5" y="298" width="4" height="10" rx="2" fill="#1C1C1E"/>
+<rect x="599" y="294" width="4" height="14" rx="2" fill="#D6D6D4"/>
+<line x1="392" y1="324" x2="612" y2="324" stroke="#EFEFED"/>
+<text x="392" y="354" font-size="16" fill="#BCBEC2">안녕하세요</text>
+<text x="392" y="372" font-size="11" fill="#CACBCE">アンニョンハセヨ</text>
+<rect x="586" y="358" width="4" height="6" rx="2" fill="#D6D6D4"/>
+<rect x="592.5" y="354" width="4" height="10" rx="2" fill="#D6D6D4"/>
+<rect x="599" y="350" width="4" height="14" rx="2" fill="#D6D6D4"/>
+<text x="502" y="392" text-anchor="middle" font-size="11" fill="#8A8C90">Today（お休みは淡色）</text>
+</svg>

@@ -1,0 +1,33 @@
+<svg viewBox="0 0 680 330" xmlns="http://www.w3.org/2000/svg" role="img" font-family="'Hiragino Sans','Helvetica Neue',sans-serif">
+<title>ウィジェットに音声ボタンを追加（P1目標）</title>
+<desc>MediumとSmallウィジェットに小さなスピーカー（音声）ボタンを追加。段階バーも併記。下にホーム画面は再生可能性あり・ロック画面はアプリを開くフォールバック・実装初期にスパイク検証する注記。完全モノクロ。</desc>
+<rect x="0" y="0" width="680" height="330" rx="16" fill="#EEEEEC" stroke="#E4E4E2"/>
+<text x="24" y="36" font-size="14" fill="#1C1C1E">ウィジェットに音声ボタン（P1 目標・要検証）</text>
+<rect x="24" y="48" width="384" height="176" rx="18" fill="#FFFFFF" stroke="#E6E6E4"/>
+<text x="48" y="78" font-size="12" fill="#8A8C90">韓国旅行</text>
+<rect x="300" y="73" width="4" height="6" rx="2" fill="#1C1C1E"/>
+<rect x="306.5" y="69" width="4" height="10" rx="2" fill="#1C1C1E"/>
+<rect x="313" y="65" width="4" height="14" rx="2" fill="#D6D6D4"/>
+<text x="48" y="124" font-size="30" fill="#1C1C1E">감사합니다</text>
+<circle cx="364" cy="118" r="17" fill="#F4F4F3" stroke="#E2E2E0"/>
+<path d="M358 115 h3 l4 -3 v12 l-4 -3 h-3 z" fill="#1C1C1E"/>
+<path d="M368 113 a6 6 0 0 1 0 10" fill="none" stroke="#1C1C1E" stroke-width="1.5"/>
+<text x="48" y="150" font-size="13" fill="#5E6066">カムサハムニダ</text>
+<text x="48" y="176" font-size="15" fill="#1C1C1E">ありがとうございます</text>
+<text x="48" y="202" font-size="11" fill="#8A8C90">タップで発音（ホーム画面）</text>
+<rect x="432" y="48" width="176" height="176" rx="18" fill="#FFFFFF" stroke="#E6E6E4"/>
+<text x="456" y="78" font-size="11" fill="#8A8C90">韓国旅行</text>
+<rect x="556" y="73" width="4" height="6" rx="2" fill="#1C1C1E"/>
+<rect x="562.5" y="69" width="4" height="10" rx="2" fill="#1C1C1E"/>
+<rect x="569" y="65" width="4" height="14" rx="2" fill="#D6D6D4"/>
+<text x="456" y="120" font-size="22" fill="#1C1C1E">감사합니다</text>
+<text x="456" y="142" font-size="11" fill="#5E6066">カムサハムニダ</text>
+<text x="456" y="166" font-size="13" fill="#1C1C1E">ありがとう</text>
+<circle cx="584" cy="160" r="14" fill="#F4F4F3" stroke="#E2E2E0"/>
+<path d="M579 157 h2.5 l3.5 -2.5 v10 l-3.5 -2.5 h-2.5 z" fill="#1C1C1E"/>
+<path d="M587 156 a5 5 0 0 1 0 8" fill="none" stroke="#1C1C1E" stroke-width="1.4"/>
+<text x="196" y="246" text-anchor="middle" font-size="11" fill="#8A8C90">Medium</text>
+<text x="520" y="246" text-anchor="middle" font-size="11" fill="#8A8C90">Small</text>
+<text x="24" y="284" font-size="12" fill="#8A8C90">・ホーム画面：App Intent ＋ バンドル音声で再生（要・早期スパイク検証）</text>
+<text x="24" y="306" font-size="12" fill="#8A8C90">・ロック画面：制約が強く、アプリを開いて再生のフォールバックになる可能性</text>
+</svg>
