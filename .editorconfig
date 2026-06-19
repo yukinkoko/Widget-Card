@@ -1,0 +1,24 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 4
+
+[*.{kt,kts}]
+max_line_length = 120
+
+# KMP ウィザード生成のパッケージ名にアンダースコアが含まれるため無効化
+ktlint_standard_package-name = disabled
+
+# Compose Multiplatform の @Composable 関数は PascalCase が標準規約
+ktlint_standard_function-naming = disabled
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.{yml,yaml}]
+indent_size = 2

@@ -1,0 +1,7 @@
+TEAM_ID=
+
+PRODUCT_NAME=designer_kmp_template
+PRODUCT_BUNDLE_IDENTIFIER=jp.co.tsuqrea.designer_kmp_template.designer_kmp_template$(TEAM_ID)
+
+CURRENT_PROJECT_VERSION=1
+MARKETING_VERSION=1.0

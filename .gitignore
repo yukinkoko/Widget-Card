@@ -1,0 +1,32 @@
+# Gradle
+.gradle
+**/build/
+!src/**/build/
+
+# Kotlin
+.kotlin
+
+# IDE
+.idea
+*.iml
+
+# macOS
+.DS_Store
+
+# Android
+local.properties
+captures
+.externalNativeBuild
+.cxx
+
+# Xcode
+xcuserdata
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+!*.xcodeproj/project.xcworkspace/
+!*.xcworkspace/contents.xcworkspacedata
+**/xcshareddata/WorkspaceSettings.xcsettings
+
+# Node (if any tooling)
+node_modules/

@@ -1,0 +1,51 @@
+version: 2
+updates:
+  # Gradle 依存関係（libs.versions.toml + build.gradle.kts）
+  - package-ecosystem: "gradle"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    open-pull-requests-limit: 5
+    assignees:
+      - "mc-nekoneko"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "gradle"
+    groups:
+      # Kotlin + Compose は密結合なのでまとめて更新
+      kotlin-compose:
+        patterns:
+          - "org.jetbrains.kotlin*"
+          - "org.jetbrains.compose*"
+          - "org.jetbrains.androidx*"
+      # Ktor 関連をグループ化
+      ktor:
+        patterns:
+          - "io.ktor*"
+      # Koin 関連をグループ化
+      koin:
+        patterns:
+          - "io.insert-koin*"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    assignees:
+      - "mc-nekoneko"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "github-actions"
