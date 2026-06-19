@@ -1,9 +1,9 @@
 <svg viewBox="0 0 680 470" xmlns="http://www.w3.org/2000/svg" role="img" font-family="'Hiragino Sans','Helvetica Neue',sans-serif">
 <title>Onboarding 3ステップ モノクロ案</title>
-<desc>ステップ1：何を覚えたいか目的を選ぶ。ステップ2：最初の単語セットを選ぶ。ステップ3：ホーム/ロック画面へのウィジェット追加を案内。各ステップに選択肢と次へボタン。完全モノクロ。</desc>
+<desc>ステップ1：何を覚えたいか目的を選ぶ。ステップ2：最初のフォルダを作る、またはサンプルフォルダで試す。ステップ3：ホーム/ロック画面へのウィジェット追加を案内。各ステップに選択肢と次へボタン。完全モノクロ。</desc>
 <rect x="0" y="0" width="680" height="470" rx="16" fill="#EEEEEC" stroke="#E4E4E2"/>
 <text x="36" y="30" font-size="12" fill="#8A8C90">1. 目的を選ぶ</text>
-<text x="254" y="30" font-size="12" fill="#8A8C90">2. セットを選ぶ</text>
+<text x="254" y="30" font-size="12" fill="#8A8C90">2. フォルダ</text>
 <text x="472" y="30" font-size="12" fill="#8A8C90">3. ウィジェット追加</text>
 <rect x="24" y="40" width="196" height="400" rx="32" fill="#F2F2F1" stroke="#DEDEDC" stroke-width="1.5"/>
 <text x="48" y="92" font-size="16" fill="#1C1C1E">何を覚えたい？</text>
@@ -20,18 +20,18 @@
 <rect x="48" y="336" width="148" height="40" rx="10" fill="#1C1C1E"/>
 <text x="122" y="361" text-anchor="middle" font-size="14" fill="#FFFFFF">次へ</text>
 <rect x="242" y="40" width="196" height="400" rx="32" fill="#F2F2F1" stroke="#DEDEDC" stroke-width="1.5"/>
-<text x="266" y="92" font-size="16" fill="#1C1C1E">最初のセット</text>
-<text x="266" y="112" font-size="11" fill="#8A8C90">あとで追加できます</text>
+<text x="266" y="92" font-size="16" fill="#1C1C1E">最初のフォルダ</text>
+<text x="266" y="112" font-size="11" fill="#8A8C90">自作かサンプルで開始</text>
 <rect x="266" y="128" width="148" height="48" rx="10" fill="#FFFFFF" stroke="#1C1C1E" stroke-width="1.5"/>
-<text x="280" y="150" font-size="12" fill="#1C1C1E">韓国旅行で使う言葉</text>
-<text x="280" y="167" font-size="11" fill="#8A8C90">32 words</text>
+<text x="280" y="150" font-size="12" fill="#1C1C1E">＋ 自分で作る</text>
+<text x="280" y="167" font-size="11" fill="#8A8C90">まず3語から</text>
 <text x="400" y="150" text-anchor="end" font-size="12" fill="#1C1C1E">✓</text>
 <rect x="266" y="184" width="148" height="48" rx="10" fill="#FFFFFF" stroke="#DADAD8"/>
-<text x="280" y="206" font-size="12" fill="#8A8C90">カフェ・買い物</text>
-<text x="280" y="223" font-size="11" fill="#BCBEC2">20 words</text>
+<text x="280" y="206" font-size="12" fill="#8A8C90">韓国旅行で使う単語</text>
+<text x="280" y="223" font-size="11" fill="#BCBEC2">サンプル ・ 15 words</text>
 <rect x="266" y="240" width="148" height="48" rx="10" fill="#FFFFFF" stroke="#DADAD8"/>
-<text x="280" y="262" font-size="12" fill="#8A8C90">空港・ホテルの英語</text>
-<text x="280" y="279" font-size="11" fill="#BCBEC2">40 words</text>
+<text x="280" y="262" font-size="12" fill="#8A8C90">あとで追加する</text>
+<text x="280" y="279" font-size="11" fill="#BCBEC2">ホームから作成</text>
 <rect x="266" y="336" width="148" height="40" rx="10" fill="#1C1C1E"/>
 <text x="340" y="361" text-anchor="middle" font-size="14" fill="#FFFFFF">次へ</text>
 <rect x="460" y="40" width="196" height="400" rx="32" fill="#F2F2F1" stroke="#DEDEDC" stroke-width="1.5"/>

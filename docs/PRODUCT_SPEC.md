@@ -161,15 +161,15 @@
 ## 16. 参考資料・モックアップ
 **元ブリーフ**: `~/Documents/Codex/2026-06-18/new-chat/outputs/` 配下（share-brief / concept / release-plan / competitor-research）。音声参考: WidgetClub の TikTok デモ。
 
-**モックアップ（`docs/mockups/`）** ※ メーター/モノクロ/音声は最新。**`sets.svg`・`onboarding.svg` はフォルダ主役モデルに合わせて要更新**（`sets.svg` → フォルダ一覧、フォルダ作成・単語登録の追加）。
+**モックアップ（`docs/mockups/`）** ※ メーター/モノクロ/音声/フォルダ主役に更新済み。
 | ファイル | 状態 |
 |---|---|
 | `widgets.svg` | 最新（音声＋メーター） |
 | `meter-model.svg` | 最新 |
 | `home.svg` | 最新（メーター） |
 | `word-detail.svg` | 最新（音声P1） |
-| `sets.svg` | 要更新 → フォルダ一覧へ |
-| `onboarding.svg` | 要更新（フォルダ作成/サンプル導線） |
+| `folders.svg` | 最新（フォルダ一覧） |
+| `onboarding.svg` | 最新（フォルダ作成/サンプル導線） |
 
 ## 17. 統合メモ（別セッション2docとの関係）
 - **採用**: フォルダ主役＋手動登録、詳細な画面/データモデル/オンボーディング構造、サンプル＝韓国旅行、App Store訴求。

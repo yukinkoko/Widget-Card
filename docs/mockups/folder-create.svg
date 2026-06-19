@@ -1,0 +1,33 @@
+<svg viewBox="0 0 680 780" xmlns="http://www.w3.org/2000/svg" role="img" font-family="'Hiragino Sans','Helvetica Neue',sans-serif">
+<title>フォルダ作成画面 モノクロ案</title>
+<desc>新しいフォルダの作成。フォルダ名を主役に、説明とアイコンは任意。期限設定は無し（見るほど自動でお休み）。下に「作成して単語を追加」ボタン。完全モノクロ。</desc>
+<rect x="0" y="0" width="680" height="780" rx="16" fill="#EEEEEC" stroke="#E4E4E2"/>
+<rect x="170" y="24" width="340" height="732" rx="46" fill="#F2F2F1" stroke="#DEDEDC" stroke-width="1.5"/>
+<text x="210" y="60" font-size="13" fill="#1C1C1E">9:41</text>
+<text x="430" y="60" font-size="11" fill="#8A8C90">5G</text>
+<rect x="458" y="50" width="20" height="11" rx="2" fill="none" stroke="#1C1C1E" stroke-width="1.2"/>
+<rect x="460" y="52" width="13" height="7" rx="1" fill="#1C1C1E"/>
+<rect x="478" y="53" width="2" height="5" rx="1" fill="#1C1C1E"/>
+<text x="198" y="105" font-size="20" fill="#1C1C1E">‹</text>
+<text x="224" y="104" font-size="17" fill="#1C1C1E">新しいフォルダ</text>
+<text x="198" y="162" font-size="12" fill="#8A8C90">フォルダ名</text>
+<rect x="190" y="174" width="300" height="46" rx="10" fill="#F6F6F5" stroke="#DADAD8"/>
+<text x="208" y="203" font-size="15" fill="#1C1C1E">韓国旅行で使う単語</text>
+<text x="198" y="248" font-size="12" fill="#8A8C90">説明（任意）</text>
+<rect x="190" y="260" width="300" height="46" rx="10" fill="#F6F6F5" stroke="#DADAD8"/>
+<text x="208" y="289" font-size="14" fill="#A7A9AD">何のためのフォルダか</text>
+<text x="198" y="334" font-size="12" fill="#8A8C90">アイコン（任意）</text>
+<rect x="190" y="346" width="48" height="48" rx="12" fill="#FFFFFF" stroke="#1C1C1E" stroke-width="1.5"/>
+<rect x="206" y="363" width="7" height="4" rx="1.5" fill="none" stroke="#1C1C1E" stroke-width="1.3"/>
+<rect x="206" y="366" width="18" height="12" rx="2" fill="none" stroke="#1C1C1E" stroke-width="1.3"/>
+<rect x="254" y="346" width="48" height="48" rx="12" fill="#FFFFFF" stroke="#E2E2E0"/>
+<path d="M269 374 L289 365 L281 374 L284 378 Z" fill="#BCBEC2"/>
+<rect x="318" y="346" width="48" height="48" rx="12" fill="#FFFFFF" stroke="#E2E2E0"/>
+<path d="M336 364 h12 l-1.5 11 h-9 z" fill="none" stroke="#BCBEC2" stroke-width="1.4"/>
+<path d="M348 366 a3 3 0 0 1 0 6" fill="none" stroke="#BCBEC2" stroke-width="1.4"/>
+<rect x="382" y="346" width="48" height="48" rx="12" fill="#FFFFFF" stroke="#E2E2E0"/>
+<circle cx="406" cy="370" r="7" fill="none" stroke="#BCBEC2" stroke-width="1.4"/>
+<text x="198" y="436" font-size="11" fill="#A7A9AD">期限の設定は不要。見るほど自動でお休みになります。</text>
+<rect x="190" y="688" width="300" height="50" rx="12" fill="#1C1C1E"/>
+<text x="340" y="719" text-anchor="middle" font-size="15" fill="#FFFFFF">作成して単語を追加</text>
+</svg>
