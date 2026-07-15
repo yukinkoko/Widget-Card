@@ -1,5 +1,6 @@
 package jp.co.tsuqrea.designer_kmp_template.di
 
+import jp.co.tsuqrea.designer_kmp_template.ui.screen.aiwordadd.AiWordAddViewModel
 import jp.co.tsuqrea.designer_kmp_template.ui.screen.daily.DailyViewModel
 import jp.co.tsuqrea.designer_kmp_template.ui.screen.foldercreate.FolderCreateViewModel
 import jp.co.tsuqrea.designer_kmp_template.ui.screen.folders.FoldersViewModel
@@ -19,6 +20,7 @@ val appModule =
         viewModelOf(::DailyViewModel)
         viewModelOf(::FoldersViewModel)
         viewModelOf(::FolderCreateViewModel)
+        viewModelOf(::AiWordAddViewModel)
         viewModelOf(::WordEntryViewModel)
         viewModelOf(::WordListViewModel)
         viewModelOf(::WordDetailViewModel)

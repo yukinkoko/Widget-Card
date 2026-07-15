@@ -18,6 +18,7 @@ import jp.co.tsuqrea.designer_kmp_template.ui.component.TopTab
 import jp.co.tsuqrea.designer_kmp_template.ui.screen.daily.DailyScreen
 import jp.co.tsuqrea.designer_kmp_template.ui.screen.foldercreate.FolderCreateScreen
 import jp.co.tsuqrea.designer_kmp_template.ui.screen.folders.FoldersScreen
+import jp.co.tsuqrea.designer_kmp_template.ui.screen.aiwordadd.AiWordAddScreen
 import jp.co.tsuqrea.designer_kmp_template.ui.screen.foldercreate.AddMethod
 import jp.co.tsuqrea.designer_kmp_template.ui.screen.settings.SettingsScreen
 import jp.co.tsuqrea.designer_kmp_template.ui.screen.worddetail.WordDetailScreen
@@ -53,6 +54,10 @@ data class WordEntryRoute(val folderId: String)
 /** 単語一覧（フォルダを開く・ボトムナビは Folders タブとして表示）。 */
 @Serializable
 data class WordListRoute(val folderId: String)
+
+/** AI単語登録（生成→候補選択→一括追加・プッシュ・ナビ非表示）。 */
+@Serializable
+data class AiWordAddRoute(val folderId: String)
 
 /**
  * アプリ全体のナビゲーション。
@@ -101,11 +106,11 @@ fun AppNavigation() {
                 FolderCreateScreen(
                     onBack = { navController.popBackStack() },
                     onCreated = { folderId, method ->
-                        // 作成画面はスタックから外し、手動なら単語登録へ。
-                        // （AIで追加の生成画面は後続マイルストーンで実装）
+                        // 作成画面はスタックから外し、追加方法で分岐。
                         navController.popBackStack()
-                        if (method == AddMethod.Manual) {
-                            navController.navigate(WordEntryRoute(folderId))
+                        when (method) {
+                            AddMethod.Manual -> navController.navigate(WordEntryRoute(folderId))
+                            AddMethod.Ai -> navController.navigate(AiWordAddRoute(folderId))
                         }
                     },
                 )
@@ -113,6 +118,14 @@ fun AppNavigation() {
             composable<WordEntryRoute> { entry ->
                 val route = entry.toRoute<WordEntryRoute>()
                 WordEntryScreen(
+                    folderId = route.folderId,
+                    onBack = { navController.popBackStack() },
+                    onDone = { navController.popBackStack() },
+                )
+            }
+            composable<AiWordAddRoute> { entry ->
+                val route = entry.toRoute<AiWordAddRoute>()
+                AiWordAddScreen(
                     folderId = route.folderId,
                     onBack = { navController.popBackStack() },
                     onDone = { navController.popBackStack() },
