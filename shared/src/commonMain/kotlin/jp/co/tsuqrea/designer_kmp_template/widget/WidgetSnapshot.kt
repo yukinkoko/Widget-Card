@@ -26,4 +26,5 @@ data class WidgetWordDto(
     val reading: String,
     val meaning: String,
     val encounterCount: Int,
+    val languageTag: String,
 )

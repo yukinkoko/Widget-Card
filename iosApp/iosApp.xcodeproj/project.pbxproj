@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		05C2A578B2935C438DC485CE /* ConfigureWidgetIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = A316186A688B14ED5330554F /* ConfigureWidgetIntent.swift */; };
+		65404EB6329A55D8891042A6 /* SpeakWordIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 280BB08313A5B5FE3C2956D7 /* SpeakWordIntent.swift */; };
 		68A10057795B60CE3F0AC8F2 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A9CEBEAFC0D13CF661A203A /* SwiftUI.framework */; };
 		73709E06A930377D58253A70 /* WordWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3CF9FB97780BBA8E3573D95 /* WordWidget.swift */; };
 		78889DD50FCDBCAF9E9C598D /* WordWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8D6990AF4BA915BC63EE9D01 /* WordWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -43,6 +44,7 @@
 
 /* Begin PBXFileReference section */
 		0C19C1BD92FD04CFFF641E7B /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/WidgetKit.framework; sourceTree = DEVELOPER_DIR; };
+		280BB08313A5B5FE3C2956D7 /* SpeakWordIntent.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SpeakWordIntent.swift; path = WordWidget/SpeakWordIntent.swift; sourceTree = "<group>"; };
 		6A9CEBEAFC0D13CF661A203A /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/SwiftUI.framework; sourceTree = DEVELOPER_DIR; };
 		75962387C854DCBE4BB818B6 /* SharedStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SharedStore.swift; path = Shared/SharedStore.swift; sourceTree = "<group>"; };
 		7E2110423ED6C73033A4CEE1 /* designer_kmp_template.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = designer_kmp_template.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -157,6 +159,7 @@
 				F13581BF201DDE2230CC1158 /* Info.plist */,
 				9F1330D6229DC6A25CA10A07 /* WordWidget.entitlements */,
 				A316186A688B14ED5330554F /* ConfigureWidgetIntent.swift */,
+				280BB08313A5B5FE3C2956D7 /* SpeakWordIntent.swift */,
 			);
 			name = WordWidget;
 			sourceTree = "<group>";
@@ -294,6 +297,7 @@
 				73709E06A930377D58253A70 /* WordWidget.swift in Sources */,
 				B6AC2EC53E1D117A04BDBBD5 /* SharedStore.swift in Sources */,
 				05C2A578B2935C438DC485CE /* ConfigureWidgetIntent.swift in Sources */,
+				65404EB6329A55D8891042A6 /* SpeakWordIntent.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

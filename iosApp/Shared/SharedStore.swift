@@ -41,4 +41,5 @@ struct WidgetWordDTO: Codable {
     let reading: String
     let meaning: String
     let encounterCount: Int
+    let languageTag: String
 }

@@ -24,6 +24,7 @@ struct WordItem {
     let reading: String
     let meaning: String
     let encounterCount: Int
+    var languageTag: String = "ja-JP"
     static let threshold = 10
     var progress: Double { min(Double(encounterCount), Double(Self.threshold)) / Double(Self.threshold) }
 }
@@ -87,7 +88,7 @@ struct Provider: AppIntentTimelineProvider {
         guard let full = SharedStore.loadFull() else { return .sample }
         let folder = full.folder(id: config.folder?.id)
         let words = (folder?.words ?? []).map {
-            WordItem(term: $0.term, reading: $0.reading, meaning: $0.meaning, encounterCount: $0.encounterCount)
+            WordItem(term: $0.term, reading: $0.reading, meaning: $0.meaning, encounterCount: $0.encounterCount, languageTag: $0.languageTag)
         }
         let tone: WidgetTone
         switch config.tone {
@@ -170,7 +171,13 @@ struct MediumWidgetView: View {
                     if entry.showReading { Text(word.reading).font(.system(size: 13)).foregroundColor(p.meta).lineLimit(1) }
                     if entry.showMeaning { Text(word.meaning).font(.system(size: 15)).foregroundColor(p.meaning).lineLimit(1).minimumScaleFactor(0.7) }
                 }
-                if entry.showPlay { Spacer(); SpeakerChip(palette: p) }
+                if entry.showPlay {
+                    Spacer()
+                    Button(intent: SpeakWordIntent(text: word.term, languageTag: word.languageTag)) {
+                        SpeakerChip(palette: p)
+                    }
+                    .buttonStyle(.plain)
+                }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
