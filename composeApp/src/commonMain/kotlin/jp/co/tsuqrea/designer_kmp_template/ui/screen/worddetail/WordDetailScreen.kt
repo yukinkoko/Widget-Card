@@ -38,6 +38,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import jp.co.tsuqrea.designer_kmp_template.domain.model.ColorTone
 import jp.co.tsuqrea.designer_kmp_template.domain.model.Word
+import jp.co.tsuqrea.designer_kmp_template.platform.languageTag
+import jp.co.tsuqrea.designer_kmp_template.platform.speak
 import jp.co.tsuqrea.designer_kmp_template.ui.component.ChevronLeftIcon
 import jp.co.tsuqrea.designer_kmp_template.ui.component.FolderGlyphIcon
 import jp.co.tsuqrea.designer_kmp_template.ui.component.MeterBar
@@ -106,7 +108,11 @@ fun WordDetailScreen(
         Spacer(Modifier.height(8.dp))
         Column(Modifier.padding(horizontal = ScreenPadding)) {
             var tone by remember { mutableStateOf(ColorTone.Color) }
-            HeroCard(word = word, tone = tone)
+            HeroCard(
+                word = word,
+                tone = tone,
+                onSpeak = { speak(word.term, languageTag(word.language)) },
+            )
             Spacer(Modifier.height(10.dp))
             ToneToggleRow(selected = tone, onSelect = { tone = it })
             Spacer(Modifier.height(20.dp))
@@ -147,7 +153,7 @@ private fun DetailHeader(folderName: String, onBack: () -> Unit) {
 }
 
 @Composable
-private fun HeroCard(word: Word, tone: ColorTone) {
+private fun HeroCard(word: Word, tone: ColorTone, onSpeak: () -> Unit) {
     val pc = previewColorsFor(tone)
     Column(
         modifier = Modifier
@@ -194,7 +200,8 @@ private fun HeroCard(word: Word, tone: ColorTone) {
                 modifier = Modifier
                     .size(44.dp)
                     .clip(CircleShape)
-                    .background(pc.chip),
+                    .background(pc.chip)
+                    .clickable(onClick = onSpeak),
                 contentAlignment = Alignment.Center,
             ) {
                 SpeakerIcon(color = pc.text)
