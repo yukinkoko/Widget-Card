@@ -22,6 +22,7 @@ import jp.co.tsuqrea.designer_kmp_template.ui.screen.foldercreate.AddMethod
 import jp.co.tsuqrea.designer_kmp_template.ui.screen.settings.SettingsScreen
 import jp.co.tsuqrea.designer_kmp_template.ui.screen.worddetail.WordDetailScreen
 import jp.co.tsuqrea.designer_kmp_template.ui.screen.wordentry.WordEntryScreen
+import jp.co.tsuqrea.designer_kmp_template.ui.screen.wordlist.WordListScreen
 import kotlinx.serialization.Serializable
 
 // ─── Route 定義 ───
@@ -49,6 +50,10 @@ object FolderCreateRoute
 @Serializable
 data class WordEntryRoute(val folderId: String)
 
+/** 単語一覧（フォルダを開く・ボトムナビは Folders タブとして表示）。 */
+@Serializable
+data class WordListRoute(val folderId: String)
+
 /**
  * アプリ全体のナビゲーション。
  * トップレベル（Daily / Folders / Settings）でのみボトムナビを表示する。
@@ -61,6 +66,7 @@ fun AppNavigation() {
         when {
             dest.hasRoute(DailyRoute::class) -> TopTab.Daily
             dest.hasRoute(FoldersRoute::class) -> TopTab.Folders
+            dest.hasRoute(WordListRoute::class) -> TopTab.Folders // フォルダ配下
             dest.hasRoute(SettingsRoute::class) -> TopTab.Settings
             else -> null
         }
@@ -79,6 +85,16 @@ fun AppNavigation() {
             composable<FoldersRoute> {
                 FoldersScreen(
                     onCreateFolder = { navController.navigate(FolderCreateRoute) },
+                    onOpenFolder = { folderId -> navController.navigate(WordListRoute(folderId)) },
+                )
+            }
+            composable<WordListRoute> { entry ->
+                val route = entry.toRoute<WordListRoute>()
+                WordListScreen(
+                    folderId = route.folderId,
+                    onBack = { navController.popBackStack() },
+                    onOpenWord = { wordId -> navController.navigate(WordDetailRoute(wordId)) },
+                    onAddWord = { folderId -> navController.navigate(WordEntryRoute(folderId)) },
                 )
             }
             composable<FolderCreateRoute> {

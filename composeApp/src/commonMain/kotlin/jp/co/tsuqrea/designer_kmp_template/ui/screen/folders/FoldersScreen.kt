@@ -45,6 +45,7 @@ private val ScreenPadding = 20.dp
 @Composable
 fun FoldersScreen(
     onCreateFolder: () -> Unit = {},
+    onOpenFolder: (String) -> Unit = {},
     viewModel: FoldersViewModel = koinViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -61,12 +62,12 @@ fun FoldersScreen(
         Spacer(Modifier.height(8.dp))
 
         state.active?.let { row ->
-            ActiveFolderCard(row = row)
+            ActiveFolderCard(row = row, onClick = { onOpenFolder(row.folder.id) })
             Spacer(Modifier.height(12.dp))
         }
 
         state.others.forEach { row ->
-            OtherFolderCard(row = row, onClick = { viewModel.selectFolder(row.folder.id) })
+            OtherFolderCard(row = row, onClick = { onOpenFolder(row.folder.id) })
             Spacer(Modifier.height(12.dp))
         }
 
@@ -102,7 +103,7 @@ private fun subtitle(row: FolderRow): String {
 }
 
 @Composable
-private fun ActiveFolderCard(row: FolderRow) {
+private fun ActiveFolderCard(row: FolderRow, onClick: () -> Unit) {
     val colors = WidgetWordTheme.colors
     Column(
         modifier = Modifier
@@ -111,6 +112,7 @@ private fun ActiveFolderCard(row: FolderRow) {
             .clip(RoundedCornerShape(WidgetWordTheme.radius.card))
             .background(colors.card)
             .border(1.dp, colors.cardOutline, RoundedCornerShape(WidgetWordTheme.radius.card))
+            .clickable(onClick = onClick)
             .padding(18.dp),
     ) {
         Row(

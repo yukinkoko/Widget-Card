@@ -2,7 +2,6 @@ package jp.co.tsuqrea.designer_kmp_template.ui.screen.daily
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,7 +40,7 @@ import jp.co.tsuqrea.designer_kmp_template.ui.component.ArrowUpRightIcon
 import jp.co.tsuqrea.designer_kmp_template.ui.component.BellIcon
 import jp.co.tsuqrea.designer_kmp_template.ui.component.FolderGlyphIcon
 import jp.co.tsuqrea.designer_kmp_template.ui.component.MeterBar
-import jp.co.tsuqrea.designer_kmp_template.ui.component.RowMeter
+import jp.co.tsuqrea.designer_kmp_template.ui.component.WordListItem
 import jp.co.tsuqrea.designer_kmp_template.ui.theme.WidgetWordTheme
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -290,7 +289,12 @@ private fun TodayWordSection(words: List<Word>, onWordClick: (String) -> Unit) {
         }
         Spacer(Modifier.height(8.dp))
         words.forEach { word ->
-            WordRow(word = word, onClick = { onWordClick(word.id) })
+            WordListItem(
+                word = word,
+                onClick = { onWordClick(word.id) },
+                modifier = Modifier.fillMaxWidth(),
+                horizontalPadding = ScreenPadding,
+            )
             Box(
                 Modifier
                     .fillMaxWidth()
@@ -299,26 +303,5 @@ private fun TodayWordSection(words: List<Word>, onWordClick: (String) -> Unit) {
                     .background(colors.hairlineRow),
             )
         }
-    }
-}
-
-@Composable
-private fun WordRow(word: Word, onClick: () -> Unit) {
-    val colors = WidgetWordTheme.colors
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(horizontal = ScreenPadding, vertical = 14.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Column(Modifier.weight(1f)) {
-            Text(text = word.term, style = WidgetWordTheme.typography.word, color = colors.ink)
-            Spacer(Modifier.height(3.dp))
-            Text(text = word.reading, style = WidgetWordTheme.typography.reading, color = colors.secondary)
-            Text(text = word.meaning, style = WidgetWordTheme.typography.meaning, color = colors.ink)
-        }
-        Spacer(Modifier.width(12.dp))
-        RowMeter(word = word)
     }
 }
