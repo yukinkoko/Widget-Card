@@ -1,6 +1,7 @@
 package jp.co.tsuqrea.designer_kmp_template.di
 
-import jp.co.tsuqrea.designer_kmp_template.ui.screen.HomeViewModel
+import jp.co.tsuqrea.designer_kmp_template.ui.screen.daily.DailyViewModel
+import jp.co.tsuqrea.designer_kmp_template.ui.screen.worddetail.WordDetailViewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
@@ -10,5 +11,6 @@ import org.koin.dsl.module
  */
 val appModule =
     module {
-        viewModelOf(::HomeViewModel)
+        viewModelOf(::DailyViewModel)
+        viewModelOf(::WordDetailViewModel)
     }

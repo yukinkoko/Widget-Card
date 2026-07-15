@@ -1,188 +1,84 @@
-# デザインシステム
+# デザインシステム（WORD WIDGET / v2）
 
-## カラートークン
+デザイントークンは Compose の独自レイヤ **`WidgetWordTheme`** に集約。画面コードは直値ではなく
+`WidgetWordTheme.colors.*` / `WidgetWordTheme.radius.*` / `WidgetWordTheme.typography.*` で参照する。
 
-`composeApp/src/commonMain/.../ui/theme/Color.kt` で定義。
-`MaterialTheme.colorScheme.*` 経由で使用する。
+- 定義: `composeApp/src/commonMain/.../ui/theme/`
+  - `Color.kt` … raw パレット（`WwPalette`・生の色）
+  - `WidgetWordTheme.kt` … セマンティック層（`WwColors` / トーン3種 / `WwRadius` / アクセッサ）
+  - `Typography.kt` … `WwTypography`（用途別テキストスタイル）＋ Material 互換 `AppTypography`
+  - `AppTheme.kt` … トーン選択 → CompositionLocal 供給
+- 一次情報は `design_handoff_word_widget/Word Widget Screens -Greyola-.dc.html` のインラインstyle。
 
-### Light Theme
+## トーン（`AppTone`）
+`Settings > 外観 > アプリのカラー` で切替。全画面・ウィジェットに適用。
 
-| トークン | 変数名 | カラー値 | 用途 |
-|---------|--------|---------|------|
-| Primary | `Primary` | `#6750A4` | プライマリアクション |
-| OnPrimary | `OnPrimary` | `#FFFFFF` | プライマリ上のテキスト |
-| PrimaryContainer | `PrimaryContainer` | `#EADDFF` | プライマリコンテナ背景 |
-| Secondary | `Secondary` | `#625B71` | セカンダリアクション |
-| Background | `Background` | `#FFFBFE` | ページ背景 |
-| OnBackground | `OnBackground` | `#1C1B1F` | メインテキスト |
-| Surface | `Surface` | `#FFFBFE` | カード・シート背景 |
-| OnSurface | `OnSurface` | `#1C1B1F` | Surface 上のテキスト |
-| SurfaceVariant | `SurfaceVariant` | `#E7E0EC` | 控えめな Surface |
-| OnSurfaceVariant | `OnSurfaceVariant` | `#49454F` | 補足テキスト |
-| Error | `Error` | `#B3261E` | エラー表示 |
-| Outline | `Outline` | `#79747E` | ボーダー |
+| トーン | 背景 | カード | ink | accent |
+|---|---|---|---|---|
+| `Color`（既定） | `#EDEDEB` | `#FFFFFF` | `#111110` | `#78FC90` |
+| `Dark` | `#1C1C1E` | `#2A2A2C` | `#FAFAF9` | `#78FC90`（緑は共通） |
+| `Light`（モノクロ） | `#EDEDEB` | `#FFFFFF` | `#111110` | `#111110`（accent→ink） |
 
-### Dark Theme
-
-| トークン | 変数名 | カラー値 | 用途 |
-|---------|--------|---------|------|
-| Primary | `DarkPrimary` | `#D0BCFF` | プライマリアクション |
-| Background | `DarkBackground` | `#1C1B1F` | ページ背景 |
-| OnBackground | `DarkOnBackground` | `#E6E1E5` | メインテキスト |
-| Surface | `DarkSurface` | `#1C1B1F` | カード・シート背景 |
-| Error | `DarkError` | `#F2B8B5` | エラー表示 |
-
-### 使い方
-
-```kotlin
-// Compose コード内でカラーを使う
-Text(
-    text = "テキスト",
-    color = MaterialTheme.colorScheme.onBackground,
-)
-
-Button(
-    onClick = { /* ... */ },
-    colors = ButtonDefaults.buttonColors(
-        containerColor = MaterialTheme.colorScheme.primary,
-    ),
-) {
-    Text("ボタン")
-}
-```
-
-### カラーのカスタマイズ
-
-1. `Color.kt` でカラー値を変更
-2. `AppTheme.kt` の `lightColorScheme()` / `darkColorScheme()` にマッピング
-3. コンポーネントでは `MaterialTheme.colorScheme.*` を使う（直値は使わない）
-
-## タイポグラフィ
-
-`composeApp/src/commonMain/.../ui/theme/Typography.kt` で定義。
-Material3 の Type Scale に準拠。
-
-### テキストスタイル
-
-| スタイル | 用途 | サイズ | ウェイト |
-|---------|------|--------|---------|
-| `headlineLarge` | 大見出し | 32sp | Bold |
-| `headlineMedium` | 中見出し | 28sp | SemiBold |
-| `headlineSmall` | 小見出し | 24sp | SemiBold |
-| `titleLarge` | タイトル | 22sp | Medium |
-| `titleMedium` | サブタイトル | 16sp | Medium |
-| `bodyLarge` | 本文（大） | 16sp | Normal |
-| `bodyMedium` | 本文（標準） | 14sp | Normal |
-| `bodySmall` | 補足テキスト | 12sp | Normal |
-| `labelLarge` | ボタンラベル | 14sp | Medium |
-| `labelSmall` | キャプション | 11sp | Medium |
+## カラートークン（`WwColors`）
+| トークン | 用途 | Color トーン値 |
+|---|---|---|
+| `background` | 画面背景 | `#EDEDEB` |
+| `card` | カード面 | `#FFFFFF` |
+| `cardOutline` | カード輪郭（inset 1px） | `#E3E3E0` |
+| `fieldOutline` | 入力フィールド輪郭 | `#ECECEA` |
+| `ink` | 主要テキスト・アクティブ・黒カード・ONトグル | `#111110` |
+| `onInk` | ink 面の上の文字 | `#FFFFFF` |
+| `secondary` | セカンダリテキスト | `#8A8A86` |
+| `faint` | 淡色 | `#A9A9A7` |
+| `disabled` | 無効 | `#C6C6C4` |
+| `accent` | メーター進捗・達成ドット・今日チップのドット | `#78FC90` |
+| `meterTrack` | メータートラック | `#EFEFEE` |
+| `hairlineRow` | 行区切り | `#F0F0EF` |
+| `hairlineSection` | セクション区切り | `#EDEDEB` |
+| `chipCircleBg` | 円形アイコンチップ地 | `#F1F1EF` |
 
 ### 使い方
-
 ```kotlin
 Text(
-    text = "見出し",
-    style = MaterialTheme.typography.headlineMedium,
-)
-
-Text(
-    text = "本文テキスト",
-    style = MaterialTheme.typography.bodyMedium,
-)
-
-Text(
-    text = "補足テキスト",
-    style = MaterialTheme.typography.bodySmall,
-    color = MaterialTheme.colorScheme.onSurfaceVariant,
+    text = word,
+    style = WidgetWordTheme.typography.word,
+    color = WidgetWordTheme.colors.ink,
 )
 ```
 
-### カスタムフォントの適用
+## タイポグラフィ（`WwTypography`）
+書体: 欧文/数字 = Plus Jakarta Sans、和文 = Noto Sans JP、韓国語 = Noto Sans KR。
+> フォント本体は未配置。`composeResources/font/` に置いて `WwFontFamily` を差し替えるまでシステムフォントにフォールバック（M0 TODO）。
 
-1. フォントファイルを `composeApp/src/commonMain/composeResources/font/` に配置
-2. `Typography.kt` で `FontFamily` を作成して各スタイルに設定
+| スタイル | 用途 | サイズ / ウェイト |
+|---|---|---|
+| `screenTitle` | Daily/Folders/Settings 見出し | 35 / 600（lh44） |
+| `headerTitle` | 下層ヘッダー | 20 / 600 |
+| `headerTitleLarge` | Word list ヘッダー | 22 / 600 |
+| `headerSubtitle` | ヘッダーサブ | 14 / 500 |
+| `word` | 単語（リスト行） | 20 / 700（lh1.2） |
+| `reading` | 読み方 | 13 / 500 |
+| `meaning` | 意味 | 13 / 500 |
+| `label` | ラベル | 13 / 500 |
+| `meterValue` | メーター数値（n/10） | 11 / 700 |
+| `stat` | 統計数字（12/28） | 36 / 600 |
+| `widgetWord` | ウィジェット単語（Medium） | 28 / 700 |
 
-## スペーシング
+## 角丸（`WwRadius`）
+| トークン | 値 | 用途 |
+|---|---|---|
+| `card` | 20dp | カード・リスト面 |
+| `widget` / `sheet` | 24dp | ウィジェット・シート |
+| `button` / `dateInput` | 16dp | ボタン・日付入力 |
+| `field` | 13dp | 入力フィールド |
+| `select` | 11dp | セレクト |
+| `pill` | 999dp | ピル・チップ・ナビ・曜日チップ |
 
-Compose のスペーシングは `dp` 単位で指定。推奨値:
-
-| 値 | 用途 |
-|----|------|
-| `4.dp` | 最小余白 |
-| `8.dp` | コンポーネント内余白 |
-| `16.dp` | セクション間余白 |
-| `24.dp` | 画面パディング |
-| `32.dp` | セクション間の大きな余白 |
-
-## 角丸（Shape）
-
-Material3 デフォルトの Shape を使用:
-
-| Shape | 用途 |
-|-------|------|
-| `RoundedCornerShape(8.dp)` | ボタン、入力フィールド |
-| `RoundedCornerShape(12.dp)` | カード |
-| `RoundedCornerShape(16.dp)` | ダイアログ |
-| `CircleShape` | アバター、FAB |
+## 影
+- カードは影ほぼなし（`inset 0 0 0 1px #E3E3E0` の輪郭が基本）
+- ウィジェット見本: `0 1px 4px rgba(0,0,0,.07)` / 浮遊: `0 14px 28px rgba(0,0,0,.16)`
 
 ## コンポーネント規約
-
-### 画面コンポーネント
-
-- `ui/screen/` ディレクトリに配置
-- ファイル名は PascalCase: `HomeScreen.kt`, `DetailScreen.kt`
-- 1 画面 = 1 `@Composable` 関数 + 1 `ViewModel`
-
-### 共通 UI コンポーネント
-
-新しい共通コンポーネントを作る場合:
-
-- `ui/component/` ディレクトリに配置（必要に応じて作成）
-- ファイル名は PascalCase: `AppButton.kt`, `LoadingIndicator.kt`
-- 1 コンポーネント 1 ファイルが基本
-- 200 行を超えたらサブコンポーネントに分割
-
-### パターン
-
-```kotlin
-/**
- * カスタムカードコンポーネント。
- */
-@Composable
-fun AppCard(
-    title: String,
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
-) {
-    Card(
-        modifier = modifier,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-        ),
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium,
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            content()
-        }
-    }
-}
-```
-
-## テーマの切り替え
-
-`AppTheme` はシステムの Light/Dark 設定に自動追従する。
-手動で切り替えたい場合:
-
-```kotlin
-AppTheme(darkTheme = true) {
-    // 常にダークテーマ
-}
-
-AppTheme(darkTheme = false) {
-    // 常にライトテーマ
-}
-```
+- 画面: `ui/screen/`、PascalCase（`DailyScreen.kt`）、1画面 = 1 `@Composable` + 1 `ViewModel`
+- 共通UI: `ui/component/`、1コンポーネント1ファイル、200行超で分割
+- 直値の色・サイズは使わず必ずトークン経由

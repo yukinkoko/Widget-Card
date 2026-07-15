@@ -4,16 +4,22 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import jp.co.tsuqrea.designer_kmp_template.ui.screen.HomeScreen
+import androidx.navigation.toRoute
+import jp.co.tsuqrea.designer_kmp_template.ui.screen.daily.DailyScreen
+import jp.co.tsuqrea.designer_kmp_template.ui.screen.worddetail.WordDetailScreen
 import kotlinx.serialization.Serializable
 
 // ─── Route 定義 ───
 // 新しい画面を追加するときは、ここに Route を追加して
 // NavHost 内に composable<Route> { ... } を追加する。
 
-/** ホーム画面のルート */
+/** Daily（ホーム）画面のルート。 */
 @Serializable
-object HomeRoute
+object DailyRoute
+
+/** 単語詳細画面のルート。 */
+@Serializable
+data class WordDetailRoute(val wordId: String)
 
 /**
  * アプリ全体のナビゲーション。
@@ -25,15 +31,19 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = HomeRoute,
+        startDestination = DailyRoute,
     ) {
-        composable<HomeRoute> {
-            HomeScreen()
+        composable<DailyRoute> {
+            DailyScreen(
+                onOpenWord = { wordId -> navController.navigate(WordDetailRoute(wordId)) },
+            )
         }
-        // 新しい画面の例:
-        // composable<DetailRoute> { backStackEntry ->
-        //     val route = backStackEntry.toRoute<DetailRoute>()
-        //     DetailScreen(id = route.id)
-        // }
+        composable<WordDetailRoute> { backStackEntry ->
+            val route = backStackEntry.toRoute<WordDetailRoute>()
+            WordDetailScreen(
+                wordId = route.wordId,
+                onBack = { navController.popBackStack() },
+            )
+        }
     }
 }
