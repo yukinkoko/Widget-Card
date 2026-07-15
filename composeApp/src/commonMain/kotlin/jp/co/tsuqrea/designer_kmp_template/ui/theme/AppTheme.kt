@@ -51,14 +51,15 @@ fun AppTheme(
     content: @Composable () -> Unit,
 ) {
     val colors = wwColorsFor(tone)
+    val fontFamily = wwFontFamily()
     CompositionLocalProvider(
         LocalWwColors provides colors,
         LocalWwRadius provides WwRadius(),
-        LocalWwTypography provides WwTypography(),
+        LocalWwTypography provides wwTypography(fontFamily),
     ) {
         MaterialTheme(
             colorScheme = colors.toMaterialColorScheme(),
-            typography = AppTypography,
+            typography = appTypography(fontFamily),
             content = content,
         )
     }

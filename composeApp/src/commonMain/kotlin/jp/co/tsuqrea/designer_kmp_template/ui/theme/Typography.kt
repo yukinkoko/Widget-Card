@@ -1,112 +1,97 @@
 package jp.co.tsuqrea.designer_kmp_template.ui.theme
 
 import androidx.compose.material3.Typography
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import jp.co.tsuqrea.designer_kmp_template.resources.Res
+import jp.co.tsuqrea.designer_kmp_template.resources.noto_sans_cjk_jp_bold
+import jp.co.tsuqrea.designer_kmp_template.resources.noto_sans_cjk_jp_medium
+import jp.co.tsuqrea.designer_kmp_template.resources.noto_sans_cjk_jp_regular
+import jp.co.tsuqrea.designer_kmp_template.resources.plus_jakarta_sans_bold
+import jp.co.tsuqrea.designer_kmp_template.resources.plus_jakarta_sans_medium
+import jp.co.tsuqrea.designer_kmp_template.resources.plus_jakarta_sans_regular
+import jp.co.tsuqrea.designer_kmp_template.resources.plus_jakarta_sans_semibold
+import org.jetbrains.compose.resources.Font
 
 /**
- * WORD WIDGET タイポグラフィ（v2・確定値）。
+ * WORD WIDGET タイポグラフィ（v2）。
  *
- * 書体: 欧文/数字 = Plus Jakarta Sans、和文 = Noto Sans JP、韓国語 = Noto Sans KR。
- *
- * TODO(M0): フォント本体を `composeApp/src/commonMain/composeResources/font/` に配置し、
- * [WwFontFamily] を差し替える。未配置のうちはシステムフォントにフォールバックする。
+ * 書体: 欧文/数字 = Plus Jakarta Sans、和文/韓国語/中国語 = Noto Sans CJK JP。
+ * 1つの [FontFamily] に PJS→Noto の順で積み、欧文は PJS、CJK/ハングルは Noto に
+ * グリフフォールバックさせる。
  */
-internal val WwFontFamily: FontFamily = FontFamily.Default
-
-/**
- * デザインの用途別テキストスタイル。画面コードは `WidgetWordTheme.typography.*` を使う。
- * 色は含めない（呼び出し側で `WidgetWordTheme.colors.*` を指定）。
- */
-@Immutable
-data class WwTypography(
-    /** トップレベル見出し（Daily / Folders / Settings）: 35 / 600 / lh44。 */
-    val screenTitle: TextStyle = TextStyle(
-        fontFamily = WwFontFamily,
-        fontWeight = FontWeight.SemiBold,
-        fontSize = 35.sp,
-        lineHeight = 44.sp,
-    ),
-    /** 下層ヘッダーのタイトル: 20 / 600。 */
-    val headerTitle: TextStyle = TextStyle(
-        fontFamily = WwFontFamily,
-        fontWeight = FontWeight.SemiBold,
-        fontSize = 20.sp,
-    ),
-    /** Word list ヘッダー: 22 / 600。 */
-    val headerTitleLarge: TextStyle = TextStyle(
-        fontFamily = WwFontFamily,
-        fontWeight = FontWeight.SemiBold,
-        fontSize = 22.sp,
-    ),
-    /** 下層ヘッダーのサブ: 14 / 500。 */
-    val headerSubtitle: TextStyle = TextStyle(
-        fontFamily = WwFontFamily,
-        fontWeight = FontWeight.Medium,
-        fontSize = 14.sp,
-    ),
-    /** 単語（リスト行）: 20 / 700 / lh1.2。 */
-    val word: TextStyle = TextStyle(
-        fontFamily = WwFontFamily,
-        fontWeight = FontWeight.Bold,
-        fontSize = 20.sp,
-        lineHeight = 24.sp,
-    ),
-    /** 読み方: 13 / 500 グレー。 */
-    val reading: TextStyle = TextStyle(
-        fontFamily = WwFontFamily,
-        fontWeight = FontWeight.Medium,
-        fontSize = 13.sp,
-    ),
-    /** 意味: 13 / 500 インク。 */
-    val meaning: TextStyle = TextStyle(
-        fontFamily = WwFontFamily,
-        fontWeight = FontWeight.Medium,
-        fontSize = 13.sp,
-    ),
-    /** ラベル: 13 / 500 グレー。 */
-    val label: TextStyle = TextStyle(
-        fontFamily = WwFontFamily,
-        fontWeight = FontWeight.Medium,
-        fontSize = 13.sp,
-    ),
-    /** メーター数値（n / 10）: 11 / 700。 */
-    val meterValue: TextStyle = TextStyle(
-        fontFamily = WwFontFamily,
-        fontWeight = FontWeight.Bold,
-        fontSize = 11.sp,
-    ),
-    /** 統計数字（12 / 28）: 36 / 600。 */
-    val stat: TextStyle = TextStyle(
-        fontFamily = WwFontFamily,
-        fontWeight = FontWeight.SemiBold,
-        fontSize = 36.sp,
-    ),
-    /** ウィジェット（Medium）の単語: 28 / 700。 */
-    val widgetWord: TextStyle = TextStyle(
-        fontFamily = WwFontFamily,
-        fontWeight = FontWeight.Bold,
-        fontSize = 28.sp,
-    ),
+@Composable
+fun wwFontFamily(): FontFamily = FontFamily(
+    Font(Res.font.plus_jakarta_sans_regular, FontWeight.Normal),
+    Font(Res.font.noto_sans_cjk_jp_regular, FontWeight.Normal),
+    Font(Res.font.plus_jakarta_sans_medium, FontWeight.Medium),
+    Font(Res.font.noto_sans_cjk_jp_medium, FontWeight.Medium),
+    Font(Res.font.plus_jakarta_sans_semibold, FontWeight.SemiBold),
+    Font(Res.font.noto_sans_cjk_jp_bold, FontWeight.SemiBold),
+    Font(Res.font.plus_jakarta_sans_bold, FontWeight.Bold),
+    Font(Res.font.noto_sans_cjk_jp_bold, FontWeight.Bold),
 )
 
 /**
- * Material3 コンポーネント既定用の Typography マッピング（互換保持）。
- * 独自スタイルは [WwTypography] を使う。
+ * デザインの用途別テキストスタイル。画面コードは `WidgetWordTheme.typography.*` を使う。
  */
-val AppTypography = Typography().run {
+@Immutable
+data class WwTypography(
+    val screenTitle: TextStyle,
+    val headerTitle: TextStyle,
+    val headerTitleLarge: TextStyle,
+    val headerSubtitle: TextStyle,
+    val word: TextStyle,
+    val reading: TextStyle,
+    val meaning: TextStyle,
+    val label: TextStyle,
+    val meterValue: TextStyle,
+    val stat: TextStyle,
+    val widgetWord: TextStyle,
+)
+
+/** 指定フォントで [WwTypography] を構築する。 */
+fun wwTypography(family: FontFamily): WwTypography = WwTypography(
+    screenTitle = TextStyle(family, FontWeight.SemiBold, 35.sp, lineHeight = 44.sp),
+    headerTitle = TextStyle(family, FontWeight.SemiBold, 20.sp),
+    headerTitleLarge = TextStyle(family, FontWeight.SemiBold, 22.sp),
+    headerSubtitle = TextStyle(family, FontWeight.Medium, 14.sp),
+    word = TextStyle(family, FontWeight.Bold, 20.sp, lineHeight = 24.sp),
+    reading = TextStyle(family, FontWeight.Medium, 13.sp),
+    meaning = TextStyle(family, FontWeight.Medium, 13.sp),
+    label = TextStyle(family, FontWeight.Medium, 13.sp),
+    meterValue = TextStyle(family, FontWeight.Bold, 11.sp),
+    stat = TextStyle(family, FontWeight.SemiBold, 36.sp),
+    widgetWord = TextStyle(family, FontWeight.Bold, 28.sp),
+)
+
+private fun TextStyle(
+    family: FontFamily,
+    weight: FontWeight,
+    size: androidx.compose.ui.unit.TextUnit,
+    lineHeight: androidx.compose.ui.unit.TextUnit = androidx.compose.ui.unit.TextUnit.Unspecified,
+): TextStyle = TextStyle(fontFamily = family, fontWeight = weight, fontSize = size, lineHeight = lineHeight)
+
+/** LocalWwTypography の初期値（テーマ適用前のフォールバック）。 */
+internal val DefaultWwTypography: WwTypography = wwTypography(FontFamily.Default)
+
+/**
+ * Material3 コンポーネント既定用の Typography マッピング。
+ */
+fun appTypography(family: FontFamily): Typography = Typography().run {
     copy(
-        headlineLarge = headlineLarge.copy(fontFamily = WwFontFamily, fontWeight = FontWeight.SemiBold),
-        headlineMedium = headlineMedium.copy(fontFamily = WwFontFamily, fontWeight = FontWeight.SemiBold),
-        titleLarge = titleLarge.copy(fontFamily = WwFontFamily, fontWeight = FontWeight.SemiBold),
-        titleMedium = titleMedium.copy(fontFamily = WwFontFamily, fontWeight = FontWeight.Medium),
-        bodyLarge = bodyLarge.copy(fontFamily = WwFontFamily),
-        bodyMedium = bodyMedium.copy(fontFamily = WwFontFamily),
-        bodySmall = bodySmall.copy(fontFamily = WwFontFamily),
-        labelLarge = labelLarge.copy(fontFamily = WwFontFamily, fontWeight = FontWeight.Medium),
-        labelSmall = labelSmall.copy(fontFamily = WwFontFamily, fontWeight = FontWeight.Medium),
+        headlineLarge = headlineLarge.copy(fontFamily = family, fontWeight = FontWeight.SemiBold),
+        headlineMedium = headlineMedium.copy(fontFamily = family, fontWeight = FontWeight.SemiBold),
+        titleLarge = titleLarge.copy(fontFamily = family, fontWeight = FontWeight.SemiBold),
+        titleMedium = titleMedium.copy(fontFamily = family, fontWeight = FontWeight.Medium),
+        bodyLarge = bodyLarge.copy(fontFamily = family),
+        bodyMedium = bodyMedium.copy(fontFamily = family),
+        bodySmall = bodySmall.copy(fontFamily = family),
+        labelLarge = labelLarge.copy(fontFamily = family, fontWeight = FontWeight.Medium),
+        labelSmall = labelSmall.copy(fontFamily = family, fontWeight = FontWeight.Medium),
     )
 }

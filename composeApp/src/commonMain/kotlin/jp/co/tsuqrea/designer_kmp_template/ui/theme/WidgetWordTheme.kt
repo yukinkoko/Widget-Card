@@ -113,7 +113,7 @@ data class WwRadius(
 
 val LocalWwColors = staticCompositionLocalOf { colorToneColors }
 val LocalWwRadius = staticCompositionLocalOf { WwRadius() }
-val LocalWwTypography = staticCompositionLocalOf { WwTypography() }
+val LocalWwTypography = staticCompositionLocalOf { DefaultWwTypography }
 
 /**
  * トークンへのアクセッサ。`WidgetWordTheme.colors.ink` のように使う。

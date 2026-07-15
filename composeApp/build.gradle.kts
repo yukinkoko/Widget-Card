@@ -39,6 +39,7 @@ kotlin {
             implementation(libs.compose.material3)
             implementation(libs.compose.ui)
             implementation(libs.compose.uiToolingPreview)
+            implementation(libs.compose.components.resources)
 
             // Lifecycle
             implementation(libs.androidx.lifecycle.viewmodelCompose)
@@ -99,5 +100,6 @@ dependencies {
 }
 
 compose.resources {
-    generateResClass = never
+    generateResClass = always
+    packageOfResClass = "jp.co.tsuqrea.designer_kmp_template.resources"
 }
