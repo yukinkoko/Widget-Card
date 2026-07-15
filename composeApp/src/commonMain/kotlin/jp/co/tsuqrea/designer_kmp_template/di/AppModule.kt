@@ -4,6 +4,7 @@ import jp.co.tsuqrea.designer_kmp_template.ui.screen.daily.DailyViewModel
 import jp.co.tsuqrea.designer_kmp_template.ui.screen.foldercreate.FolderCreateViewModel
 import jp.co.tsuqrea.designer_kmp_template.ui.screen.folders.FoldersViewModel
 import jp.co.tsuqrea.designer_kmp_template.ui.screen.worddetail.WordDetailViewModel
+import jp.co.tsuqrea.designer_kmp_template.ui.screen.wordentry.WordEntryViewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
@@ -16,5 +17,6 @@ val appModule =
         viewModelOf(::DailyViewModel)
         viewModelOf(::FoldersViewModel)
         viewModelOf(::FolderCreateViewModel)
+        viewModelOf(::WordEntryViewModel)
         viewModelOf(::WordDetailViewModel)
     }

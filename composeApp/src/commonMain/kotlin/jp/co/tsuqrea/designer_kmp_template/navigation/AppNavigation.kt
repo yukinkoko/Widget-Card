@@ -18,8 +18,10 @@ import jp.co.tsuqrea.designer_kmp_template.ui.component.TopTab
 import jp.co.tsuqrea.designer_kmp_template.ui.screen.daily.DailyScreen
 import jp.co.tsuqrea.designer_kmp_template.ui.screen.foldercreate.FolderCreateScreen
 import jp.co.tsuqrea.designer_kmp_template.ui.screen.folders.FoldersScreen
+import jp.co.tsuqrea.designer_kmp_template.ui.screen.foldercreate.AddMethod
 import jp.co.tsuqrea.designer_kmp_template.ui.screen.settings.SettingsScreen
 import jp.co.tsuqrea.designer_kmp_template.ui.screen.worddetail.WordDetailScreen
+import jp.co.tsuqrea.designer_kmp_template.ui.screen.wordentry.WordEntryScreen
 import kotlinx.serialization.Serializable
 
 // ─── Route 定義 ───
@@ -42,6 +44,10 @@ data class WordDetailRoute(val wordId: String)
 /** フォルダ作成（プッシュ・ナビ非表示）。 */
 @Serializable
 object FolderCreateRoute
+
+/** 単語登録（自分で1語ずつ・プッシュ・ナビ非表示）。 */
+@Serializable
+data class WordEntryRoute(val folderId: String)
 
 /**
  * アプリ全体のナビゲーション。
@@ -77,6 +83,21 @@ fun AppNavigation() {
             }
             composable<FolderCreateRoute> {
                 FolderCreateScreen(
+                    onBack = { navController.popBackStack() },
+                    onCreated = { folderId, method ->
+                        // 作成画面はスタックから外し、手動なら単語登録へ。
+                        // （AIで追加の生成画面は後続マイルストーンで実装）
+                        navController.popBackStack()
+                        if (method == AddMethod.Manual) {
+                            navController.navigate(WordEntryRoute(folderId))
+                        }
+                    },
+                )
+            }
+            composable<WordEntryRoute> { entry ->
+                val route = entry.toRoute<WordEntryRoute>()
+                WordEntryScreen(
+                    folderId = route.folderId,
                     onBack = { navController.popBackStack() },
                     onDone = { navController.popBackStack() },
                 )

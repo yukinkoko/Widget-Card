@@ -60,7 +60,7 @@ private val ScreenPadding = 20.dp
 @Composable
 fun FolderCreateScreen(
     onBack: () -> Unit,
-    onDone: () -> Unit,
+    onCreated: (folderId: String, method: AddMethod) -> Unit,
     viewModel: FolderCreateViewModel = koinViewModel(),
 ) {
     val colors = WidgetWordTheme.colors
@@ -151,7 +151,7 @@ fun FolderCreateScreen(
                     deadline = deadline,
                     icon = icon,
                     method = method,
-                    onCreated = { _, _ -> onDone() },
+                    onCreated = onCreated,
                 )
             },
         )
