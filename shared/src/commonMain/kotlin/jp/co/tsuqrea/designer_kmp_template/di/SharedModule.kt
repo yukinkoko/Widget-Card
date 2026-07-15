@@ -36,4 +36,7 @@ val sharedModule =
         single<FolderRepository> { SqlFolderRepository(get()) }
         single<WordRepository> { SqlWordRepository(get(), get()) }
         single<SettingsRepository> { SqlSettingsRepository(get()) }
+
+        // ── ウィジェット同期 ──
+        single { jp.co.tsuqrea.designer_kmp_template.widget.WidgetSyncer(get(), get(), get()) }
     }

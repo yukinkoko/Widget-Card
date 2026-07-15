@@ -1,8 +1,11 @@
 package jp.co.tsuqrea.designer_kmp_template
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import jp.co.tsuqrea.designer_kmp_template.widget.WidgetSyncer
 import jp.co.tsuqrea.designer_kmp_template.di.appModule
 import jp.co.tsuqrea.designer_kmp_template.di.sharedModule
 import jp.co.tsuqrea.designer_kmp_template.domain.model.AppSettings
@@ -27,6 +30,11 @@ fun App() {
         val settingsRepository = koinInject<SettingsRepository>()
         val settings by settingsRepository.observeAppSettings()
             .collectAsStateWithLifecycle(AppSettings())
+
+        // ウィジェットへスナップショットを同期
+        val widgetSyncer = koinInject<WidgetSyncer>()
+        val syncScope = rememberCoroutineScope()
+        LaunchedEffect(Unit) { widgetSyncer.start(syncScope) }
         AppTheme(tone = settings.appTone.toAppTone()) {
             if (settings.onboardingCompleted) {
                 AppNavigation()

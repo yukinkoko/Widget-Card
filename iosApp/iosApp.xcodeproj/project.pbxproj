@@ -6,8 +6,50 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		68A10057795B60CE3F0AC8F2 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A9CEBEAFC0D13CF661A203A /* SwiftUI.framework */; };
+		73709E06A930377D58253A70 /* WordWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3CF9FB97780BBA8E3573D95 /* WordWidget.swift */; };
+		78889DD50FCDBCAF9E9C598D /* WordWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8D6990AF4BA915BC63EE9D01 /* WordWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		A9D9A1BCF980ADAFE4619673 /* SharedStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75962387C854DCBE4BB818B6 /* SharedStore.swift */; };
+		B2DF8115A449EDCA6869E547 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0C19C1BD92FD04CFFF641E7B /* WidgetKit.framework */; };
+		B6AC2EC53E1D117A04BDBBD5 /* SharedStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75962387C854DCBE4BB818B6 /* SharedStore.swift */; };
+		D516D01900CAB124905BA756 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE3FC279DAF85C3E88CA60D4 /* Foundation.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		63F5F83245DF2DD078E83AFC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2C09133187883CB7339ADBCE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 001D64E0AACD6460AAC81002;
+			remoteInfo = WordWidget;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		F5AD676BCF64291733FAEA7A /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				78889DD50FCDBCAF9E9C598D /* WordWidget.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		0C19C1BD92FD04CFFF641E7B /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/WidgetKit.framework; sourceTree = DEVELOPER_DIR; };
+		6A9CEBEAFC0D13CF661A203A /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/SwiftUI.framework; sourceTree = DEVELOPER_DIR; };
+		75962387C854DCBE4BB818B6 /* SharedStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SharedStore.swift; path = Shared/SharedStore.swift; sourceTree = "<group>"; };
 		7E2110423ED6C73033A4CEE1 /* designer_kmp_template.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = designer_kmp_template.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8D6990AF4BA915BC63EE9D01 /* WordWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WordWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		9F1330D6229DC6A25CA10A07 /* WordWidget.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; name = WordWidget.entitlements; path = WordWidget/WordWidget.entitlements; sourceTree = "<group>"; };
+		E3CF9FB97780BBA8E3573D95 /* WordWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WordWidget.swift; path = WordWidget/WordWidget.swift; sourceTree = "<group>"; };
+		EE3FC279DAF85C3E88CA60D4 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		F13581BF201DDE2230CC1158 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = WordWidget/Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -21,17 +63,19 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		2A2095C9E396D49AE2616CD7 /* Configuration */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
+			path = Configuration;
+			sourceTree = "<group>";
+		};
 		E52264F887F6ABE3391D070A /* iosApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				ED3D9E456A35E55BA7C54AD4 /* Exceptions for "iosApp" folder in "iosApp" target */,
 			);
 			path = iosApp;
-			sourceTree = "<group>";
-		};
-		2A2095C9E396D49AE2616CD7 /* Configuration */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Configuration;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -44,15 +88,38 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		9CC00A14B96F7E008AD55DDD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D516D01900CAB124905BA756 /* Foundation.framework in Frameworks */,
+				B2DF8115A449EDCA6869E547 /* WidgetKit.framework in Frameworks */,
+				68A10057795B60CE3F0AC8F2 /* SwiftUI.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		383ABF9EDC5865BB91ABBE1D /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				EE3FC279DAF85C3E88CA60D4 /* Foundation.framework */,
+				0C19C1BD92FD04CFFF641E7B /* WidgetKit.framework */,
+				6A9CEBEAFC0D13CF661A203A /* SwiftUI.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
 		55741F412E7806FED64D0F0F = {
 			isa = PBXGroup;
 			children = (
 				2A2095C9E396D49AE2616CD7 /* Configuration */,
 				E52264F887F6ABE3391D070A /* iosApp */,
 				977BE294FE898FBA35B3561A /* Products */,
+				DB2A621758ECBFD0A1FFA200 /* WordWidget */,
+				D090BC18461833C0DF5F215D /* Shared */,
+				C78C7EB3F1ADF9EC2BED2C73 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -60,13 +127,57 @@
 			isa = PBXGroup;
 			children = (
 				7E2110423ED6C73033A4CEE1 /* designer_kmp_template.app */,
+				8D6990AF4BA915BC63EE9D01 /* WordWidget.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		C78C7EB3F1ADF9EC2BED2C73 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				383ABF9EDC5865BB91ABBE1D /* iOS */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		D090BC18461833C0DF5F215D /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				75962387C854DCBE4BB818B6 /* SharedStore.swift */,
+			);
+			name = Shared;
+			sourceTree = "<group>";
+		};
+		DB2A621758ECBFD0A1FFA200 /* WordWidget */ = {
+			isa = PBXGroup;
+			children = (
+				E3CF9FB97780BBA8E3573D95 /* WordWidget.swift */,
+				F13581BF201DDE2230CC1158 /* Info.plist */,
+				9F1330D6229DC6A25CA10A07 /* WordWidget.entitlements */,
+			);
+			name = WordWidget;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		001D64E0AACD6460AAC81002 /* WordWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C4D1EB1F250A3EEDF0A0829C /* Build configuration list for PBXNativeTarget "WordWidget" */;
+			buildPhases = (
+				A32426E728E8C5D61C94F65D /* Sources */,
+				9CC00A14B96F7E008AD55DDD /* Frameworks */,
+				42663E4D50C1AD55802D9FE5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = WordWidget;
+			productName = WordWidget;
+			productReference = 8D6990AF4BA915BC63EE9D01 /* WordWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		35CCC8373D64C291D130EBAD /* iosApp */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 705BD438BD5A63C3C7C1730B /* Build configuration list for PBXNativeTarget "iosApp" */;
@@ -75,17 +186,17 @@
 				1D96681EB14B7F91CA70DB61 /* Sources */,
 				1809354F587DD027B9A7E5E4 /* Frameworks */,
 				655B99650104C32B388AD06B /* Resources */,
+				F5AD676BCF64291733FAEA7A /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				8156D4F55B86C807BC6957AD /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				E52264F887F6ABE3391D070A /* iosApp */,
 			);
 			name = iosApp;
-			packageProductDependencies = (
-			);
 			productName = iosApp;
 			productReference = 7E2110423ED6C73033A4CEE1 /* designer_kmp_template.app */;
 			productType = "com.apple.product-type.application";
@@ -120,11 +231,19 @@
 			projectRoot = "";
 			targets = (
 				35CCC8373D64C291D130EBAD /* iosApp */,
+				001D64E0AACD6460AAC81002 /* WordWidget */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		42663E4D50C1AD55802D9FE5 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		655B99650104C32B388AD06B /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -161,10 +280,29 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A9D9A1BCF980ADAFE4619673 /* SharedStore.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A32426E728E8C5D61C94F65D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				73709E06A930377D58253A70 /* WordWidget.swift in Sources */,
+				B6AC2EC53E1D117A04BDBBD5 /* SharedStore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		8156D4F55B86C807BC6957AD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = WordWidget;
+			target = 001D64E0AACD6460AAC81002 /* WordWidget */;
+			targetProxy = 63F5F83245DF2DD078E83AFC /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		0C193B1BD699A90ABA9B5C90 /* Debug */ = {
@@ -290,12 +428,34 @@
 			};
 			name = Release;
 		};
+		8D1286ADECDD14F3CB52EBE0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = WordWidget/WordWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WordWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "WORD WIDGET";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				PRODUCT_BUNDLE_IDENTIFIER = jp.co.tsuqrea.designer_kmp_template.designer_kmp_template.WordWidget;
+				PRODUCT_NAME = WordWidget;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
 		C40E2B73ABDC8F6EAF4E9F49 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = arm64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = iosApp/iosApp.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"iosApp/Preview Content\"";
@@ -318,12 +478,35 @@
 			};
 			name = Debug;
 		};
+		EA7D01233BB9D7CDFA6C237E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = WordWidget/WordWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WordWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "WORD WIDGET";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				PRODUCT_BUNDLE_IDENTIFIER = jp.co.tsuqrea.designer_kmp_template.designer_kmp_template.WordWidget;
+				PRODUCT_NAME = WordWidget;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 		F829FA6C8C52F0DF64D7E4D5 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = arm64;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = iosApp/iosApp.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"iosApp/Preview Content\"";
@@ -363,6 +546,15 @@
 			buildConfigurations = (
 				C40E2B73ABDC8F6EAF4E9F49 /* Debug */,
 				F829FA6C8C52F0DF64D7E4D5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C4D1EB1F250A3EEDF0A0829C /* Build configuration list for PBXNativeTarget "WordWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EA7D01233BB9D7CDFA6C237E /* Release */,
+				8D1286ADECDD14F3CB52EBE0 /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
