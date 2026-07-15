@@ -22,6 +22,7 @@ data class WordListUiState(
     val totalCount: Int = 0,
     val learnedCount: Int = 0,
     val filter: WordFilter = WordFilter.All,
+    val isActive: Boolean = false,
     val words: List<Word> = emptyList(),
 )
 
@@ -48,18 +49,27 @@ class WordListViewModel(
         viewModelScope.launch { wordRepository.delete(id) }
     }
 
+    /** このフォルダを表示中（Daily・ウィジェット対象）にする。 */
+    fun setActive() {
+        val id = folderId.value ?: return
+        viewModelScope.launch { folderRepository.setActive(id) }
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     private val words = folderId.flatMapLatest { id ->
         if (id == null) flowOf(emptyList()) else wordRepository.observeWords(id)
     }
 
+    private val activeId = folderRepository.observeActiveFolder()
+
     val uiState: StateFlow<WordListUiState> =
-        combine(words, filter, folderName) { list, f, name ->
+        combine(words, filter, folderName, activeId) { list, f, name, active ->
             WordListUiState(
                 folderName = name,
                 totalCount = list.size,
                 learnedCount = list.count { it.isLearned },
                 filter = f,
+                isActive = active?.id == folderId.value,
                 words = if (f == WordFilter.Learned) list.filter { it.isLearned } else list,
             )
         }.stateIn(

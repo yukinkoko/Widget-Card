@@ -37,6 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import jp.co.tsuqrea.designer_kmp_template.ui.component.CheckIcon
 import jp.co.tsuqrea.designer_kmp_template.ui.component.ChevronLeftIcon
 import jp.co.tsuqrea.designer_kmp_template.ui.component.TrashIcon
 import jp.co.tsuqrea.designer_kmp_template.ui.component.WordListItem
@@ -63,7 +64,14 @@ fun WordListScreen(
             .background(colors.background)
             .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top)),
     ) {
-        Header(title = state.folderName, total = state.totalCount, learned = state.learnedCount, onBack = onBack)
+        Header(
+            title = state.folderName,
+            total = state.totalCount,
+            learned = state.learnedCount,
+            isActive = state.isActive,
+            onBack = onBack,
+            onSetActive = viewModel::setActive,
+        )
         Spacer(Modifier.height(12.dp))
         SegmentedControl(selected = state.filter, onSelect = viewModel::setFilter)
         Spacer(Modifier.height(12.dp))
@@ -111,7 +119,14 @@ fun WordListScreen(
 }
 
 @Composable
-private fun Header(title: String, total: Int, learned: Int, onBack: () -> Unit) {
+private fun Header(
+    title: String,
+    total: Int,
+    learned: Int,
+    isActive: Boolean,
+    onBack: () -> Unit,
+    onSetActive: () -> Unit,
+) {
     val colors = WidgetWordTheme.colors
     Row(
         modifier = Modifier.fillMaxWidth().padding(horizontal = ScreenPadding, vertical = 12.dp),
@@ -125,7 +140,7 @@ private fun Header(title: String, total: Int, learned: Int, onBack: () -> Unit) 
         ) {
             ChevronLeftIcon(color = colors.ink)
         }
-        Column {
+        Column(Modifier.weight(1f)) {
             Text(text = title, style = WidgetWordTheme.typography.headerTitleLarge, color = colors.ink)
             Spacer(Modifier.height(2.dp))
             Text(
@@ -133,6 +148,29 @@ private fun Header(title: String, total: Int, learned: Int, onBack: () -> Unit) 
                 style = WidgetWordTheme.typography.headerSubtitle,
                 color = colors.secondary,
             )
+        }
+        ActivePill(isActive = isActive, onSetActive = onSetActive)
+    }
+}
+
+@Composable
+private fun ActivePill(isActive: Boolean, onSetActive: () -> Unit) {
+    val colors = WidgetWordTheme.colors
+    if (isActive) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            CheckIcon(color = colors.secondary)
+            Text(text = "表示中", style = WidgetWordTheme.typography.label, color = colors.secondary)
+        }
+    } else {
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(percent = 50))
+                .background(colors.card)
+                .border(1.dp, colors.cardOutline, RoundedCornerShape(percent = 50))
+                .clickable(onClick = onSetActive)
+                .padding(horizontal = 12.dp, vertical = 7.dp),
+        ) {
+            Text(text = "表示中にする", fontSize = 12.sp, fontWeight = FontWeight.Medium, color = colors.ink)
         }
     }
 }
