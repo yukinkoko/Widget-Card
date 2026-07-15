@@ -4,6 +4,7 @@ import jp.co.tsuqrea.designer_kmp_template.ui.screen.aiwordadd.AiWordAddViewMode
 import jp.co.tsuqrea.designer_kmp_template.ui.screen.daily.DailyViewModel
 import jp.co.tsuqrea.designer_kmp_template.ui.screen.foldercreate.FolderCreateViewModel
 import jp.co.tsuqrea.designer_kmp_template.ui.screen.folders.FoldersViewModel
+import jp.co.tsuqrea.designer_kmp_template.ui.screen.onboarding.OnboardingViewModel
 import jp.co.tsuqrea.designer_kmp_template.ui.screen.settings.SettingsViewModel
 import jp.co.tsuqrea.designer_kmp_template.ui.screen.worddetail.WordDetailViewModel
 import jp.co.tsuqrea.designer_kmp_template.ui.screen.wordentry.WordEntryViewModel
@@ -17,6 +18,7 @@ import org.koin.dsl.module
  */
 val appModule =
     module {
+        viewModelOf(::OnboardingViewModel)
         viewModelOf(::DailyViewModel)
         viewModelOf(::FoldersViewModel)
         viewModelOf(::FolderCreateViewModel)

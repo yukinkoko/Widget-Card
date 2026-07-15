@@ -104,4 +104,9 @@ data class AppSettings(
      * 実際の検知は WidgetKit + App Group（M3）で設定する。既定は true。
      */
     val widgetInstalled: Boolean = true,
+    /**
+     * 初回オンボーディングを完了したか。false なら起動時にウォークスルーを表示。
+     * 永続化（M1b）までは既定 true（インメモリ再起動のたびに出さないため）。
+     */
+    val onboardingCompleted: Boolean = true,
 )

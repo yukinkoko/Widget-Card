@@ -9,6 +9,7 @@ import jp.co.tsuqrea.designer_kmp_template.domain.model.AppSettings
 import jp.co.tsuqrea.designer_kmp_template.domain.model.ColorTone
 import jp.co.tsuqrea.designer_kmp_template.domain.repository.SettingsRepository
 import jp.co.tsuqrea.designer_kmp_template.navigation.AppNavigation
+import jp.co.tsuqrea.designer_kmp_template.ui.screen.onboarding.OnboardingScreen
 import jp.co.tsuqrea.designer_kmp_template.ui.theme.AppTheme
 import jp.co.tsuqrea.designer_kmp_template.ui.theme.AppTone
 import org.koin.compose.KoinApplication
@@ -27,7 +28,11 @@ fun App() {
         val settings by settingsRepository.observeAppSettings()
             .collectAsStateWithLifecycle(AppSettings())
         AppTheme(tone = settings.appTone.toAppTone()) {
-            AppNavigation()
+            if (settings.onboardingCompleted) {
+                AppNavigation()
+            } else {
+                OnboardingScreen(onFinish = {})
+            }
         }
     }
 }
