@@ -99,4 +99,9 @@ data class AppSettings(
     val iCloudEnabled: Boolean = false,
     /** Learned をローテーション/表示から外す。 */
     val hideLearnedFromRotation: Boolean = true,
+    /**
+     * ウィジェットが設置済みか。未設置なら Daily を案内状態に切り替える。
+     * 実際の検知は WidgetKit + App Group（M3）で設定する。既定は true。
+     */
+    val widgetInstalled: Boolean = true,
 )

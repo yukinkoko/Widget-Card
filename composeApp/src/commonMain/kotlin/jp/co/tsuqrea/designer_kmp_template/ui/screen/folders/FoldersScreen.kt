@@ -33,10 +33,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.text.style.TextAlign
 import jp.co.tsuqrea.designer_kmp_template.ui.component.ArrowUpRightIcon
 import jp.co.tsuqrea.designer_kmp_template.ui.component.BellIcon
 import jp.co.tsuqrea.designer_kmp_template.ui.component.CheckIcon
+import jp.co.tsuqrea.designer_kmp_template.ui.component.FolderGlyphIcon
 import jp.co.tsuqrea.designer_kmp_template.ui.component.MeterBar
+import jp.co.tsuqrea.designer_kmp_template.ui.component.PencilIcon
+import jp.co.tsuqrea.designer_kmp_template.ui.component.SparkleIcon
 import jp.co.tsuqrea.designer_kmp_template.ui.theme.WidgetWordTheme
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -50,6 +54,7 @@ fun FoldersScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val colors = WidgetWordTheme.colors
+    val isEmpty = state.active == null && state.others.isEmpty()
 
     Column(
         modifier = Modifier
@@ -61,19 +66,104 @@ fun FoldersScreen(
         Header()
         Spacer(Modifier.height(8.dp))
 
-        state.active?.let { row ->
-            ActiveFolderCard(row = row, onClick = { onOpenFolder(row.folder.id) })
-            Spacer(Modifier.height(12.dp))
-        }
-
-        state.others.forEach { row ->
-            OtherFolderCard(row = row, onClick = { onOpenFolder(row.folder.id) })
-            Spacer(Modifier.height(12.dp))
+        if (isEmpty) {
+            EmptyState(onEntry = onCreateFolder)
+        } else {
+            state.active?.let { row ->
+                ActiveFolderCard(row = row, onClick = { onOpenFolder(row.folder.id) })
+                Spacer(Modifier.height(12.dp))
+            }
+            state.others.forEach { row ->
+                OtherFolderCard(row = row, onClick = { onOpenFolder(row.folder.id) })
+                Spacer(Modifier.height(12.dp))
+            }
         }
 
         Spacer(Modifier.height(8.dp))
         CreateFolderButton(onClick = onCreateFolder)
         Spacer(Modifier.height(120.dp)) // ボトムナビの余白
+    }
+}
+
+@Composable
+private fun EmptyState(onEntry: () -> Unit) {
+    val colors = WidgetWordTheme.colors
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = ScreenPadding),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Spacer(Modifier.height(40.dp))
+        Box(
+            modifier = Modifier.size(56.dp).clip(CircleShape).background(colors.chipCircleBg),
+            contentAlignment = Alignment.Center,
+        ) {
+            FolderGlyphIcon(color = colors.ink, size = 22.dp)
+        }
+        Spacer(Modifier.height(16.dp))
+        Text(text = "まだフォルダがありません", fontSize = 17.sp, fontWeight = FontWeight.SemiBold, color = colors.ink)
+        Spacer(Modifier.height(8.dp))
+        Text(
+            text = "覚えたい単語をフォルダにまとめると、ウィジェットに順番に表示されます。",
+            style = WidgetWordTheme.typography.reading,
+            color = colors.secondary,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(Modifier.height(28.dp))
+        EntryCard(
+            title = "フォルダ名からAIで単語登録",
+            subtitle = "「韓国旅行」などから候補を自動生成",
+            onClick = onEntry,
+        ) { SparkleIcon(color = colors.ink, size = 16.dp) }
+        Spacer(Modifier.height(12.dp))
+        EntryCard(
+            title = "自分で1語ずつ単語登録",
+            subtitle = "単語・読み方・意味を入力して追加",
+            onClick = onEntry,
+        ) { PencilIcon(color = colors.ink, size = 16.dp) }
+        Spacer(Modifier.height(12.dp))
+        EntryCard(
+            title = "サンプルから始める",
+            subtitle = "旅行会話30語 あとで編集できます",
+            onClick = onEntry,
+        ) { FolderGlyphIcon(color = colors.ink, size = 16.dp) }
+        Spacer(Modifier.height(20.dp))
+    }
+}
+
+@Composable
+private fun EntryCard(
+    title: String,
+    subtitle: String,
+    onClick: () -> Unit,
+    icon: @Composable () -> Unit,
+) {
+    val colors = WidgetWordTheme.colors
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(WidgetWordTheme.radius.card))
+            .background(colors.card)
+            .border(1.dp, colors.cardOutline, RoundedCornerShape(WidgetWordTheme.radius.card))
+            .clickable(onClick = onClick)
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Box(
+            modifier = Modifier.size(38.dp).clip(CircleShape).background(colors.chipCircleBg),
+            contentAlignment = Alignment.Center,
+        ) { icon() }
+        Column(Modifier.weight(1f)) {
+            Text(text = title, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = colors.ink)
+            Spacer(Modifier.height(2.dp))
+            Text(text = subtitle, style = WidgetWordTheme.typography.reading, color = colors.secondary)
+        }
+        Box(
+            modifier = Modifier.size(32.dp).clip(CircleShape).background(colors.chipCircleBg),
+            contentAlignment = Alignment.Center,
+        ) {
+            ArrowUpRightIcon(color = colors.ink)
+        }
     }
 }
 

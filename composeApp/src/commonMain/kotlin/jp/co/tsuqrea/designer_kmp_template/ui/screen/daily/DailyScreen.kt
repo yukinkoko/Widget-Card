@@ -62,6 +62,11 @@ fun DailyScreen(
             .verticalScroll(rememberScrollState()),
     ) {
         Header()
+        if (!state.widgetInstalled) {
+            DailyNoWidgetContent()
+            Spacer(Modifier.height(120.dp)) // ボトムナビの余白
+            return@Column
+        }
         Spacer(Modifier.height(16.dp))
         WeekdayStrip(chips = state.weekdayChips)
         Spacer(Modifier.height(20.dp))

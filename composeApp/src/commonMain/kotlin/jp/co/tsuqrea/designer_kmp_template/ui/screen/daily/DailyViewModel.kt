@@ -8,6 +8,7 @@ import jp.co.tsuqrea.designer_kmp_template.domain.model.DayActivityLevel
 import jp.co.tsuqrea.designer_kmp_template.domain.model.Folder
 import jp.co.tsuqrea.designer_kmp_template.domain.model.Word
 import jp.co.tsuqrea.designer_kmp_template.domain.repository.FolderRepository
+import jp.co.tsuqrea.designer_kmp_template.domain.repository.SettingsRepository
 import jp.co.tsuqrea.designer_kmp_template.domain.repository.StatsRepository
 import jp.co.tsuqrea.designer_kmp_template.domain.repository.WordRepository
 import jp.co.tsuqrea.designer_kmp_template.platform.todayEpochDay
@@ -33,6 +34,7 @@ data class WeekdayChip(
 /** Daily 画面の UI 状態。 */
 data class DailyUiState(
     val hasActiveFolder: Boolean = true,
+    val widgetInstalled: Boolean = true,
     val folderName: String = "",
     val learnedCount: Int = 0,
     val totalCount: Int = 0,
@@ -50,6 +52,7 @@ class DailyViewModel(
     private val folderRepository: FolderRepository,
     private val wordRepository: WordRepository,
     private val statsRepository: StatsRepository,
+    private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -57,13 +60,14 @@ class DailyViewModel(
         combine(
             folderRepository.observeActiveFolder(),
             statsRepository.observeDailyCounts(),
-        ) { folder, counts -> folder to counts }
-            .flatMapLatest { (folder, counts) ->
+            settingsRepository.observeAppSettings(),
+        ) { folder, counts, settings -> Triple(folder, counts, settings.widgetInstalled) }
+            .flatMapLatest { (folder, counts, widgetInstalled) ->
                 if (folder == null) {
-                    flowOf(DailyUiState(hasActiveFolder = false))
+                    flowOf(DailyUiState(hasActiveFolder = false, widgetInstalled = widgetInstalled))
                 } else {
                     wordRepository.observeWords(folder.id).map { words ->
-                        buildState(folder, words, counts)
+                        buildState(folder, words, counts).copy(widgetInstalled = widgetInstalled)
                     }
                 }
             }
