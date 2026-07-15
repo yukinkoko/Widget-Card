@@ -3,6 +3,7 @@ package jp.co.tsuqrea.designer_kmp_template.di
 import jp.co.tsuqrea.designer_kmp_template.ui.screen.daily.DailyViewModel
 import jp.co.tsuqrea.designer_kmp_template.ui.screen.foldercreate.FolderCreateViewModel
 import jp.co.tsuqrea.designer_kmp_template.ui.screen.folders.FoldersViewModel
+import jp.co.tsuqrea.designer_kmp_template.ui.screen.settings.SettingsViewModel
 import jp.co.tsuqrea.designer_kmp_template.ui.screen.worddetail.WordDetailViewModel
 import jp.co.tsuqrea.designer_kmp_template.ui.screen.wordentry.WordEntryViewModel
 import jp.co.tsuqrea.designer_kmp_template.ui.screen.wordlist.WordListViewModel
@@ -21,4 +22,5 @@ val appModule =
         viewModelOf(::WordEntryViewModel)
         viewModelOf(::WordListViewModel)
         viewModelOf(::WordDetailViewModel)
+        viewModelOf(::SettingsViewModel)
     }

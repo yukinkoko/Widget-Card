@@ -229,6 +229,26 @@ fun ChevronLeftIcon(
 }
 
 @Composable
+fun ChevronRightIcon(
+    color: Color,
+    modifier: Modifier = Modifier,
+    size: Dp = 18.dp,
+    strokeWidth: Dp = 1.8.dp,
+) {
+    Canvas(modifier = modifier.iconSize(size)) {
+        val w = this.size.width
+        val h = this.size.height
+        val stroke = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round)
+        val path = Path().apply {
+            moveTo(w * 0.42f, h * 0.28f)
+            lineTo(w * 0.60f, h * 0.50f)
+            lineTo(w * 0.42f, h * 0.72f)
+        }
+        drawPath(path, color = color, style = stroke)
+    }
+}
+
+@Composable
 fun PlaneIcon(
     color: Color,
     modifier: Modifier = Modifier,
