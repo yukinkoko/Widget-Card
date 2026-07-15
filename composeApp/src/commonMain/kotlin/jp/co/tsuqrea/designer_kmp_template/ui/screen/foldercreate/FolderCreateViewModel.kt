@@ -22,6 +22,7 @@ class FolderCreateViewModel(
      */
     fun create(
         name: String,
+        description: String?,
         deadline: DeadlineTarget?,
         icon: FolderIcon,
         onCreated: (folderId: String, method: AddMethod) -> Unit,
@@ -34,6 +35,7 @@ class FolderCreateViewModel(
                 Folder(
                     id = "",
                     name = trimmed,
+                    description = description?.trim()?.ifBlank { null },
                     icon = icon,
                     deadline = deadline,
                     isActive = false,

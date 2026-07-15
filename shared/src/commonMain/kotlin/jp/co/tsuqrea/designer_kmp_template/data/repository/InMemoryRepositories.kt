@@ -23,6 +23,8 @@ import kotlinx.coroutines.flow.update
 
 /** 空状態を避けるためのサンプルフォルダ id（モックの韓国旅行フォルダ）。 */
 const val SAMPLE_FOLDER_ID = "sample-korea-trip"
+private const val FOLDER_MEETING = "sample-english-meeting"
+private const val FOLDER_DESIGNER = "sample-designer-english"
 
 /** id 採番の簡易ユーティリティ（インメモリ用）。 */
 internal object Ids {
@@ -40,10 +42,28 @@ class InMemoryFolderRepository : FolderRepository {
             Folder(
                 id = SAMPLE_FOLDER_ID,
                 name = "韓国旅行で使う単語",
-                description = "カフェ・買い物・交通のやさしい韓国語",
+                description = "カフェ・買い物・交通",
                 icon = FolderIcon.Plane,
                 deadline = DeadlineTarget.OnDate(todayEpochDay() + 14),
                 isActive = true,
+                createdEpochDay = todayEpochDay(),
+            ),
+            Folder(
+                id = FOLDER_MEETING,
+                name = "英語会議",
+                description = "仕事で使う表現",
+                icon = FolderIcon.Briefcase,
+                deadline = null,
+                isActive = false,
+                createdEpochDay = todayEpochDay(),
+            ),
+            Folder(
+                id = FOLDER_DESIGNER,
+                name = "デザイナー英語",
+                description = "制作で使う言葉",
+                icon = FolderIcon.Book,
+                deadline = null,
+                isActive = false,
                 createdEpochDay = todayEpochDay(),
             ),
         ),
@@ -156,23 +176,42 @@ class InMemorySettingsRepository : SettingsRepository {
     }
 }
 
-/** サンプル単語（韓国旅行）。モックの Daily 画面に対応。 */
+/** サンプル単語（韓国旅行＋英語会議＋デザイナー英語）。モックの各画面に対応。 */
 private fun sampleKoreaWords(): List<Word> {
-    fun w(id: String, term: String, reading: String, meaning: String, count: Int, order: Int) = Word(
+    fun w(
+        folderId: String,
+        id: String,
+        term: String,
+        reading: String,
+        meaning: String,
+        count: Int,
+        order: Int,
+        language: WordLanguage,
+    ) = Word(
         id = id,
-        folderId = SAMPLE_FOLDER_ID,
+        folderId = folderId,
         term = term,
         reading = reading,
         meaning = meaning,
         encounterCount = count,
         isLearned = count >= Word.LEARN_THRESHOLD,
         order = order,
-        language = WordLanguage.Korean,
+        language = language,
     )
-    return listOf(
-        w("sample-w1", "감사합니다", "カムサハムニダ", "ありがとうございます", 5, 0),
-        w("sample-w2", "어디예요?", "オディエヨ", "どこですか", 5, 1),
-        w("sample-w3", "얼마예요?", "オルマエヨ", "いくらですか", 3, 2),
-        w("sample-w4", "실례지만 화장실이 어디예요?", "シルレジマン ファジャンシリ オディエヨ", "すみません、トイレはどこですか？", 3, 3),
+    val korea = listOf(
+        w(SAMPLE_FOLDER_ID, "sample-w1", "감사합니다", "カムサハムニダ", "ありがとうございます", 5, 0, WordLanguage.Korean),
+        w(SAMPLE_FOLDER_ID, "sample-w2", "어디예요?", "オディエヨ", "どこですか", 5, 1, WordLanguage.Korean),
+        w(SAMPLE_FOLDER_ID, "sample-w3", "얼마예요?", "オルマエヨ", "いくらですか", 3, 2, WordLanguage.Korean),
+        w(SAMPLE_FOLDER_ID, "sample-w4", "실례지만 화장실이 어디예요?", "シルレジマン ファジャンシリ オディエヨ", "すみません、トイレはどこですか？", 3, 3, WordLanguage.Korean),
     )
+    val meeting = listOf(
+        w(FOLDER_MEETING, "meeting-w1", "agenda", "アジェンダ", "議題", 10, 0, WordLanguage.English),
+        w(FOLDER_MEETING, "meeting-w2", "follow up", "フォローアップ", "追って対応する", 6, 1, WordLanguage.English),
+        w(FOLDER_MEETING, "meeting-w3", "deadline", "デッドライン", "締め切り", 2, 2, WordLanguage.English),
+    )
+    val designer = listOf(
+        w(FOLDER_DESIGNER, "designer-w1", "kerning", "カーニング", "字間調整", 7, 0, WordLanguage.English),
+        w(FOLDER_DESIGNER, "designer-w2", "mockup", "モックアップ", "実物大の試作", 4, 1, WordLanguage.English),
+    )
+    return korea + meeting + designer
 }

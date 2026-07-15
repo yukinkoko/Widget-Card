@@ -311,6 +311,107 @@ fun CoffeeIcon(
     }
 }
 
+@Composable
+fun CheckIcon(
+    color: Color,
+    modifier: Modifier = Modifier,
+    size: Dp = 14.dp,
+    strokeWidth: Dp = 1.8.dp,
+) {
+    Canvas(modifier = modifier.iconSize(size)) {
+        val w = this.size.width
+        val h = this.size.height
+        val stroke = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round)
+        val path = Path().apply {
+            moveTo(w * 0.22f, h * 0.52f)
+            lineTo(w * 0.42f, h * 0.72f)
+            lineTo(w * 0.78f, h * 0.30f)
+        }
+        drawPath(path, color = color, style = stroke)
+    }
+}
+
+@Composable
+fun SparkleIcon(
+    color: Color,
+    modifier: Modifier = Modifier,
+    size: Dp = 16.dp,
+) {
+    Canvas(modifier = modifier.iconSize(size)) {
+        val w = this.size.width
+        val h = this.size.height
+        // 4方向スパークル（塗り）
+        val star = Path().apply {
+            moveTo(w * 0.50f, h * 0.06f)
+            lineTo(w * 0.58f, h * 0.42f)
+            lineTo(w * 0.94f, h * 0.50f)
+            lineTo(w * 0.58f, h * 0.58f)
+            lineTo(w * 0.50f, h * 0.94f)
+            lineTo(w * 0.42f, h * 0.58f)
+            lineTo(w * 0.06f, h * 0.50f)
+            lineTo(w * 0.42f, h * 0.42f)
+            close()
+        }
+        drawPath(star, color = color)
+    }
+}
+
+@Composable
+fun PencilIcon(
+    color: Color,
+    modifier: Modifier = Modifier,
+    size: Dp = 18.dp,
+    strokeWidth: Dp = 1.7.dp,
+) {
+    Canvas(modifier = modifier.iconSize(size)) {
+        val w = this.size.width
+        val h = this.size.height
+        val stroke = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round)
+        // ペン軸
+        val body = Path().apply {
+            moveTo(w * 0.30f, h * 0.70f)
+            lineTo(w * 0.62f, h * 0.38f)
+            lineTo(w * 0.72f, h * 0.48f)
+            lineTo(w * 0.40f, h * 0.80f)
+            close()
+        }
+        drawPath(body, color = color, style = stroke)
+        // ペン先
+        val tip = Path().apply {
+            moveTo(w * 0.30f, h * 0.70f)
+            lineTo(w * 0.26f, h * 0.84f)
+            lineTo(w * 0.40f, h * 0.80f)
+        }
+        drawPath(tip, color = color, style = stroke)
+    }
+}
+
+@Composable
+fun CalendarIcon(
+    color: Color,
+    modifier: Modifier = Modifier,
+    size: Dp = 16.dp,
+    strokeWidth: Dp = 1.6.dp,
+) {
+    Canvas(modifier = modifier.iconSize(size)) {
+        val w = this.size.width
+        val h = this.size.height
+        val stroke = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round)
+        val body = Path().apply {
+            addRoundRect(
+                androidx.compose.ui.geometry.RoundRect(
+                    left = w * 0.16f, top = h * 0.24f, right = w * 0.84f, bottom = h * 0.82f,
+                    radiusX = w * 0.08f, radiusY = w * 0.08f,
+                ),
+            )
+        }
+        drawPath(body, color = color, style = stroke)
+        drawLineRounded(w * 0.16f, h * 0.42f, w * 0.84f, h * 0.42f, color, stroke)
+        drawLineRounded(w * 0.36f, h * 0.16f, w * 0.36f, h * 0.30f, color, stroke)
+        drawLineRounded(w * 0.64f, h * 0.16f, w * 0.64f, h * 0.30f, color, stroke)
+    }
+}
+
 private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawLineRounded(
     x1: Float,
     y1: Float,
