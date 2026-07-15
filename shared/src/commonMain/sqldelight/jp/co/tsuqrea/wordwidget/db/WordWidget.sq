@@ -1,0 +1,115 @@
+-- ── folder ──
+CREATE TABLE folderEntity (
+    id TEXT NOT NULL PRIMARY KEY,
+    name TEXT NOT NULL,
+    description TEXT,
+    icon TEXT NOT NULL,
+    deadlineType TEXT,
+    deadlineEpochDay INTEGER,
+    isActive INTEGER NOT NULL,
+    createdEpochDay INTEGER NOT NULL
+);
+
+selectAllFolders:
+SELECT * FROM folderEntity ORDER BY createdEpochDay;
+
+selectFolderById:
+SELECT * FROM folderEntity WHERE id = ?;
+
+insertFolder:
+INSERT OR REPLACE INTO folderEntity(id, name, description, icon, deadlineType, deadlineEpochDay, isActive, createdEpochDay)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+
+deleteFolder:
+DELETE FROM folderEntity WHERE id = ?;
+
+clearActiveFolders:
+UPDATE folderEntity SET isActive = 0;
+
+setActiveFolder:
+UPDATE folderEntity SET isActive = 1 WHERE id = ?;
+
+folderCount:
+SELECT count(*) FROM folderEntity;
+
+-- ── word ──
+CREATE TABLE wordEntity (
+    id TEXT NOT NULL PRIMARY KEY,
+    folderId TEXT NOT NULL,
+    term TEXT NOT NULL,
+    reading TEXT NOT NULL,
+    meaning TEXT NOT NULL,
+    encounterCount INTEGER NOT NULL,
+    isLearned INTEGER NOT NULL,
+    orderIndex INTEGER NOT NULL,
+    language TEXT NOT NULL
+);
+
+selectWordsByFolder:
+SELECT * FROM wordEntity WHERE folderId = ? ORDER BY orderIndex;
+
+selectAllWords:
+SELECT * FROM wordEntity;
+
+selectWordById:
+SELECT * FROM wordEntity WHERE id = ?;
+
+insertWord:
+INSERT OR REPLACE INTO wordEntity(id, folderId, term, reading, meaning, encounterCount, isLearned, orderIndex, language)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+deleteWord:
+DELETE FROM wordEntity WHERE id = ?;
+
+-- ── daily count ──
+CREATE TABLE dailyCountEntity (
+    epochDay INTEGER NOT NULL PRIMARY KEY,
+    encounters INTEGER NOT NULL
+);
+
+selectAllDailyCounts:
+SELECT * FROM dailyCountEntity ORDER BY epochDay;
+
+selectDailyCount:
+SELECT * FROM dailyCountEntity WHERE epochDay = ?;
+
+upsertDailyCount:
+INSERT OR REPLACE INTO dailyCountEntity(epochDay, encounters) VALUES (?, ?);
+
+-- ── app settings (single row, id = 0) ──
+CREATE TABLE appSettingsEntity (
+    id INTEGER NOT NULL PRIMARY KEY,
+    reminderEnabled INTEGER NOT NULL,
+    reminderTimeMinutes INTEGER,
+    appTone TEXT NOT NULL,
+    iCloudEnabled INTEGER NOT NULL,
+    hideLearned INTEGER NOT NULL,
+    widgetInstalled INTEGER NOT NULL,
+    onboardingCompleted INTEGER NOT NULL
+);
+
+selectAppSettings:
+SELECT * FROM appSettingsEntity WHERE id = 0;
+
+upsertAppSettings:
+INSERT OR REPLACE INTO appSettingsEntity(id, reminderEnabled, reminderTimeMinutes, appTone, iCloudEnabled, hideLearned, widgetInstalled, onboardingCompleted)
+VALUES (0, ?, ?, ?, ?, ?, ?, ?);
+
+-- ── widget settings (single row, id = 0) ──
+CREATE TABLE widgetSettingsEntity (
+    id INTEGER NOT NULL PRIMARY KEY,
+    folderId TEXT,
+    tone TEXT NOT NULL,
+    showMeter INTEGER NOT NULL,
+    showFolderName INTEGER NOT NULL,
+    showReading INTEGER NOT NULL,
+    showMeaning INTEGER NOT NULL,
+    showPlay INTEGER NOT NULL
+);
+
+selectWidgetSettings:
+SELECT * FROM widgetSettingsEntity WHERE id = 0;
+
+upsertWidgetSettings:
+INSERT OR REPLACE INTO widgetSettingsEntity(id, folderId, tone, showMeter, showFolderName, showReading, showMeaning, showPlay)
+VALUES (0, ?, ?, ?, ?, ?, ?, ?);

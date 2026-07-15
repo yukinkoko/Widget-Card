@@ -2,10 +2,14 @@ package jp.co.tsuqrea.designer_kmp_template.di
 
 import jp.co.tsuqrea.designer_kmp_template.data.api.HealthApiClient
 import jp.co.tsuqrea.designer_kmp_template.data.api.createHttpClient
-import jp.co.tsuqrea.designer_kmp_template.data.repository.InMemoryFolderRepository
-import jp.co.tsuqrea.designer_kmp_template.data.repository.InMemorySettingsRepository
-import jp.co.tsuqrea.designer_kmp_template.data.repository.InMemoryStatsRepository
-import jp.co.tsuqrea.designer_kmp_template.data.repository.InMemoryWordRepository
+import jp.co.tsuqrea.designer_kmp_template.data.db.SqlFolderRepository
+import jp.co.tsuqrea.designer_kmp_template.data.db.SqlSettingsRepository
+import jp.co.tsuqrea.designer_kmp_template.data.db.SqlStatsRepository
+import jp.co.tsuqrea.designer_kmp_template.data.db.SqlWordRepository
+import jp.co.tsuqrea.designer_kmp_template.data.db.createDatabase
+import jp.co.tsuqrea.designer_kmp_template.data.db.createDatabaseDriver
+import jp.co.tsuqrea.designer_kmp_template.data.db.seedIfEmpty
+import jp.co.tsuqrea.wordwidget.db.WordWidgetDatabase
 import jp.co.tsuqrea.designer_kmp_template.domain.repository.FolderRepository
 import jp.co.tsuqrea.designer_kmp_template.domain.repository.SettingsRepository
 import jp.co.tsuqrea.designer_kmp_template.domain.repository.StatsRepository
@@ -15,8 +19,7 @@ import org.koin.dsl.module
 
 /**
  * shared モジュールの Koin DI 定義。
- * リポジトリ（M1a: インメモリ実装）と、既存の API サンプルを登録する。
- * M1b で SQLDelight 実装に差し替える（バインドするインターフェイスは不変）。
+ * SQLDelight 永続化のリポジトリと、既存の API サンプルを登録する。
  */
 val sharedModule =
     module {
@@ -24,9 +27,13 @@ val sharedModule =
         single { createHttpClient() }
         singleOf(::HealthApiClient)
 
-        // ── リポジトリ（M1a: インメモリ） ──
-        single<StatsRepository> { InMemoryStatsRepository() }
-        single<FolderRepository> { InMemoryFolderRepository() }
-        single<WordRepository> { InMemoryWordRepository(get()) }
-        single<SettingsRepository> { InMemorySettingsRepository() }
+        // ── DB（SQLDelight）──
+        single { createDatabaseDriver() }
+        single<WordWidgetDatabase> { createDatabase(get()).also { seedIfEmpty(it) } }
+
+        // ── リポジトリ ──
+        single<StatsRepository> { SqlStatsRepository(get()) }
+        single<FolderRepository> { SqlFolderRepository(get()) }
+        single<WordRepository> { SqlWordRepository(get(), get()) }
+        single<SettingsRepository> { SqlSettingsRepository(get()) }
     }
