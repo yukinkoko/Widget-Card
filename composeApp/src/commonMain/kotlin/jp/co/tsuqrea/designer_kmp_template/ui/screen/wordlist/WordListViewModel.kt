@@ -44,6 +44,10 @@ class WordListViewModel(
         filter.value = value
     }
 
+    fun deleteWord(id: String) {
+        viewModelScope.launch { wordRepository.delete(id) }
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     private val words = folderId.flatMapLatest { id ->
         if (id == null) flowOf(emptyList()) else wordRepository.observeWords(id)

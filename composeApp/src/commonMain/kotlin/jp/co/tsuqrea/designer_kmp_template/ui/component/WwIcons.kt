@@ -352,6 +352,36 @@ fun CoffeeIcon(
 }
 
 @Composable
+fun TrashIcon(
+    color: Color,
+    modifier: Modifier = Modifier,
+    size: Dp = 20.dp,
+    strokeWidth: Dp = 1.7.dp,
+) {
+    Canvas(modifier = modifier.iconSize(size)) {
+        val w = this.size.width
+        val h = this.size.height
+        val stroke = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round)
+        // ふた
+        drawLineRounded(w * 0.22f, h * 0.30f, w * 0.78f, h * 0.30f, color, stroke)
+        drawLineRounded(w * 0.42f, h * 0.30f, w * 0.42f, h * 0.22f, color, stroke)
+        drawLineRounded(w * 0.42f, h * 0.22f, w * 0.58f, h * 0.22f, color, stroke)
+        drawLineRounded(w * 0.58f, h * 0.22f, w * 0.58f, h * 0.30f, color, stroke)
+        // 本体
+        val body = Path().apply {
+            moveTo(w * 0.30f, h * 0.30f)
+            lineTo(w * 0.34f, h * 0.80f)
+            lineTo(w * 0.66f, h * 0.80f)
+            lineTo(w * 0.70f, h * 0.30f)
+        }
+        drawPath(body, color = color, style = stroke)
+        // 縦線
+        drawLineRounded(w * 0.42f, h * 0.40f, w * 0.44f, h * 0.70f, color, stroke)
+        drawLineRounded(w * 0.58f, h * 0.40f, w * 0.56f, h * 0.70f, color, stroke)
+    }
+}
+
+@Composable
 fun CheckIcon(
     color: Color,
     modifier: Modifier = Modifier,

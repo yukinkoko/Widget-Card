@@ -22,9 +22,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import jp.co.tsuqrea.designer_kmp_template.ui.component.ChevronLeftIcon
+import jp.co.tsuqrea.designer_kmp_template.ui.component.TrashIcon
 import jp.co.tsuqrea.designer_kmp_template.ui.component.WordListItem
 import jp.co.tsuqrea.designer_kmp_template.ui.theme.WidgetWordTheme
 import org.koin.compose.viewmodel.koinViewModel
@@ -69,16 +74,34 @@ fun WordListScreen(
                 .verticalScroll(rememberScrollState()),
         ) {
             state.words.forEach { word ->
-                WordListItem(
-                    word = word,
-                    onClick = { onOpenWord(word.id) },
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalPadding = ScreenPadding,
-                )
-                Box(
-                    Modifier.fillMaxWidth().padding(horizontal = ScreenPadding).height(1.dp)
-                        .background(colors.hairlineRow),
-                )
+                key(word.id) {
+                    val dismissState = rememberSwipeToDismissBoxState(
+                        confirmValueChange = { value ->
+                            if (value == SwipeToDismissBoxValue.EndToStart) {
+                                viewModel.deleteWord(word.id)
+                                true
+                            } else {
+                                false
+                            }
+                        },
+                    )
+                    SwipeToDismissBox(
+                        state = dismissState,
+                        enableDismissFromStartToEnd = false,
+                        backgroundContent = { DeleteBackground() },
+                    ) {
+                        WordListItem(
+                            word = word,
+                            onClick = { onOpenWord(word.id) },
+                            modifier = Modifier.fillMaxWidth().background(colors.background),
+                            horizontalPadding = ScreenPadding,
+                        )
+                    }
+                    Box(
+                        Modifier.fillMaxWidth().padding(horizontal = ScreenPadding).height(1.dp)
+                            .background(colors.hairlineRow),
+                    )
+                }
             }
             Spacer(Modifier.height(16.dp))
             AddWordButton(onClick = { onAddWord(folderId) })
@@ -148,6 +171,23 @@ private fun Segment(label: String, selected: Boolean, modifier: Modifier, onClic
             fontWeight = FontWeight.SemiBold,
             color = if (selected) colors.onInk else colors.secondary,
         )
+    }
+}
+
+@Composable
+private fun DeleteBackground() {
+    val colors = WidgetWordTheme.colors
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(colors.ink)
+            .padding(end = ScreenPadding),
+        contentAlignment = Alignment.CenterEnd,
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            TrashIcon(color = colors.onInk, size = 18.dp)
+            Text(text = "削除", color = colors.onInk, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+        }
     }
 }
 
