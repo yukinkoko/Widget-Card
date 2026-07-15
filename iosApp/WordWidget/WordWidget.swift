@@ -14,6 +14,7 @@ enum WW {
     static let dark = Color(red: 0x1C / 255, green: 0x1C / 255, blue: 0x1E / 255)
     static let darkText = Color(red: 0xFA / 255, green: 0xFA / 255, blue: 0xF9 / 255)
     static let darkTrack = Color(red: 0x2E / 255, green: 0x2E / 255, blue: 0x2D / 255)
+    static let chip = Color(red: 0xF1 / 255, green: 0xF1 / 255, blue: 0xEF / 255)
 }
 
 // MARK: - Model
@@ -34,6 +35,17 @@ struct WordEntry: TimelineEntry {
     let folderName: String
     let words: [WordItem]
     let tone: WidgetTone
+    var showMeter: Bool = true
+    var showFolderName: Bool = true
+    var showReading: Bool = true
+    var showMeaning: Bool = true
+    var showPlay: Bool = false
+
+    func with(words: [WordItem], date: Date) -> WordEntry {
+        WordEntry(date: date, folderName: folderName, words: words, tone: tone,
+                  showMeter: showMeter, showFolderName: showFolderName, showReading: showReading,
+                  showMeaning: showMeaning, showPlay: showPlay)
+    }
 
     static let sample = WordEntry(
         date: Date(),
@@ -47,48 +59,64 @@ struct WordEntry: TimelineEntry {
     )
 }
 
+private func toneFrom(_ s: String) -> WidgetTone { s == "Dark" ? .dark : (s == "Light" ? .light : .color) }
+
 // MARK: - Provider
 
-extension WordEntry {
-    static func fromShared() -> WordEntry? {
-        guard let snap = SharedStore.loadSnapshot() else { return nil }
-        let tone: WidgetTone = snap.tone == "Dark" ? .dark : (snap.tone == "Light" ? .light : .color)
-        let words = snap.words.map { WordItem(term: $0.term, reading: $0.reading, meaning: $0.meaning, encounterCount: $0.encounterCount) }
-        guard !words.isEmpty else { return nil }
-        return WordEntry(date: Date(), folderName: snap.folderName, words: words, tone: tone)
-    }
-}
-
-struct Provider: TimelineProvider {
+struct Provider: AppIntentTimelineProvider {
     func placeholder(in context: Context) -> WordEntry { .sample }
 
-    func getSnapshot(in context: Context, completion: @escaping (WordEntry) -> Void) {
-        completion(WordEntry.fromShared() ?? .sample)
+    func snapshot(for configuration: ConfigureWidgetIntent, in context: Context) async -> WordEntry {
+        makeEntry(for: configuration)
     }
 
-    func getTimeline(in context: Context, completion: @escaping (Timeline<WordEntry>) -> Void) {
-        let entry = WordEntry.fromShared() ?? .sample
-        // 30分ごとに次の単語へローテーション
+    func timeline(for configuration: ConfigureWidgetIntent, in context: Context) async -> Timeline<WordEntry> {
+        let base = makeEntry(for: configuration)
         let now = Date()
+        let count = max(base.words.count, 1)
         var entries: [WordEntry] = []
-        let count = max(entry.words.count, 1)
         for offset in 0 ..< count {
             let date = Calendar.current.date(byAdding: .minute, value: offset * 30, to: now) ?? now
-            let rotated = Array(entry.words[offset...] + entry.words[..<offset])
-            entries.append(WordEntry(date: date, folderName: entry.folderName, words: rotated, tone: entry.tone))
+            let rotated = Array(base.words[offset...] + base.words[..<offset])
+            entries.append(base.with(words: rotated, date: date))
         }
-        completion(Timeline(entries: entries, policy: .atEnd))
+        return Timeline(entries: entries, policy: .atEnd)
+    }
+
+    private func makeEntry(for config: ConfigureWidgetIntent) -> WordEntry {
+        guard let full = SharedStore.loadFull() else { return .sample }
+        let folder = full.folder(id: config.folder?.id)
+        let words = (folder?.words ?? []).map {
+            WordItem(term: $0.term, reading: $0.reading, meaning: $0.meaning, encounterCount: $0.encounterCount)
+        }
+        let tone: WidgetTone
+        switch config.tone {
+        case .auto: tone = toneFrom(full.appTone)
+        case .color: tone = .color
+        case .dark: tone = .dark
+        case .light: tone = .light
+        }
+        return WordEntry(
+            date: Date(),
+            folderName: folder?.name ?? "",
+            words: words.isEmpty ? WordEntry.sample.words : words,
+            tone: tone,
+            showMeter: config.showMeter,
+            showFolderName: config.showFolderName,
+            showReading: config.showReading,
+            showMeaning: config.showMeaning,
+            showPlay: config.showPlay
+        )
     }
 }
 
-// MARK: - Meter
+// MARK: - Meter & palette
 
 struct MeterBar: View {
     let progress: Double
     var track: Color
     var fill: Color
     var height: CGFloat = 5
-
     var body: some View {
         GeometryReader { geo in
             ZStack(alignment: .leading) {
@@ -100,25 +128,25 @@ struct MeterBar: View {
     }
 }
 
-// MARK: - Palette per tone
-
 struct TonePalette {
-    let background: Color
-    let text: Color
-    let meta: Color
-    let meaning: Color
-    let track: Color
-    let meter: Color
-
+    let background: Color, text: Color, meta: Color, meaning: Color, track: Color, meter: Color, chip: Color
     static func of(_ tone: WidgetTone) -> TonePalette {
         switch tone {
-        case .color:
-            return TonePalette(background: WW.card, text: WW.ink, meta: WW.folderName, meaning: WW.meaning, track: WW.meterTrack, meter: WW.accent)
-        case .dark:
-            return TonePalette(background: WW.dark, text: WW.darkText, meta: WW.folderName, meaning: WW.folderName, track: WW.darkTrack, meter: WW.accent)
-        case .light:
-            return TonePalette(background: WW.card, text: WW.ink, meta: WW.folderName, meaning: WW.meaning, track: WW.meterTrack, meter: WW.ink)
+        case .color: return TonePalette(background: WW.card, text: WW.ink, meta: WW.folderName, meaning: WW.meaning, track: WW.meterTrack, meter: WW.accent, chip: WW.chip)
+        case .dark: return TonePalette(background: WW.dark, text: WW.darkText, meta: WW.folderName, meaning: WW.folderName, track: WW.darkTrack, meter: WW.accent, chip: WW.darkTrack)
+        case .light: return TonePalette(background: WW.card, text: WW.ink, meta: WW.folderName, meaning: WW.meaning, track: WW.meterTrack, meter: WW.ink, chip: WW.chip)
         }
+    }
+}
+
+private struct SpeakerChip: View {
+    let palette: TonePalette
+    var body: some View {
+        Image(systemName: "speaker.wave.2.fill")
+            .font(.system(size: 12))
+            .foregroundColor(palette.text)
+            .frame(width: 30, height: 30)
+            .background(Circle().fill(palette.chip))
     }
 }
 
@@ -131,14 +159,19 @@ struct MediumWidgetView: View {
         let word = entry.words.first ?? WordEntry.sample.words[0]
         VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text(entry.folderName).font(.system(size: 12)).foregroundColor(p.meta)
+                if entry.showFolderName { Text(entry.folderName).font(.system(size: 12)).foregroundColor(p.meta).lineLimit(1) }
                 Spacer()
-                MeterBar(progress: word.progress, track: p.track, fill: p.meter).frame(width: 44)
+                if entry.showMeter { MeterBar(progress: word.progress, track: p.track, fill: p.meter).frame(width: 44) }
             }
             Spacer(minLength: 2)
-            Text(word.term).font(.system(size: 28, weight: .bold)).foregroundColor(p.text).lineLimit(1).minimumScaleFactor(0.6)
-            Text(word.reading).font(.system(size: 13)).foregroundColor(p.meta).lineLimit(1)
-            Text(word.meaning).font(.system(size: 15)).foregroundColor(p.meaning).lineLimit(1).minimumScaleFactor(0.7)
+            HStack(alignment: .center) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(word.term).font(.system(size: 28, weight: .bold)).foregroundColor(p.text).lineLimit(1).minimumScaleFactor(0.5)
+                    if entry.showReading { Text(word.reading).font(.system(size: 13)).foregroundColor(p.meta).lineLimit(1) }
+                    if entry.showMeaning { Text(word.meaning).font(.system(size: 15)).foregroundColor(p.meaning).lineLimit(1).minimumScaleFactor(0.7) }
+                }
+                if entry.showPlay { Spacer(); SpeakerChip(palette: p) }
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
     }
@@ -150,11 +183,11 @@ struct SmallWidgetView: View {
         let p = TonePalette.of(entry.tone)
         let word = entry.words.first ?? WordEntry.sample.words[0]
         VStack(alignment: .leading, spacing: 4) {
-            Text(entry.folderName).font(.system(size: 11)).foregroundColor(p.meta).lineLimit(1)
+            if entry.showFolderName { Text(entry.folderName).font(.system(size: 11)).foregroundColor(p.meta).lineLimit(1) }
             Spacer(minLength: 0)
-            Text(word.term).font(.system(size: 20, weight: .bold)).foregroundColor(p.text).lineLimit(2).minimumScaleFactor(0.6)
-            Text(word.reading).font(.system(size: 11)).foregroundColor(p.meta).lineLimit(1)
-            MeterBar(progress: word.progress, track: p.track, fill: p.meter)
+            Text(word.term).font(.system(size: 20, weight: .bold)).foregroundColor(p.text).lineLimit(2).minimumScaleFactor(0.5)
+            if entry.showReading { Text(word.reading).font(.system(size: 11)).foregroundColor(p.meta).lineLimit(1) }
+            if entry.showMeter { MeterBar(progress: word.progress, track: p.track, fill: p.meter) }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
     }
@@ -165,15 +198,18 @@ struct LargeWidgetView: View {
     var body: some View {
         let p = TonePalette.of(entry.tone)
         VStack(alignment: .leading, spacing: 14) {
-            Text(entry.folderName).font(.system(size: 12)).foregroundColor(p.meta)
+            if entry.showFolderName { Text(entry.folderName).font(.system(size: 12)).foregroundColor(p.meta) }
             ForEach(Array(entry.words.prefix(4).enumerated()), id: \.offset) { _, w in
                 VStack(alignment: .leading, spacing: 2) {
                     HStack(alignment: .firstTextBaseline) {
                         Text(w.term).font(.system(size: 20, weight: .bold)).foregroundColor(p.text).lineLimit(1)
                         Spacer()
-                        MeterBar(progress: w.progress, track: p.track, fill: p.meter).frame(width: 40)
+                        if entry.showMeter { MeterBar(progress: w.progress, track: p.track, fill: p.meter).frame(width: 40) }
                     }
-                    Text("\(w.reading) ・ \(w.meaning)").font(.system(size: 12)).foregroundColor(p.meta).lineLimit(1)
+                    if entry.showReading || entry.showMeaning {
+                        Text([entry.showReading ? w.reading : nil, entry.showMeaning ? w.meaning : nil].compactMap { $0 }.joined(separator: " ・ "))
+                            .font(.system(size: 12)).foregroundColor(p.meta).lineLimit(1)
+                    }
                 }
             }
             Spacer(minLength: 0)
@@ -185,7 +221,6 @@ struct LargeWidgetView: View {
 struct WordWidgetEntryView: View {
     @Environment(\.widgetFamily) var family
     let entry: WordEntry
-
     var body: some View {
         let p = TonePalette.of(entry.tone)
         Group {
@@ -212,7 +247,7 @@ struct WordWidgetEntryView: View {
 struct WordWidget: Widget {
     let kind = "WordWidget"
     var body: some WidgetConfiguration {
-        StaticConfiguration(kind: kind, provider: Provider()) { entry in
+        AppIntentConfiguration(kind: kind, intent: ConfigureWidgetIntent.self, provider: Provider()) { entry in
             WordWidgetEntryView(entry: entry)
         }
         .configurationDisplayName("WORD WIDGET")

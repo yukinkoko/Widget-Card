@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		05C2A578B2935C438DC485CE /* ConfigureWidgetIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = A316186A688B14ED5330554F /* ConfigureWidgetIntent.swift */; };
 		68A10057795B60CE3F0AC8F2 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A9CEBEAFC0D13CF661A203A /* SwiftUI.framework */; };
 		73709E06A930377D58253A70 /* WordWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3CF9FB97780BBA8E3573D95 /* WordWidget.swift */; };
 		78889DD50FCDBCAF9E9C598D /* WordWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 8D6990AF4BA915BC63EE9D01 /* WordWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -47,6 +48,7 @@
 		7E2110423ED6C73033A4CEE1 /* designer_kmp_template.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = designer_kmp_template.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8D6990AF4BA915BC63EE9D01 /* WordWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = WordWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		9F1330D6229DC6A25CA10A07 /* WordWidget.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; name = WordWidget.entitlements; path = WordWidget/WordWidget.entitlements; sourceTree = "<group>"; };
+		A316186A688B14ED5330554F /* ConfigureWidgetIntent.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ConfigureWidgetIntent.swift; path = WordWidget/ConfigureWidgetIntent.swift; sourceTree = "<group>"; };
 		E3CF9FB97780BBA8E3573D95 /* WordWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WordWidget.swift; path = WordWidget/WordWidget.swift; sourceTree = "<group>"; };
 		EE3FC279DAF85C3E88CA60D4 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		F13581BF201DDE2230CC1158 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = WordWidget/Info.plist; sourceTree = "<group>"; };
@@ -154,6 +156,7 @@
 				E3CF9FB97780BBA8E3573D95 /* WordWidget.swift */,
 				F13581BF201DDE2230CC1158 /* Info.plist */,
 				9F1330D6229DC6A25CA10A07 /* WordWidget.entitlements */,
+				A316186A688B14ED5330554F /* ConfigureWidgetIntent.swift */,
 			);
 			name = WordWidget;
 			sourceTree = "<group>";
@@ -290,6 +293,7 @@
 			files = (
 				73709E06A930377D58253A70 /* WordWidget.swift in Sources */,
 				B6AC2EC53E1D117A04BDBBD5 /* SharedStore.swift in Sources */,
+				05C2A578B2935C438DC485CE /* ConfigureWidgetIntent.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
