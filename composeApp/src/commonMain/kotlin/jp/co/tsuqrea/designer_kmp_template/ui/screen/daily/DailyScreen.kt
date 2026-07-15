@@ -78,7 +78,7 @@ fun DailyScreen(
             words = state.words,
             onWordClick = onOpenWord,
         )
-        Spacer(Modifier.height(32.dp))
+        Spacer(Modifier.height(120.dp)) // ボトムナビの余白
     }
 }
 

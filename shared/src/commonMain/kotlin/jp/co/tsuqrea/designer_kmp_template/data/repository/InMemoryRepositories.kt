@@ -83,6 +83,8 @@ class InMemoryWordRepository(
     override fun observeWords(folderId: String): Flow<List<Word>> =
         words.map { list -> list.filter { it.folderId == folderId }.sortedBy { it.order } }
 
+    override fun observeAllWords(): Flow<List<Word>> = words.asStateFlow()
+
     override suspend fun getWord(id: String): Word? = words.value.firstOrNull { it.id == id }
 
     override suspend fun create(word: Word): Word {

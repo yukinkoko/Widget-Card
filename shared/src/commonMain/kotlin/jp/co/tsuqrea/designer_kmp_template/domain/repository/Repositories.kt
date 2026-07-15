@@ -28,6 +28,9 @@ interface FolderRepository {
 
 interface WordRepository {
     fun observeWords(folderId: String): Flow<List<Word>>
+
+    /** 全フォルダの単語（フォルダ一覧の集計用）。 */
+    fun observeAllWords(): Flow<List<Word>>
     suspend fun getWord(id: String): Word?
 
     suspend fun create(word: Word): Word

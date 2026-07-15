@@ -1,49 +1,104 @@
 package jp.co.tsuqrea.designer_kmp_template.navigation
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import jp.co.tsuqrea.designer_kmp_template.ui.component.BottomNavBar
+import jp.co.tsuqrea.designer_kmp_template.ui.component.TopTab
 import jp.co.tsuqrea.designer_kmp_template.ui.screen.daily.DailyScreen
+import jp.co.tsuqrea.designer_kmp_template.ui.screen.folders.FoldersScreen
+import jp.co.tsuqrea.designer_kmp_template.ui.screen.settings.SettingsScreen
 import jp.co.tsuqrea.designer_kmp_template.ui.screen.worddetail.WordDetailScreen
 import kotlinx.serialization.Serializable
 
 // ─── Route 定義 ───
-// 新しい画面を追加するときは、ここに Route を追加して
-// NavHost 内に composable<Route> { ... } を追加する。
-
-/** Daily（ホーム）画面のルート。 */
+/** Daily（ホーム）タブ。 */
 @Serializable
 object DailyRoute
 
-/** 単語詳細画面のルート。 */
+/** Folders タブ。 */
+@Serializable
+object FoldersRoute
+
+/** Settings タブ。 */
+@Serializable
+object SettingsRoute
+
+/** 単語詳細（プッシュ・ナビ非表示）。 */
 @Serializable
 data class WordDetailRoute(val wordId: String)
 
 /**
  * アプリ全体のナビゲーション。
- * 画面を追加するときは Route オブジェクトと composable を追加する。
+ * トップレベル（Daily / Folders / Settings）でのみボトムナビを表示する。
  */
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
+    val backStackEntry by navController.currentBackStackEntryAsState()
+    val currentTab = backStackEntry?.destination?.let { dest ->
+        when {
+            dest.hasRoute(DailyRoute::class) -> TopTab.Daily
+            dest.hasRoute(FoldersRoute::class) -> TopTab.Folders
+            dest.hasRoute(SettingsRoute::class) -> TopTab.Settings
+            else -> null
+        }
+    }
 
-    NavHost(
-        navController = navController,
-        startDestination = DailyRoute,
-    ) {
-        composable<DailyRoute> {
-            DailyScreen(
-                onOpenWord = { wordId -> navController.navigate(WordDetailRoute(wordId)) },
+    Box(modifier = Modifier.fillMaxSize()) {
+        NavHost(
+            navController = navController,
+            startDestination = DailyRoute,
+        ) {
+            composable<DailyRoute> {
+                DailyScreen(
+                    onOpenWord = { wordId -> navController.navigate(WordDetailRoute(wordId)) },
+                )
+            }
+            composable<FoldersRoute> {
+                FoldersScreen()
+            }
+            composable<SettingsRoute> {
+                SettingsScreen()
+            }
+            composable<WordDetailRoute> { entry ->
+                val route = entry.toRoute<WordDetailRoute>()
+                WordDetailScreen(
+                    wordId = route.wordId,
+                    onBack = { navController.popBackStack() },
+                )
+            }
+        }
+
+        if (currentTab != null) {
+            BottomNavBar(
+                selected = currentTab,
+                onSelect = { tab -> navController.navigateToTab(tab) },
+                modifier = Modifier.align(Alignment.BottomCenter),
             )
         }
-        composable<WordDetailRoute> { backStackEntry ->
-            val route = backStackEntry.toRoute<WordDetailRoute>()
-            WordDetailScreen(
-                wordId = route.wordId,
-                onBack = { navController.popBackStack() },
-            )
-        }
+    }
+}
+
+private fun NavHostController.navigateToTab(tab: TopTab) {
+    val route: Any = when (tab) {
+        TopTab.Daily -> DailyRoute
+        TopTab.Folders -> FoldersRoute
+        TopTab.Settings -> SettingsRoute
+    }
+    navigate(route) {
+        popUpTo(DailyRoute) { saveState = true }
+        launchSingleTop = true
+        restoreState = true
     }
 }

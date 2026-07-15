@@ -131,6 +131,84 @@ fun SpeakerIcon(
 }
 
 @Composable
+fun GridIcon(
+    color: Color,
+    modifier: Modifier = Modifier,
+    size: Dp = 20.dp,
+    strokeWidth: Dp = 1.7.dp,
+) {
+    Canvas(modifier = modifier.iconSize(size)) {
+        val w = this.size.width
+        val stroke = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round)
+        val gap = w * 0.10f
+        val cell = (w - gap * 3) / 2f
+        for (row in 0..1) {
+            for (col in 0..1) {
+                val left = gap + col * (cell + gap)
+                val top = gap + row * (cell + gap)
+                val square = Path().apply {
+                    addRoundRect(
+                        androidx.compose.ui.geometry.RoundRect(
+                            left = left,
+                            top = top,
+                            right = left + cell,
+                            bottom = top + cell,
+                            radiusX = cell * 0.25f,
+                            radiusY = cell * 0.25f,
+                        ),
+                    )
+                }
+                drawPath(square, color = color, style = stroke)
+            }
+        }
+    }
+}
+
+@Composable
+fun ListIcon(
+    color: Color,
+    modifier: Modifier = Modifier,
+    size: Dp = 20.dp,
+    strokeWidth: Dp = 1.8.dp,
+) {
+    Canvas(modifier = modifier.iconSize(size)) {
+        val w = this.size.width
+        val h = this.size.height
+        val stroke = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round)
+        listOf(0.30f, 0.50f, 0.70f).forEach { fy ->
+            drawLineRounded(w * 0.22f, h * fy, w * 0.78f, h * fy, color, stroke)
+        }
+    }
+}
+
+@Composable
+fun GearIcon(
+    color: Color,
+    modifier: Modifier = Modifier,
+    size: Dp = 20.dp,
+    strokeWidth: Dp = 1.7.dp,
+) {
+    Canvas(modifier = modifier.iconSize(size)) {
+        val w = this.size.width
+        val h = this.size.height
+        val cx = w / 2f
+        val cy = h / 2f
+        val stroke = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round)
+        // 中央の円
+        drawCircle(color = color, radius = w * 0.16f, center = androidx.compose.ui.geometry.Offset(cx, cy), style = stroke)
+        // 8方向の歯（短い放射線）
+        val inner = w * 0.26f
+        val outer = w * 0.38f
+        for (i in 0 until 8) {
+            val angle = (i * 45f) * (kotlin.math.PI / 180.0)
+            val dx = kotlin.math.cos(angle).toFloat()
+            val dy = kotlin.math.sin(angle).toFloat()
+            drawLineRounded(cx + dx * inner, cy + dy * inner, cx + dx * outer, cy + dy * outer, color, stroke)
+        }
+    }
+}
+
+@Composable
 fun ChevronLeftIcon(
     color: Color,
     modifier: Modifier = Modifier,
