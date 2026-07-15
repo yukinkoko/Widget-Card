@@ -16,6 +16,7 @@ import androidx.navigation.toRoute
 import jp.co.tsuqrea.designer_kmp_template.ui.component.BottomNavBar
 import jp.co.tsuqrea.designer_kmp_template.ui.component.TopTab
 import jp.co.tsuqrea.designer_kmp_template.ui.screen.daily.DailyScreen
+import jp.co.tsuqrea.designer_kmp_template.ui.screen.foldercreate.FolderCreateScreen
 import jp.co.tsuqrea.designer_kmp_template.ui.screen.folders.FoldersScreen
 import jp.co.tsuqrea.designer_kmp_template.ui.screen.settings.SettingsScreen
 import jp.co.tsuqrea.designer_kmp_template.ui.screen.worddetail.WordDetailScreen
@@ -37,6 +38,10 @@ object SettingsRoute
 /** 単語詳細（プッシュ・ナビ非表示）。 */
 @Serializable
 data class WordDetailRoute(val wordId: String)
+
+/** フォルダ作成（プッシュ・ナビ非表示）。 */
+@Serializable
+object FolderCreateRoute
 
 /**
  * アプリ全体のナビゲーション。
@@ -66,7 +71,15 @@ fun AppNavigation() {
                 )
             }
             composable<FoldersRoute> {
-                FoldersScreen()
+                FoldersScreen(
+                    onCreateFolder = { navController.navigate(FolderCreateRoute) },
+                )
+            }
+            composable<FolderCreateRoute> {
+                FolderCreateScreen(
+                    onBack = { navController.popBackStack() },
+                    onDone = { navController.popBackStack() },
+                )
             }
             composable<SettingsRoute> {
                 SettingsScreen()

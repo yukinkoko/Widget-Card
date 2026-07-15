@@ -228,6 +228,89 @@ fun ChevronLeftIcon(
     }
 }
 
+@Composable
+fun PlaneIcon(
+    color: Color,
+    modifier: Modifier = Modifier,
+    size: Dp = 20.dp,
+    strokeWidth: Dp = 1.7.dp,
+) {
+    Canvas(modifier = modifier.iconSize(size)) {
+        val w = this.size.width
+        val h = this.size.height
+        val stroke = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round)
+        // 紙飛行機
+        val path = Path().apply {
+            moveTo(w * 0.20f, h * 0.52f)
+            lineTo(w * 0.82f, h * 0.24f)
+            lineTo(w * 0.56f, h * 0.80f)
+            lineTo(w * 0.46f, h * 0.56f)
+            close()
+        }
+        drawPath(path, color = color, style = stroke)
+        drawLineRounded(w * 0.46f, h * 0.56f, w * 0.82f, h * 0.24f, color, stroke)
+    }
+}
+
+@Composable
+fun BriefcaseIcon(
+    color: Color,
+    modifier: Modifier = Modifier,
+    size: Dp = 20.dp,
+    strokeWidth: Dp = 1.7.dp,
+) {
+    Canvas(modifier = modifier.iconSize(size)) {
+        val w = this.size.width
+        val h = this.size.height
+        val stroke = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round)
+        val body = Path().apply {
+            addRoundRect(
+                androidx.compose.ui.geometry.RoundRect(
+                    left = w * 0.18f, top = h * 0.38f, right = w * 0.82f, bottom = h * 0.76f,
+                    radiusX = w * 0.06f, radiusY = w * 0.06f,
+                ),
+            )
+        }
+        drawPath(body, color = color, style = stroke)
+        // ハンドル
+        val handle = Path().apply {
+            moveTo(w * 0.40f, h * 0.38f)
+            lineTo(w * 0.40f, h * 0.30f)
+            lineTo(w * 0.60f, h * 0.30f)
+            lineTo(w * 0.60f, h * 0.38f)
+        }
+        drawPath(handle, color = color, style = stroke)
+    }
+}
+
+@Composable
+fun CoffeeIcon(
+    color: Color,
+    modifier: Modifier = Modifier,
+    size: Dp = 20.dp,
+    strokeWidth: Dp = 1.7.dp,
+) {
+    Canvas(modifier = modifier.iconSize(size)) {
+        val w = this.size.width
+        val h = this.size.height
+        val stroke = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round)
+        val cup = Path().apply {
+            moveTo(w * 0.26f, h * 0.42f)
+            lineTo(w * 0.66f, h * 0.42f)
+            lineTo(w * 0.62f, h * 0.72f)
+            lineTo(w * 0.30f, h * 0.72f)
+            close()
+        }
+        drawPath(cup, color = color, style = stroke)
+        // 取っ手
+        val handle = Path().apply {
+            moveTo(w * 0.66f, h * 0.48f)
+            cubicTo(w * 0.82f, h * 0.48f, w * 0.82f, h * 0.64f, w * 0.64f, h * 0.64f)
+        }
+        drawPath(handle, color = color, style = stroke)
+    }
+}
+
 private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawLineRounded(
     x1: Float,
     y1: Float,
