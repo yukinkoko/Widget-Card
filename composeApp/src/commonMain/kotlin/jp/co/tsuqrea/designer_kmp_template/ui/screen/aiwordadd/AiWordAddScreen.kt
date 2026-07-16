@@ -68,6 +68,14 @@ fun AiWordAddScreen(
     ) {
         Header(onBack = onBack)
         when (val s = state) {
+            is AiWordAddState.PreparingModel -> {
+                PreparingModelBody(state = s, modifier = Modifier.weight(1f))
+                FooterCancelOnly(onCancel = onBack)
+            }
+            is AiWordAddState.Failed -> {
+                FailedBody(state = s, onRetry = viewModel::generate, modifier = Modifier.weight(1f))
+                FooterCancelOnly(onCancel = onBack)
+            }
             is AiWordAddState.Generating -> {
                 GeneratingBody(state = s, modifier = Modifier.weight(1f))
                 FooterCancelOnly(onCancel = onBack)
@@ -117,6 +125,81 @@ private fun FieldLabel(text: String, modifier: Modifier = Modifier) {
         color = WidgetWordTheme.colors.secondary,
         modifier = modifier,
     )
+}
+
+// ── PreparingModel（初回のみ: モデルDL） ──
+
+@Composable
+private fun PreparingModelBody(state: AiWordAddState.PreparingModel, modifier: Modifier = Modifier) {
+    val colors = WidgetWordTheme.colors
+    Column(modifier = modifier.padding(horizontal = ScreenPadding)) {
+        FieldLabel("テーマ", Modifier.padding(bottom = 8.dp))
+        ThemeBox(text = state.theme)
+        Spacer(Modifier.height(16.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth()
+                .clip(RoundedCornerShape(WidgetWordTheme.radius.card))
+                .background(colors.ink)
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(18.dp),
+                color = colors.accent,
+                strokeWidth = 2.dp,
+            )
+            Column {
+                Text(text = "生成AIを準備しています…", color = colors.onInk, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    text = "初回のみモデルをダウンロード · ${(state.progress * 100).toInt()}%",
+                    color = colors.onInk.copy(alpha = 0.6f),
+                    style = WidgetWordTheme.typography.reading,
+                )
+            }
+        }
+        Spacer(Modifier.height(12.dp))
+        MeterBar(progress = state.progress, modifier = Modifier.fillMaxWidth(), height = 6.dp)
+    }
+}
+
+// ── Failed ──
+
+@Composable
+private fun FailedBody(state: AiWordAddState.Failed, onRetry: () -> Unit, modifier: Modifier = Modifier) {
+    val colors = WidgetWordTheme.colors
+    Column(modifier = modifier.padding(horizontal = ScreenPadding)) {
+        FieldLabel("テーマ", Modifier.padding(bottom = 8.dp))
+        ThemeBox(text = state.theme)
+        Spacer(Modifier.height(16.dp))
+
+        Column(
+            modifier = Modifier.fillMaxWidth()
+                .clip(RoundedCornerShape(WidgetWordTheme.radius.card))
+                .background(colors.card)
+                .border(1.dp, colors.cardOutline, RoundedCornerShape(WidgetWordTheme.radius.card))
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            Text(text = "候補を生成できませんでした", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = colors.ink)
+            Text(
+                text = "通信環境を確認して、もう一度お試しください。",
+                style = WidgetWordTheme.typography.reading,
+                color = colors.secondary,
+            )
+            Box(
+                modifier = Modifier.fillMaxWidth().height(48.dp)
+                    .clip(RoundedCornerShape(WidgetWordTheme.radius.button))
+                    .background(colors.ink)
+                    .clickable(onClick = onRetry),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(text = "もう一度生成", color = colors.onInk, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+            }
+        }
+    }
 }
 
 // ── Generating ──

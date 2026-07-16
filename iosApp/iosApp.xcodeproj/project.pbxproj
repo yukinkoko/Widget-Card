@@ -16,6 +16,8 @@
 		B2DF8115A449EDCA6869E547 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0C19C1BD92FD04CFFF641E7B /* WidgetKit.framework */; };
 		B6AC2EC53E1D117A04BDBBD5 /* SharedStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75962387C854DCBE4BB818B6 /* SharedStore.swift */; };
 		D516D01900CAB124905BA756 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EE3FC279DAF85C3E88CA60D4 /* Foundation.framework */; };
+		E14DA9D69D8183C83B9483F6 /* llama.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3CC6B2AE01341910DCB0828A /* llama.xcframework */; };
+		F991B3911C7E8A5E943E74FF /* llama.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 3CC6B2AE01341910DCB0828A /* llama.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -29,6 +31,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		887E4C9251EF482FD37DA26D /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				F991B3911C7E8A5E943E74FF /* llama.xcframework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F5AD676BCF64291733FAEA7A /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -45,6 +58,7 @@
 /* Begin PBXFileReference section */
 		0C19C1BD92FD04CFFF641E7B /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/WidgetKit.framework; sourceTree = DEVELOPER_DIR; };
 		280BB08313A5B5FE3C2956D7 /* SpeakWordIntent.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SpeakWordIntent.swift; path = WordWidget/SpeakWordIntent.swift; sourceTree = "<group>"; };
+		3CC6B2AE01341910DCB0828A /* llama.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; name = llama.xcframework; path = Frameworks/llama.xcframework; sourceTree = "<group>"; };
 		6A9CEBEAFC0D13CF661A203A /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/SwiftUI.framework; sourceTree = DEVELOPER_DIR; };
 		75962387C854DCBE4BB818B6 /* SharedStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SharedStore.swift; path = Shared/SharedStore.swift; sourceTree = "<group>"; };
 		7E2110423ED6C73033A4CEE1 /* designer_kmp_template.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = designer_kmp_template.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -89,6 +103,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E14DA9D69D8183C83B9483F6 /* llama.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -140,6 +155,7 @@
 			isa = PBXGroup;
 			children = (
 				383ABF9EDC5865BB91ABBE1D /* iOS */,
+				3CC6B2AE01341910DCB0828A /* llama.xcframework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -193,6 +209,7 @@
 				1809354F587DD027B9A7E5E4 /* Frameworks */,
 				655B99650104C32B388AD06B /* Resources */,
 				F5AD676BCF64291733FAEA7A /* Embed Foundation Extensions */,
+				887E4C9251EF482FD37DA26D /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
