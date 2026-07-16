@@ -42,9 +42,13 @@ import androidx.compose.ui.unit.sp
 import jp.co.tsuqrea.designer_kmp_template.ui.component.ChevronLeftIcon
 import jp.co.tsuqrea.designer_kmp_template.ui.component.SparkleIcon
 import jp.co.tsuqrea.designer_kmp_template.ui.theme.WidgetWordTheme
+import kotlinx.coroutines.delay
 import org.koin.compose.viewmodel.koinViewModel
 
 private val ScreenPadding = 20.dp
+
+/** 単語入力が止まってから自動補完を走らせるまでの待ち時間。 */
+private const val AUTOFILL_DEBOUNCE_MILLIS = 600L
 
 @Composable
 fun WordEntryScreen(
@@ -60,10 +64,27 @@ fun WordEntryScreen(
     var reading by remember { mutableStateOf("") }
     var meaning by remember { mutableStateOf("") }
 
+    /** 意味が自動補完によるものか。手入力されたら false にして上書きを止める。 */
+    var meaningAutofilled by remember { mutableStateOf(false) }
+
     fun clear() {
         term = ""
         reading = ""
         meaning = ""
+        meaningAutofilled = false
+    }
+
+    // 単語の入力が落ち着いたら意味を自動補完（Apple Translation・iOSのみ）。
+    // 手入力済みの意味は上書きしない。
+    LaunchedEffect(term) {
+        if (term.isBlank()) return@LaunchedEffect
+        delay(AUTOFILL_DEBOUNCE_MILLIS)
+        if (meaning.isNotBlank() && !meaningAutofilled) return@LaunchedEffect
+        val suggested = viewModel.autofillMeaning(term) ?: return@LaunchedEffect
+        if (meaning.isBlank() || meaningAutofilled) {
+            meaning = suggested
+            meaningAutofilled = true
+        }
     }
 
     Column(
@@ -84,7 +105,14 @@ fun WordEntryScreen(
             Spacer(Modifier.height(20.dp))
             LabeledField(label = "読み方", value = reading, onValueChange = { reading = it })
             Spacer(Modifier.height(20.dp))
-            LabeledField(label = "意味", value = meaning, onValueChange = { meaning = it })
+            LabeledField(
+                label = "意味",
+                value = meaning,
+                onValueChange = {
+                    meaning = it
+                    meaningAutofilled = false
+                },
+            )
             Spacer(Modifier.height(14.dp))
             Text(
                 text = "単語を入れると読み方・意味の候補を自動で埋めます。そのまま直せます。",

@@ -1,6 +1,7 @@
 package jp.co.tsuqrea.designer_kmp_template.widget
 
 import jp.co.tsuqrea.designer_kmp_template.domain.MeterLogic
+import jp.co.tsuqrea.designer_kmp_template.platform.languageTag
 import jp.co.tsuqrea.designer_kmp_template.domain.repository.FolderRepository
 import jp.co.tsuqrea.designer_kmp_template.domain.repository.SettingsRepository
 import jp.co.tsuqrea.designer_kmp_template.domain.repository.WordRepository
@@ -40,7 +41,9 @@ class WidgetSyncer(
                     WidgetFolderDto(
                         id = folder.id,
                         name = folder.name,
-                        words = rotation.map { WidgetWordDto(it.term, it.reading, it.meaning, it.encounterCount) },
+                        words = rotation.map {
+                            WidgetWordDto(it.term, it.reading, it.meaning, it.encounterCount, languageTag(it.language))
+                        },
                     )
                 },
             )

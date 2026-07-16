@@ -30,3 +30,6 @@ xcuserdata
 
 # Node (if any tooling)
 node_modules/
+
+# llama.cpp prebuilt xcframework (fetch with scripts/fetch-llama-xcframework.sh)
+iosApp/Frameworks/llama.xcframework/
