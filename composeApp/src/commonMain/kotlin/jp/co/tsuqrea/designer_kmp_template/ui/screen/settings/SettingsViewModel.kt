@@ -33,6 +33,9 @@ class SettingsViewModel(
         update { it.copy(reminderEnabled = enabled) }
     }
 
+    /** 通知する時間（0時からの分）。ReminderScheduler が設定変更を監視して予約し直す。 */
+    fun setReminderTime(minutes: Int) = update { it.copy(reminderTimeMinutes = minutes) }
+
     fun setAppTone(tone: ColorTone) = update { it.copy(appTone = tone) }
 
     fun setICloud(enabled: Boolean) = update { it.copy(iCloudEnabled = enabled) }
