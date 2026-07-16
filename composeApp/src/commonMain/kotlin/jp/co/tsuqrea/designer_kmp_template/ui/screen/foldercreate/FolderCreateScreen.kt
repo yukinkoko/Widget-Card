@@ -42,6 +42,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import jp.co.tsuqrea.designer_kmp_template.domain.CalendarUtil
 import jp.co.tsuqrea.designer_kmp_template.domain.DeadlineUtil
 import jp.co.tsuqrea.designer_kmp_template.domain.model.DeadlineTarget
+import jp.co.tsuqrea.designer_kmp_template.domain.model.WordLanguage
 import jp.co.tsuqrea.designer_kmp_template.domain.model.FolderIcon
 import jp.co.tsuqrea.designer_kmp_template.platform.todayEpochDay
 import jp.co.tsuqrea.designer_kmp_template.ui.component.BriefcaseIcon
@@ -57,6 +58,13 @@ import org.koin.compose.viewmodel.koinViewModel
 
 private val ScreenPadding = 20.dp
 
+/** フォルダの対象言語の選択肢（AI生成が対応する言語）。 */
+private val LANGUAGE_CHOICES = listOf(
+    WordLanguage.Korean to "韓国語",
+    WordLanguage.English to "英語",
+    WordLanguage.Chinese to "中国語",
+)
+
 @Composable
 fun FolderCreateScreen(
     onBack: () -> Unit,
@@ -71,6 +79,7 @@ fun FolderCreateScreen(
     var method by remember { mutableStateOf(AddMethod.Ai) }
     var deadline by remember { mutableStateOf<DeadlineTarget?>(null) }
     var icon by remember { mutableStateOf(FolderIcon.Book) }
+    var language by remember { mutableStateOf(WordLanguage.Korean) }
 
     Column(
         modifier = Modifier
@@ -88,6 +97,14 @@ fun FolderCreateScreen(
         ) {
             FieldLabel("フォルダ名")
             InputField(value = name, placeholder = "例: 韓国旅行で使う単語", onValueChange = { name = it })
+            Spacer(Modifier.height(24.dp))
+
+            FieldLabel("覚える言語")
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                LANGUAGE_CHOICES.forEach { (value, label) ->
+                    DeadlineChip(label, language == value) { language = value }
+                }
+            }
             Spacer(Modifier.height(24.dp))
 
             FieldLabel("単語の追加方法")
@@ -150,6 +167,7 @@ fun FolderCreateScreen(
                     description = description.ifBlank { null },
                     deadline = deadline,
                     icon = icon,
+                    language = language,
                     method = method,
                     onCreated = onCreated,
                 )

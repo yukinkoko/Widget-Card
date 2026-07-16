@@ -22,6 +22,12 @@ interface WordGenerator {
      * 構造は llama.cpp の GBNF 文法で保証される。
      */
     fun generate(theme: String, language: String, count: Int, onResult: (String?) -> Unit)
+
+    /**
+     * 1語 [term]（[language] の単語）の読み方（カタカナ）と意味（日本語）を生成する。
+     * 結果は JSON 文字列 `{"reading":"...","meaning":"..."}`、失敗・モデル未DL時は null。
+     */
+    fun generateEntry(term: String, language: String, onResult: (String?) -> Unit)
 }
 
 /** ネイティブ実装の登録先。未登録（Android 等）なら AI 生成はスタブにフォールバック。 */

@@ -43,6 +43,7 @@ private fun FolderEntity.toFolder(): Folder = Folder(
     description = description,
     icon = runCatching { FolderIcon.valueOf(icon) }.getOrDefault(FolderIcon.Book),
     deadline = toDeadline(deadlineType, deadlineEpochDay),
+    language = runCatching { WordLanguage.valueOf(language) }.getOrDefault(WordLanguage.Korean),
     isActive = isActive.toBool(),
     createdEpochDay = createdEpochDay,
 )
@@ -117,7 +118,7 @@ class SqlFolderRepository(private val db: WordWidgetDatabase) : FolderRepository
         q.insertFolder(
             withId.id, withId.name, withId.description, withId.icon.name,
             withId.deadline.typeString(), withId.deadline.epochDay(),
-            withId.isActive.toLong(), withId.createdEpochDay,
+            withId.isActive.toLong(), withId.createdEpochDay, withId.language.name,
         )
         withId
     }
@@ -127,7 +128,7 @@ class SqlFolderRepository(private val db: WordWidgetDatabase) : FolderRepository
             q.insertFolder(
                 folder.id, folder.name, folder.description, folder.icon.name,
                 folder.deadline.typeString(), folder.deadline.epochDay(),
-                folder.isActive.toLong(), folder.createdEpochDay,
+                folder.isActive.toLong(), folder.createdEpochDay, folder.language.name,
             )
         }
     }

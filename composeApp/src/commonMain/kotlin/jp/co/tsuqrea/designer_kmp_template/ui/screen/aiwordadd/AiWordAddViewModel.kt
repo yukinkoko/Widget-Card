@@ -6,7 +6,9 @@ import jp.co.tsuqrea.designer_kmp_template.ai.WordGeneratorRegistry
 import jp.co.tsuqrea.designer_kmp_template.domain.model.Word
 import jp.co.tsuqrea.designer_kmp_template.domain.model.WordLanguage
 import jp.co.tsuqrea.designer_kmp_template.domain.repository.FolderRepository
+import jp.co.tsuqrea.designer_kmp_template.domain.DeadlineUtil
 import jp.co.tsuqrea.designer_kmp_template.domain.repository.WordRepository
+import jp.co.tsuqrea.designer_kmp_template.platform.todayEpochDay
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -105,6 +107,13 @@ class AiWordAddViewModel(
             themeText = listOfNotNull(folder?.name, folder?.description)
                 .filter { it.isNotBlank() }
                 .joinToString("、")
+            // フォルダの対象言語・締切からの推奨語数を初期値にする
+            folder?.language?.let { language = it.displayName() }
+            folder?.deadline?.let { dl ->
+                val today = todayEpochDay()
+                val days = DeadlineUtil.daysRemaining(DeadlineUtil.resolveEpochDay(dl, today), today)
+                count = DeadlineUtil.recommendedWordCount(days).coerceIn(MIN_COUNT, MAX_COUNT)
+            }
             generate()
         }
     }
@@ -185,12 +194,7 @@ class AiWordAddViewModel(
         val current = _state.value as? AiWordAddState.Results ?: return
         val selected = current.candidates.filter { it.selected }
         if (selected.isEmpty()) return
-        val wordLanguage = when (language) {
-            "韓国語" -> WordLanguage.Korean
-            "英語" -> WordLanguage.English
-            "中国語" -> WordLanguage.Chinese
-            else -> WordLanguage.Other
-        }
+        val wordLanguage = wordLanguageOf(language)
         viewModelScope.launch {
             wordRepository.createAll(
                 selected.mapIndexed { index, c ->
@@ -221,9 +225,13 @@ class AiWordAddViewModel(
 
     companion object {
         val LANGUAGE_OPTIONS = listOf("韓国語", "英語", "中国語")
-        val COUNT_OPTIONS = listOf(5, 8, 10, 15)
+        val COUNT_OPTIONS = listOf(5, 8, 10, 15, 20)
         private const val DEFAULT_LANGUAGE = "韓国語"
         private const val DEFAULT_COUNT = 8
+
+        /** 1回のオンデバイス生成で扱う語数の範囲（生成時間・品質とのバランス）。 */
+        private const val MIN_COUNT = 5
+        private const val MAX_COUNT = 20
 
         private val STUB = listOf(
             Candidate("감사합니다", "カムサハムニダ", "ありがとうございます"),
@@ -236,4 +244,20 @@ class AiWordAddViewModel(
             Candidate("실례지만 화장실이 어디예요?", "シルレジマン ファジャンシリ オディエヨ", "すみません、トイレはどこですか？"),
         )
     }
+}
+
+/** WordLanguage → 画面表示名。 */
+internal fun WordLanguage.displayName(): String = when (this) {
+    WordLanguage.Korean -> "韓国語"
+    WordLanguage.English -> "英語"
+    WordLanguage.Chinese -> "中国語"
+    WordLanguage.Other -> "その他"
+}
+
+/** 画面表示名 → WordLanguage。 */
+internal fun wordLanguageOf(displayName: String): WordLanguage = when (displayName) {
+    "韓国語" -> WordLanguage.Korean
+    "英語" -> WordLanguage.English
+    "中国語" -> WordLanguage.Chinese
+    else -> WordLanguage.Other
 }

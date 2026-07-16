@@ -29,6 +29,8 @@ data class Folder(
     val description: String? = null,
     val icon: FolderIcon = FolderIcon.Book,
     val deadline: DeadlineTarget? = null,
+    /** このフォルダの対象言語。AI生成・自動補完・発音の既定になる。 */
+    val language: WordLanguage = WordLanguage.Korean,
     /** 表示中（Daily / ウィジェットの対象）。同時に1つ。 */
     val isActive: Boolean = false,
     val createdEpochDay: Long,

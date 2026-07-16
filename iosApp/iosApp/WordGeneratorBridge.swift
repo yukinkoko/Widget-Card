@@ -73,7 +73,26 @@ final class LlamaWordGenerator: NSObject, WordGenerator {
             let output = LlamaRunner.generate(
                 modelPath: modelPath,
                 prompt: prompt,
-                grammar: Self.wordsGrammar
+                grammar: Self.wordsGrammar,
+                maxTokens: 2048
+            )
+            onResult(output)
+        }
+    }
+
+    func generateEntry(
+        term: String,
+        language: String,
+        onResult: @escaping (String?) -> Void
+    ) {
+        let modelPath = Self.modelLocalURL.path
+        DispatchQueue.global(qos: .userInitiated).async {
+            let prompt = Self.buildEntryPrompt(term: term, language: language)
+            let output = LlamaRunner.generate(
+                modelPath: modelPath,
+                prompt: prompt,
+                grammar: Self.entryGrammar,
+                maxTokens: 128
             )
             onResult(output)
         }
@@ -113,6 +132,35 @@ final class LlamaWordGenerator: NSObject, WordGenerator {
 
         """
     }
+
+    /// 1語の読み方・意味の補完用プロンプト（手動の単語登録画面）。
+    private static func buildEntryPrompt(term: String, language: String) -> String {
+        let system = "あなたは語学学習アプリのアシスタントです。単語の読み方と意味を指定されたJSON形式のみで出力します。"
+        let user = """
+        \(language)の単語「\(term)」について、readingは必ずカタカナの読み方、meaningは日本語の意味をJSONで出力してください。
+        出力例:
+        {"reading":"カムサハムニダ","meaning":"ありがとうございます"}
+        """
+        return """
+        <|im_start|>system
+        \(system)<|im_end|>
+        <|im_start|>user
+        \(user)<|im_end|>
+        <|im_start|>assistant
+        <think>
+
+        </think>
+
+        """
+    }
+
+    /// 1語補完の出力構造を保証する GBNF。
+    private static let entryGrammar = #"""
+    root ::= "{" ws "\"reading\"" ws ":" ws katakana ws "," ws "\"meaning\"" ws ":" ws string ws "}"
+    katakana ::= "\"" [ァ-ヶー・ 　]+ "\""
+    string ::= "\"" ( [^"\\\x7F\x00-\x1F] | "\\" (["\\bfnrt] | "u" [0-9a-fA-F] [0-9a-fA-F] [0-9a-fA-F] [0-9a-fA-F]) )* "\""
+    ws ::= [ \t\n]*
+    """#
 
     /// 出力構造を保証する GBNF（llama.cpp 公式 json.gbnf の文字定義を踏襲）。
     /// reading はカタカナ（＋長音・中点・空白）だけに拘束してローマ字読みの混入を防ぐ。

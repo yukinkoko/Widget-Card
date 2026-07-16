@@ -24,6 +24,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -64,27 +65,55 @@ fun WordEntryScreen(
     var reading by remember { mutableStateOf("") }
     var meaning by remember { mutableStateOf("") }
 
-    /** 意味が自動補完によるものか。手入力されたら false にして上書きを止める。 */
+    /** 自動補完によるものか。手入力されたら false にして上書きを止める。 */
+    var readingAutofilled by remember { mutableStateOf(false) }
     var meaningAutofilled by remember { mutableStateOf(false) }
+
+    /** 自動補完の実行中（チップにスピナー表示）。 */
+    var autofilling by remember { mutableStateOf(false) }
+
+    /** チップタップで即時補完を走らせるトリガー。 */
+    var autofillRequest by remember { mutableStateOf(0) }
 
     fun clear() {
         term = ""
         reading = ""
         meaning = ""
+        readingAutofilled = false
         meaningAutofilled = false
     }
 
-    // 単語の入力が落ち着いたら意味を自動補完（Apple Translation・iOSのみ）。
-    // 手入力済みの意味は上書きしない。
+    // 読み方・意味をオンデバイスLLMで補完する。手入力済みのフィールドは上書きしない。
+    val runAutofill: suspend () -> Unit = {
+        autofilling = true
+        val suggestion = viewModel.autofillEntry(term)
+        autofilling = false
+        if (suggestion != null) {
+            if (suggestion.reading.isNotBlank() && (reading.isBlank() || readingAutofilled)) {
+                reading = suggestion.reading
+                readingAutofilled = true
+            }
+            if (suggestion.meaning.isNotBlank() && (meaning.isBlank() || meaningAutofilled)) {
+                meaning = suggestion.meaning
+                meaningAutofilled = true
+            }
+        }
+    }
+
+    // 単語の入力が落ち着いたら自動補完（iOS・モデルDL済みのときのみ動作）
     LaunchedEffect(term) {
         if (term.isBlank()) return@LaunchedEffect
         delay(AUTOFILL_DEBOUNCE_MILLIS)
-        if (meaning.isNotBlank() && !meaningAutofilled) return@LaunchedEffect
-        val suggested = viewModel.autofillMeaning(term) ?: return@LaunchedEffect
-        if (meaning.isBlank() || meaningAutofilled) {
-            meaning = suggested
-            meaningAutofilled = true
-        }
+        val readingWanted = reading.isBlank() || readingAutofilled
+        val meaningWanted = meaning.isBlank() || meaningAutofilled
+        if (!readingWanted && !meaningWanted) return@LaunchedEffect
+        runAutofill()
+    }
+
+    // 「✦ 自動入力」チップのタップで即時補完
+    LaunchedEffect(autofillRequest) {
+        if (autofillRequest == 0 || term.isBlank()) return@LaunchedEffect
+        runAutofill()
     }
 
     Column(
@@ -101,9 +130,24 @@ fun WordEntryScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = ScreenPadding),
         ) {
-            LabeledField(label = "単語", value = term, onValueChange = { term = it })
+            LabeledField(
+                label = "単語",
+                value = term,
+                onValueChange = { term = it },
+                autofilling = autofilling,
+                onAutofill = { autofillRequest++ },
+            )
             Spacer(Modifier.height(20.dp))
-            LabeledField(label = "読み方", value = reading, onValueChange = { reading = it })
+            LabeledField(
+                label = "読み方",
+                value = reading,
+                onValueChange = {
+                    reading = it
+                    readingAutofilled = false
+                },
+                autofilling = autofilling,
+                onAutofill = { autofillRequest++ },
+            )
             Spacer(Modifier.height(20.dp))
             LabeledField(
                 label = "意味",
@@ -112,6 +156,8 @@ fun WordEntryScreen(
                     meaning = it
                     meaningAutofilled = false
                 },
+                autofilling = autofilling,
+                onAutofill = { autofillRequest++ },
             )
             Spacer(Modifier.height(14.dp))
             Text(
@@ -149,7 +195,13 @@ private fun Header(onBack: () -> Unit) {
 }
 
 @Composable
-private fun LabeledField(label: String, value: String, onValueChange: (String) -> Unit) {
+private fun LabeledField(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    autofilling: Boolean = false,
+    onAutofill: () -> Unit = {},
+) {
     val colors = WidgetWordTheme.colors
     Column {
         Row(
@@ -158,7 +210,7 @@ private fun LabeledField(label: String, value: String, onValueChange: (String) -
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(text = label, style = WidgetWordTheme.typography.label, color = colors.secondary)
-            AutofillChip()
+            AutofillChip(loading = autofilling, onClick = onAutofill)
         }
         Box(
             modifier = Modifier
@@ -180,17 +232,27 @@ private fun LabeledField(label: String, value: String, onValueChange: (String) -
     }
 }
 
-/**
- * 「✦ 自動入力」チップ。自動補完（Apple Translation / オンデバイスLLM）は M5 で配線予定。
- */
+/** 「✦ 自動入力」チップ。タップでオンデバイスLLMによる読み方・意味の補完を実行。 */
 @Composable
-private fun AutofillChip() {
+private fun AutofillChip(loading: Boolean, onClick: () -> Unit) {
     val colors = WidgetWordTheme.colors
     Row(
+        modifier = Modifier
+            .clip(RoundedCornerShape(percent = 50))
+            .clickable(enabled = !loading, onClick = onClick)
+            .padding(horizontal = 4.dp, vertical = 2.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        SparkleIcon(color = colors.secondary, size = 13.dp)
+        if (loading) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(12.dp),
+                color = colors.secondary,
+                strokeWidth = 1.5.dp,
+            )
+        } else {
+            SparkleIcon(color = colors.secondary, size = 13.dp)
+        }
         Text(text = "自動入力", style = WidgetWordTheme.typography.label, color = colors.secondary)
     }
 }
