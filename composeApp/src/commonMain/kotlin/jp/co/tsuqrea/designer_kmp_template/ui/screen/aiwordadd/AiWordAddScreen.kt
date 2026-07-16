@@ -25,10 +25,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -84,6 +89,8 @@ fun AiWordAddScreen(
                 ResultsBody(
                     state = s,
                     onThemeChange = viewModel::updateTheme,
+                    onLanguageChange = viewModel::setLanguage,
+                    onCountChange = viewModel::setCount,
                     onToggle = viewModel::toggle,
                     modifier = Modifier.weight(1f),
                 )
@@ -278,6 +285,8 @@ private fun SkeletonBar(width: androidx.compose.ui.unit.Dp) {
 private fun ResultsBody(
     state: AiWordAddState.Results,
     onThemeChange: (String) -> Unit,
+    onLanguageChange: (String) -> Unit,
+    onCountChange: (Int) -> Unit,
     onToggle: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -295,8 +304,20 @@ private fun ResultsBody(
         Spacer(Modifier.height(16.dp))
 
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            SelectBox(label = "言語", value = state.language, modifier = Modifier.weight(1f))
-            SelectBox(label = "語数", value = "${state.total}語", modifier = Modifier.weight(1f))
+            SelectBox(
+                label = "言語",
+                value = state.language,
+                options = AiWordAddViewModel.LANGUAGE_OPTIONS,
+                onSelect = onLanguageChange,
+                modifier = Modifier.weight(1f),
+            )
+            SelectBox(
+                label = "語数",
+                value = "${state.count}語",
+                options = AiWordAddViewModel.COUNT_OPTIONS.map { "${it}語" },
+                onSelect = { onCountChange(it.removeSuffix("語").toInt()) },
+                modifier = Modifier.weight(1f),
+            )
         }
         Spacer(Modifier.height(10.dp))
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -396,21 +417,53 @@ private fun ThemeBox(text: String, onChange: ((String) -> Unit)? = null, editabl
 }
 
 @Composable
-private fun SelectBox(label: String, value: String, modifier: Modifier = Modifier) {
+private fun SelectBox(
+    label: String,
+    value: String,
+    options: List<String>,
+    onSelect: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val colors = WidgetWordTheme.colors
+    var expanded by remember { mutableStateOf(false) }
     Column(modifier = modifier) {
         FieldLabel(label, Modifier.padding(bottom = 8.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth()
-                .clip(RoundedCornerShape(WidgetWordTheme.radius.select))
-                .background(colors.card)
-                .border(1.dp, colors.fieldOutline, RoundedCornerShape(WidgetWordTheme.radius.select))
-                .padding(horizontal = 14.dp, vertical = 13.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(text = value, fontSize = 15.sp, color = colors.ink)
-            ChevronDownIcon(color = colors.secondary, size = 16.dp)
+        Box {
+            Row(
+                modifier = Modifier.fillMaxWidth()
+                    .clip(RoundedCornerShape(WidgetWordTheme.radius.select))
+                    .background(colors.card)
+                    .border(1.dp, colors.fieldOutline, RoundedCornerShape(WidgetWordTheme.radius.select))
+                    .clickable { expanded = true }
+                    .padding(horizontal = 14.dp, vertical = 13.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(text = value, fontSize = 15.sp, color = colors.ink)
+                ChevronDownIcon(color = colors.secondary, size = 16.dp)
+            }
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                containerColor = colors.card,
+            ) {
+                options.forEach { option ->
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = option,
+                                fontSize = 15.sp,
+                                fontWeight = if (option == value) FontWeight.SemiBold else FontWeight.Normal,
+                                color = colors.ink,
+                            )
+                        },
+                        onClick = {
+                            expanded = false
+                            if (option != value) onSelect(option)
+                        },
+                    )
+                }
+            }
         }
     }
 }

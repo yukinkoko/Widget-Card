@@ -3,6 +3,8 @@ DEVELOPMENT_TEAM=$(TEAM_ID)
 
 PRODUCT_NAME=designer_kmp_template
 PRODUCT_BUNDLE_IDENTIFIER=jp.co.tsuqrea.wordwidget
+// ホーム画面のアプリ名（PRODUCT_NAME はビルド成果物名のため据え置き）
+INFOPLIST_KEY_CFBundleDisplayName=WORD WIDGET
 
 CURRENT_PROJECT_VERSION=1
 MARKETING_VERSION=1.0

@@ -83,13 +83,23 @@ final class LlamaWordGenerator: NSObject, WordGenerator {
     /// 続きを GBNF 文法で拘束して純粋な JSON だけを生成させる。
     private static func buildPrompt(theme: String, language: String, count: Int32) -> String {
         let system = "あなたは語学学習アプリの単語リスト作成アシスタントです。テーマに合った実用的な単語・フレーズを選び、指定されたJSON形式のみで出力します。"
+        // few-shot は対象言語に合わせる（韓国語の例で英語生成が引きずられないように）
+        let example: String
+        switch language {
+        case "英語":
+            example = #"{"words":[{"term":"thank you","reading":"サンキュー","meaning":"ありがとう"},{"term":"water","reading":"ウォーター","meaning":"水"}]}"#
+        case "中国語":
+            example = #"{"words":[{"term":"谢谢","reading":"シエシエ","meaning":"ありがとう"},{"term":"水","reading":"シュイ","meaning":"水"}]}"#
+        default:
+            example = #"{"words":[{"term":"감사합니다","reading":"カムサハムニダ","meaning":"ありがとうございます"},{"term":"물","reading":"ムル","meaning":"水"}]}"#
+        }
         let user = """
         テーマ:「\(theme)」
         対象言語: \(language)
         テーマに合う\(language)の単語・フレーズを\(count)語、JSONで出力してください。
         term は\(language)の表記、reading は必ずカタカナ、meaning は日本語の意味。
         出力例:
-        {"words":[{"term":"감사합니다","reading":"カムサハムニダ","meaning":"ありがとうございます"},{"term":"물","reading":"ムル","meaning":"水"}]}
+        \(example)
         """
         return """
         <|im_start|>system
@@ -236,7 +246,9 @@ private enum LlamaRunner {
         var batch = llama_batch_get_one(&tokens, Int32(tokens.count))
         guard llama_decode(context, batch) == 0 else { return nil }
 
-        var output = ""
+        // マルチバイト文字はトークン境界で分断されることがあるため、
+        // ピースごとに文字列化せず、バイト列を貯めて最後に一括デコードする。
+        var outputBytes: [UInt8] = []
         var pieceBuffer = [CChar](repeating: 0, count: 256)
         for _ in 0..<maxTokens {
             var token = llama_sampler_sample(chain, context, -1)
@@ -244,13 +256,13 @@ private enum LlamaRunner {
 
             let pieceLength = llama_token_to_piece(vocab, token, &pieceBuffer, Int32(pieceBuffer.count), 0, false)
             if pieceLength > 0 {
-                let bytes = pieceBuffer[0..<Int(pieceLength)].map { UInt8(bitPattern: $0) }
-                output += String(decoding: bytes, as: UTF8.self)
+                outputBytes.append(contentsOf: pieceBuffer[0..<Int(pieceLength)].map { UInt8(bitPattern: $0) })
             }
 
             batch = llama_batch_get_one(&token, 1)
             guard llama_decode(context, batch) == 0 else { break }
         }
+        let output = String(decoding: outputBytes, as: UTF8.self)
         return output.isEmpty ? nil : output
     }
 }
