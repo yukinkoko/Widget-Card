@@ -39,4 +39,7 @@ val sharedModule =
 
         // ── ウィジェット同期 ──
         single { jp.co.tsuqrea.designer_kmp_template.widget.WidgetSyncer(get(), get(), get()) }
+
+        // ── リマインダー通知 ──
+        single { jp.co.tsuqrea.designer_kmp_template.notify.ReminderScheduler(get(), get()) }
     }

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import jp.co.tsuqrea.designer_kmp_template.domain.model.AppSettings
 import jp.co.tsuqrea.designer_kmp_template.domain.model.ColorTone
 import jp.co.tsuqrea.designer_kmp_template.domain.repository.SettingsRepository
+import jp.co.tsuqrea.designer_kmp_template.platform.requestNotificationPermission
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -25,7 +26,12 @@ class SettingsViewModel(
         viewModelScope.launch { settingsRepository.updateAppSettings(transform(uiState.value)) }
     }
 
-    fun setReminderEnabled(enabled: Boolean) = update { it.copy(reminderEnabled = enabled) }
+    fun setReminderEnabled(enabled: Boolean) {
+        // ONにしたら通知許可をリクエスト。拒否されても設定自体は保持する
+        // （届くかどうかは OS 側の許可に従う。予約は ReminderScheduler が行う）。
+        if (enabled) requestNotificationPermission { }
+        update { it.copy(reminderEnabled = enabled) }
+    }
 
     fun setAppTone(tone: ColorTone) = update { it.copy(appTone = tone) }
 
