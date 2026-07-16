@@ -447,7 +447,7 @@
 				INFOPLIST_FILE = WordWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "WORD WIDGET";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
-				PRODUCT_BUNDLE_IDENTIFIER = jp.co.tsuqrea.designer_kmp_template.designer_kmp_template.WordWidget;
+				PRODUCT_BUNDLE_IDENTIFIER = jp.co.tsuqrea.wordwidget.WordWidget;
 				PRODUCT_NAME = WordWidget;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -497,7 +497,7 @@
 				INFOPLIST_FILE = WordWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "WORD WIDGET";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
-				PRODUCT_BUNDLE_IDENTIFIER = jp.co.tsuqrea.designer_kmp_template.designer_kmp_template.WordWidget;
+				PRODUCT_BUNDLE_IDENTIFIER = jp.co.tsuqrea.wordwidget.WordWidget;
 				PRODUCT_NAME = WordWidget;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
