@@ -102,16 +102,9 @@ final class LlamaWordGenerator: NSObject, WordGenerator {
     /// 続きを GBNF 文法で拘束して純粋な JSON だけを生成させる。
     private static func buildPrompt(theme: String, language: String, count: Int32) -> String {
         let system = "あなたは語学学習アプリの単語リスト作成アシスタントです。テーマに合った実用的な単語・フレーズを選び、指定されたJSON形式のみで出力します。"
-        // few-shot は対象言語に合わせる（韓国語の例で英語生成が引きずられないように）
-        let example: String
-        switch language {
-        case "英語":
-            example = #"{"words":[{"term":"thank you","reading":"サンキュー","meaning":"ありがとう"},{"term":"water","reading":"ウォーター","meaning":"水"}]}"#
-        case "中国語":
-            example = #"{"words":[{"term":"谢谢","reading":"シエシエ","meaning":"ありがとう"},{"term":"水","reading":"シュイ","meaning":"水"}]}"#
-        default:
-            example = #"{"words":[{"term":"감사합니다","reading":"カムサハムニダ","meaning":"ありがとうございます"},{"term":"물","reading":"ムル","meaning":"水"}]}"#
-        }
+        // few-shot は対象言語に合わせる（他言語の例に生成が引きずられないように）
+        let pair = Self.examplePairs[language] ?? ("감사합니다", "カムサハムニダ", "ありがとうございます", "물", "ムル")
+        let example = #"{"words":[{"term":"\#(pair.0)","reading":"\#(pair.1)","meaning":"\#(pair.2)"},{"term":"\#(pair.3)","reading":"\#(pair.4)","meaning":"水"}]}"#
         let user = """
         テーマ:「\(theme)」
         対象言語: \(language)
@@ -132,6 +125,22 @@ final class LlamaWordGenerator: NSObject, WordGenerator {
 
         """
     }
+
+    /// 言語ごとの few-shot 例:（ありがとう term/reading/meaning, 水 term/reading）。
+    private static let examplePairs: [String: (String, String, String, String, String)] = [
+        "韓国語": ("감사합니다", "カムサハムニダ", "ありがとうございます", "물", "ムル"),
+        "英語": ("thank you", "サンキュー", "ありがとう", "water", "ウォーター"),
+        "中国語": ("谢谢", "シエシエ", "ありがとう", "水", "シュイ"),
+        "スペイン語": ("gracias", "グラシアス", "ありがとう", "agua", "アグア"),
+        "フランス語": ("merci", "メルシー", "ありがとう", "eau", "オー"),
+        "ドイツ語": ("danke", "ダンケ", "ありがとう", "Wasser", "ヴァッサー"),
+        "イタリア語": ("grazie", "グラツィエ", "ありがとう", "acqua", "アックア"),
+        "ポルトガル語": ("obrigado", "オブリガード", "ありがとう", "água", "アグア"),
+        "ベトナム語": ("cảm ơn", "カムオン", "ありがとう", "nước", "ヌォック"),
+        "タイ語": ("ขอบคุณ", "コープクン", "ありがとう", "น้ำ", "ナーム"),
+        "インドネシア語": ("terima kasih", "トゥリマカシ", "ありがとう", "air", "アイル"),
+        "ロシア語": ("спасибо", "スパシーバ", "ありがとう", "вода", "ヴァダー"),
+    ]
 
     /// 1語の読み方・意味の補完用プロンプト（手動の単語登録画面）。
     private static func buildEntryPrompt(term: String, language: String) -> String {

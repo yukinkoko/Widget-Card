@@ -328,6 +328,12 @@ private fun ResultsBody(
                 color = colors.secondary,
             )
         }
+        Spacer(Modifier.height(4.dp))
+        Text(
+            text = "生成は1回につき最大${AiWordAddViewModel.MAX_COUNT}語。足りない分はもう一度生成で追加できます。",
+            style = WidgetWordTheme.typography.label,
+            color = colors.faint,
+        )
         Spacer(Modifier.height(20.dp))
 
         Row(

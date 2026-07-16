@@ -6,6 +6,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -53,18 +55,13 @@ import jp.co.tsuqrea.designer_kmp_template.ui.component.FolderGlyphIcon
 import jp.co.tsuqrea.designer_kmp_template.ui.component.PencilIcon
 import jp.co.tsuqrea.designer_kmp_template.ui.component.PlaneIcon
 import jp.co.tsuqrea.designer_kmp_template.ui.component.SparkleIcon
+import jp.co.tsuqrea.designer_kmp_template.ui.screen.aiwordadd.AiWordAddViewModel
 import jp.co.tsuqrea.designer_kmp_template.ui.theme.WidgetWordTheme
 import org.koin.compose.viewmodel.koinViewModel
 
 private val ScreenPadding = 20.dp
 
-/** フォルダの対象言語の選択肢（AI生成が対応する言語）。 */
-private val LANGUAGE_CHOICES = listOf(
-    WordLanguage.Korean to "韓国語",
-    WordLanguage.English to "英語",
-    WordLanguage.Chinese to "中国語",
-)
-
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun FolderCreateScreen(
     onBack: () -> Unit,
@@ -100,9 +97,12 @@ fun FolderCreateScreen(
             Spacer(Modifier.height(24.dp))
 
             FieldLabel("覚える言語")
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                LANGUAGE_CHOICES.forEach { (value, label) ->
-                    DeadlineChip(label, language == value) { language = value }
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                WordLanguage.selectable.forEach { value ->
+                    DeadlineChip(value.displayName, language == value) { language = value }
                 }
             }
             Spacer(Modifier.height(24.dp))
@@ -341,6 +341,14 @@ private fun RecommendedCard(days: Long) {
             style = WidgetWordTheme.typography.reading,
             color = colors.ink,
         )
+        if (recommended > AiWordAddViewModel.MAX_COUNT) {
+            Spacer(Modifier.height(6.dp))
+            Text(
+                text = "AI生成は1回につき最大${AiWordAddViewModel.MAX_COUNT}語。足りない分は「もう一度生成」で追加できます。",
+                style = WidgetWordTheme.typography.label,
+                color = colors.faint,
+            )
+        }
     }
 }
 

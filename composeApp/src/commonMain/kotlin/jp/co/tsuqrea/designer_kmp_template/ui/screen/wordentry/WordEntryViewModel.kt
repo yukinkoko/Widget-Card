@@ -7,7 +7,6 @@ import jp.co.tsuqrea.designer_kmp_template.domain.model.Word
 import jp.co.tsuqrea.designer_kmp_template.domain.model.WordLanguage
 import jp.co.tsuqrea.designer_kmp_template.domain.repository.FolderRepository
 import jp.co.tsuqrea.designer_kmp_template.domain.repository.WordRepository
-import jp.co.tsuqrea.designer_kmp_template.ui.screen.aiwordadd.displayName
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -50,7 +49,7 @@ class WordEntryViewModel(
         if (!generator.isReady()) return null
         val raw = withTimeoutOrNull(AUTOFILL_TIMEOUT_MILLIS) {
             suspendCancellableCoroutine<String?> { continuation ->
-                generator.generateEntry(term, folderLanguage.displayName()) { output ->
+                generator.generateEntry(term, folderLanguage.displayName) { output ->
                     if (continuation.isActive) continuation.resume(output)
                 }
             }
