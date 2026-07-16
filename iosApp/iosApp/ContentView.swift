@@ -11,8 +11,14 @@ struct ComposeView: UIViewControllerRepresentable {
 }
 
 struct ContentView: View {
+    init() {
+        // Compose 側の意味自動補完（Apple Translation）へネイティブ実装を登録
+        MeaningTranslatorRegistry.shared.instance = TranslationBridge.shared
+    }
+
     var body: some View {
         ComposeView()
             .ignoresSafeArea()
+            .modifier(TranslationHost())
     }
 }
