@@ -49,6 +49,7 @@ import jp.co.tsuqrea.designer_kmp_template.ui.component.ChevronLeftIcon
 import jp.co.tsuqrea.designer_kmp_template.ui.component.CheckIcon
 import jp.co.tsuqrea.designer_kmp_template.ui.component.MeterBar
 import jp.co.tsuqrea.designer_kmp_template.ui.component.SparkleIcon
+import jp.co.tsuqrea.designer_kmp_template.ui.component.WwSelectBox
 import jp.co.tsuqrea.designer_kmp_template.ui.theme.WidgetWordTheme
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -304,14 +305,14 @@ private fun ResultsBody(
         Spacer(Modifier.height(16.dp))
 
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            SelectBox(
+            WwSelectBox(
                 label = "言語",
                 value = state.language,
                 options = AiWordAddViewModel.LANGUAGE_OPTIONS,
                 onSelect = onLanguageChange,
                 modifier = Modifier.weight(1f),
             )
-            SelectBox(
+            WwSelectBox(
                 label = "語数",
                 value = "${state.count}語",
                 options = AiWordAddViewModel.COUNT_OPTIONS.map { "${it}語" },
@@ -418,58 +419,6 @@ private fun ThemeBox(text: String, onChange: ((String) -> Unit)? = null, editabl
             )
         } else {
             Text(text = text, fontSize = 15.sp, color = colors.ink, lineHeight = 22.sp)
-        }
-    }
-}
-
-@Composable
-private fun SelectBox(
-    label: String,
-    value: String,
-    options: List<String>,
-    onSelect: (String) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val colors = WidgetWordTheme.colors
-    var expanded by remember { mutableStateOf(false) }
-    Column(modifier = modifier) {
-        FieldLabel(label, Modifier.padding(bottom = 8.dp))
-        Box {
-            Row(
-                modifier = Modifier.fillMaxWidth()
-                    .clip(RoundedCornerShape(WidgetWordTheme.radius.select))
-                    .background(colors.card)
-                    .border(1.dp, colors.fieldOutline, RoundedCornerShape(WidgetWordTheme.radius.select))
-                    .clickable { expanded = true }
-                    .padding(horizontal = 14.dp, vertical = 13.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(text = value, fontSize = 15.sp, color = colors.ink)
-                ChevronDownIcon(color = colors.secondary, size = 16.dp)
-            }
-            DropdownMenu(
-                expanded = expanded,
-                onDismissRequest = { expanded = false },
-                containerColor = colors.card,
-            ) {
-                options.forEach { option ->
-                    DropdownMenuItem(
-                        text = {
-                            Text(
-                                text = option,
-                                fontSize = 15.sp,
-                                fontWeight = if (option == value) FontWeight.SemiBold else FontWeight.Normal,
-                                color = colors.ink,
-                            )
-                        },
-                        onClick = {
-                            expanded = false
-                            if (option != value) onSelect(option)
-                        },
-                    )
-                }
-            }
         }
     }
 }

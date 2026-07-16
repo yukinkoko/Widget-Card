@@ -6,8 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -55,13 +53,13 @@ import jp.co.tsuqrea.designer_kmp_template.ui.component.FolderGlyphIcon
 import jp.co.tsuqrea.designer_kmp_template.ui.component.PencilIcon
 import jp.co.tsuqrea.designer_kmp_template.ui.component.PlaneIcon
 import jp.co.tsuqrea.designer_kmp_template.ui.component.SparkleIcon
+import jp.co.tsuqrea.designer_kmp_template.ui.component.WwSelectBox
 import jp.co.tsuqrea.designer_kmp_template.ui.screen.aiwordadd.AiWordAddViewModel
 import jp.co.tsuqrea.designer_kmp_template.ui.theme.WidgetWordTheme
 import org.koin.compose.viewmodel.koinViewModel
 
 private val ScreenPadding = 20.dp
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun FolderCreateScreen(
     onBack: () -> Unit,
@@ -96,15 +94,12 @@ fun FolderCreateScreen(
             InputField(value = name, placeholder = "例: 韓国旅行で使う単語", onValueChange = { name = it })
             Spacer(Modifier.height(24.dp))
 
-            FieldLabel("覚える言語")
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                WordLanguage.selectable.forEach { value ->
-                    DeadlineChip(value.displayName, language == value) { language = value }
-                }
-            }
+            WwSelectBox(
+                label = "覚える言語",
+                value = language.displayName,
+                options = WordLanguage.selectable.map { it.displayName },
+                onSelect = { language = WordLanguage.ofDisplayName(it) },
+            )
             Spacer(Modifier.height(24.dp))
 
             FieldLabel("単語の追加方法")
