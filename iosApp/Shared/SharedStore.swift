@@ -10,10 +10,11 @@ enum SharedStore {
     static func defaults() -> UserDefaults? { UserDefaults(suiteName: appGroup) }
 
     static func loadFull() -> FullSnapshot? {
-        guard let d = defaults(),
-              let data = d.data(forKey: key),
-              let snap = try? JSONDecoder().decode(FullSnapshot.self, from: data)
-        else { return nil }
+        guard let d = defaults() else { return nil }
+        // Kotlin 側（WidgetBridge.ios.kt）は setObject(String) で書くため、まず文字列として読む。
+        // 旧バージョンが Data で書いた値も読めるようフォールバックする。
+        let data = d.string(forKey: key)?.data(using: .utf8) ?? d.data(forKey: key)
+        guard let data, let snap = try? JSONDecoder().decode(FullSnapshot.self, from: data) else { return nil }
         return snap
     }
 }
