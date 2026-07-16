@@ -42,5 +42,6 @@ struct WidgetWordDTO: Codable {
     let reading: String
     let meaning: String
     let encounterCount: Int
-    let languageTag: String
+    /// 旧バージョンのスナップショット（languageTag なし）も読めるようオプショナル。
+    var languageTag: String?
 }

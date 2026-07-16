@@ -18,6 +18,8 @@ final class LlamaWordGenerator: NSObject, WordGenerator {
     }
 
     private var downloader: ModelDownloader?
+    private var progressHandlers: [(Float) -> Void] = []
+    private var completeHandlers: [(Bool) -> Void] = []
 
     func isReady() -> Bool {
         FileManager.default.fileExists(atPath: Self.modelLocalURL.path)
@@ -31,17 +33,32 @@ final class LlamaWordGenerator: NSObject, WordGenerator {
             onComplete(true)
             return
         }
-        let downloader = ModelDownloader()
-        self.downloader = downloader
-        downloader.download(
-            from: Self.modelRemoteURL,
-            to: Self.modelLocalURL,
-            onProgress: { progress in onProgress(KotlinFloat(value: progress)) },
-            onComplete: { [weak self] ok in
-                self?.downloader = nil
-                onComplete(KotlinBoolean(value: ok))
-            }
-        )
+        // ハンドラの出し入れは main queue に直列化。ダウンロード中の再入
+        // （画面を出入りした等）は進行中のダウンロードに合流する。
+        DispatchQueue.main.async {
+            self.progressHandlers.append { progress in onProgress(KotlinFloat(value: progress)) }
+            self.completeHandlers.append { ok in onComplete(KotlinBoolean(value: ok)) }
+            guard self.downloader == nil else { return }
+
+            let downloader = ModelDownloader()
+            self.downloader = downloader
+            downloader.download(
+                from: Self.modelRemoteURL,
+                to: Self.modelLocalURL,
+                onProgress: { progress in
+                    DispatchQueue.main.async { self.progressHandlers.forEach { $0(progress) } }
+                },
+                onComplete: { ok in
+                    DispatchQueue.main.async {
+                        self.downloader = nil
+                        let handlers = self.completeHandlers
+                        self.completeHandlers = []
+                        self.progressHandlers = []
+                        handlers.forEach { $0(ok) }
+                    }
+                }
+            )
+        }
     }
 
     func generate(

@@ -36,6 +36,8 @@ class WordEntryViewModel(
      */
     suspend fun autofillMeaning(term: String): String? {
         val translator = MeaningTranslatorRegistry.instance ?: return null
+        // 前の単語の検出結果を持ち越さない（失敗時は既定言語に戻す）
+        detectedLanguage = null
         return withTimeoutOrNull(AUTOFILL_TIMEOUT_MILLIS) {
             suspendCancellableCoroutine { continuation ->
                 translator.translate(term) { meaning, languageCode ->

@@ -88,7 +88,7 @@ struct Provider: AppIntentTimelineProvider {
         guard let full = SharedStore.loadFull() else { return .sample }
         let folder = full.folder(id: config.folder?.id)
         let words = (folder?.words ?? []).map {
-            WordItem(term: $0.term, reading: $0.reading, meaning: $0.meaning, encounterCount: $0.encounterCount, languageTag: $0.languageTag)
+            WordItem(term: $0.term, reading: $0.reading, meaning: $0.meaning, encounterCount: $0.encounterCount, languageTag: $0.languageTag ?? "ja-JP")
         }
         let tone: WidgetTone
         switch config.tone {
