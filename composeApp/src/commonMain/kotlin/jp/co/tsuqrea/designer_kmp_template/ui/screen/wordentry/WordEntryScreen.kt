@@ -83,19 +83,27 @@ fun WordEntryScreen(
         meaningAutofilled = false
     }
 
+    /** モデル準備中（DL未完了）に自動入力を求められたか。ヒント文を差し替える。 */
+    var autofillUnready by remember { mutableStateOf(false) }
+
     // 読み方・意味をオンデバイスLLMで補完する。手入力済みのフィールドは上書きしない。
     val runAutofill: suspend () -> Unit = {
-        autofilling = true
-        val suggestion = viewModel.autofillEntry(term)
-        autofilling = false
-        if (suggestion != null) {
-            if (suggestion.reading.isNotBlank() && (reading.isBlank() || readingAutofilled)) {
-                reading = suggestion.reading
-                readingAutofilled = true
-            }
-            if (suggestion.meaning.isNotBlank() && (meaning.isBlank() || meaningAutofilled)) {
-                meaning = suggestion.meaning
-                meaningAutofilled = true
+        if (!viewModel.isAutofillReady()) {
+            autofillUnready = true
+        } else if (!autofilling) { // 実行中の多重起動はしない（生成はネイティブ側でも直列化）
+            autofillUnready = false
+            autofilling = true
+            val suggestion = viewModel.autofillEntry(term)
+            autofilling = false
+            if (suggestion != null) {
+                if (suggestion.reading.isNotBlank() && (reading.isBlank() || readingAutofilled)) {
+                    reading = suggestion.reading
+                    readingAutofilled = true
+                }
+                if (suggestion.meaning.isNotBlank() && (meaning.isBlank() || meaningAutofilled)) {
+                    meaning = suggestion.meaning
+                    meaningAutofilled = true
+                }
             }
         }
     }
@@ -161,7 +169,11 @@ fun WordEntryScreen(
             )
             Spacer(Modifier.height(14.dp))
             Text(
-                text = "単語を入れると読み方・意味の候補を自動で埋めます。そのまま直せます。",
+                text = if (autofillUnready) {
+                    "生成AIを準備中です（初回のみ）。モデルのダウンロード完了後に自動入力が使えます。"
+                } else {
+                    "単語を入れると読み方・意味の候補を自動で埋めます。そのまま直せます。"
+                },
                 style = WidgetWordTheme.typography.reading,
                 color = colors.faint,
             )

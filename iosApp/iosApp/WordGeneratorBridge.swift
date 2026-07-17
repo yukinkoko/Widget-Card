@@ -21,6 +21,10 @@ final class LlamaWordGenerator: NSObject, WordGenerator {
     private var progressHandlers: [(Float) -> Void] = []
     private var completeHandlers: [(Bool) -> Void] = []
 
+    /// 生成は直列化する。並行実行するとモデル（約1.2GB）が二重ロードされ、
+    /// 6GB RAM 端末では jetsam に殺されうる。
+    private static let generationQueue = DispatchQueue(label: "jp.co.tsuqrea.wordwidget.llama", qos: .userInitiated)
+
     func isReady() -> Bool {
         FileManager.default.fileExists(atPath: Self.modelLocalURL.path)
     }
@@ -68,7 +72,7 @@ final class LlamaWordGenerator: NSObject, WordGenerator {
         onResult: @escaping (String?) -> Void
     ) {
         let modelPath = Self.modelLocalURL.path
-        DispatchQueue.global(qos: .userInitiated).async {
+        Self.generationQueue.async {
             let prompt = Self.buildPrompt(theme: theme, language: language, count: count)
             let output = LlamaRunner.generate(
                 modelPath: modelPath,
@@ -86,7 +90,7 @@ final class LlamaWordGenerator: NSObject, WordGenerator {
         onResult: @escaping (String?) -> Void
     ) {
         let modelPath = Self.modelLocalURL.path
-        DispatchQueue.global(qos: .userInitiated).async {
+        Self.generationQueue.async {
             let prompt = Self.buildEntryPrompt(term: term, language: language)
             let output = LlamaRunner.generate(
                 modelPath: modelPath,
@@ -145,10 +149,11 @@ final class LlamaWordGenerator: NSObject, WordGenerator {
     /// 1語の読み方・意味の補完用プロンプト（手動の単語登録画面）。
     private static func buildEntryPrompt(term: String, language: String) -> String {
         let system = "あなたは語学学習アプリのアシスタントです。単語の読み方と意味を指定されたJSON形式のみで出力します。"
+        let pair = Self.examplePairs[language] ?? ("감사합니다", "カムサハムニダ", "ありがとうございます", "물", "ムル")
         let user = """
         \(language)の単語「\(term)」について、readingは必ずカタカナの読み方、meaningは日本語の意味をJSONで出力してください。
-        出力例:
-        {"reading":"カムサハムニダ","meaning":"ありがとうございます"}
+        出力例（\(language)の「\(pair.0)」の場合）:
+        {"reading":"\(pair.1)","meaning":"\(pair.2)"}
         """
         return """
         <|im_start|>system

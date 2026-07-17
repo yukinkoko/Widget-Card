@@ -40,6 +40,10 @@ final class SpeechPlayer: NSObject, AVSpeechSynthesizerDelegate {
 
     func speakAndWait(text: String, languageTag: String) async {
         guard !text.isEmpty else { return }
+        // 連打対策: 発話中なら止める（didCancel が前の continuation を resume する）
+        if synthesizer.isSpeaking {
+            synthesizer.stopSpeaking(at: .immediate)
+        }
         let session = AVAudioSession.sharedInstance()
         try? session.setCategory(.playback, mode: .default, options: [.duckOthers])
         try? session.setActive(true)

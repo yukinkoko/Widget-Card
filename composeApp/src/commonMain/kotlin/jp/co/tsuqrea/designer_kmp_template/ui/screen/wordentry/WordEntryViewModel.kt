@@ -40,6 +40,9 @@ class WordEntryViewModel(
         }
     }
 
+    /** 自動補完が使える状態か（生成バックエンドあり＋モデルDL済み）。 */
+    fun isAutofillReady(): Boolean = WordGeneratorRegistry.instance?.isReady() == true
+
     /**
      * [term] の読み方（カタカナ）と意味（日本語）をオンデバイスLLMで自動補完する。
      * モデル未DL・未登録（Android 等）・失敗・タイムアウト時は null。
