@@ -189,7 +189,15 @@ private fun Header() {
 private fun subtitle(row: FolderRow): String {
     val desc = row.folder.description
     val count = "${row.totalCount} words"
-    return if (desc.isNullOrBlank()) count else "$desc · $count"
+    val base = if (desc.isNullOrBlank()) count else "$desc · $count"
+    val deadline = row.deadlineDaysRemaining?.let { days ->
+        when {
+            days > 0 -> "あと${days}日"
+            days == 0L -> "今日まで"
+            else -> "期限超過"
+        }
+    }
+    return if (deadline == null) base else "$base · $deadline"
 }
 
 @Composable
