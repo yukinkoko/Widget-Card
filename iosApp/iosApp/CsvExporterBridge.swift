@@ -15,6 +15,8 @@ final class CsvExporterBridge: NSObject, CsvExporter {
                 return
             }
             guard let root = Self.topViewController() else { return }
+            // 既に共有シートが出ているなら二重表示しない（連打対策）
+            if root is UIActivityViewController { return }
             let activity = UIActivityViewController(activityItems: [url], applicationActivities: nil)
             // iPad のポップオーバー用アンカー
             if let pop = activity.popoverPresentationController {
