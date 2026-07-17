@@ -36,7 +36,10 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import jp.co.tsuqrea.designer_kmp_template.domain.model.DayActivityLevel
 import jp.co.tsuqrea.designer_kmp_template.domain.model.Word
+import androidx.compose.ui.text.style.TextOverflow
+import jp.co.tsuqrea.designer_kmp_template.domain.DeadlineUtil
 import jp.co.tsuqrea.designer_kmp_template.ui.component.ArrowUpRightIcon
+import jp.co.tsuqrea.designer_kmp_template.ui.component.CalendarIcon
 import jp.co.tsuqrea.designer_kmp_template.ui.component.BellIcon
 import jp.co.tsuqrea.designer_kmp_template.ui.component.FolderGlyphIcon
 import jp.co.tsuqrea.designer_kmp_template.ui.component.MeterBar
@@ -77,6 +80,7 @@ fun DailyScreen(
             totalCount = state.totalCount,
             todayEncounters = state.todayEncounters,
             progress = state.progress,
+            deadlineDaysRemaining = state.deadlineDaysRemaining,
         )
         Spacer(Modifier.height(24.dp))
         TodayWordSection(
@@ -190,6 +194,7 @@ private fun FolderCard(
     totalCount: Int,
     todayEncounters: Int,
     progress: Float,
+    deadlineDaysRemaining: Long?,
 ) {
     val colors = WidgetWordTheme.colors
     Column(
@@ -205,22 +210,36 @@ private fun FolderCard(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            Row(
+                modifier = Modifier.weight(1f, fill = false),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
                 FolderGlyphIcon(color = colors.onInk.copy(alpha = 0.6f))
                 Text(
                     text = folderName,
                     style = WidgetWordTheme.typography.reading,
                     color = colors.onInk.copy(alpha = 0.65f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
-            Box(
-                modifier = Modifier
-                    .size(32.dp)
-                    .clip(CircleShape)
-                    .background(colors.onInk.copy(alpha = 0.12f)),
-                contentAlignment = Alignment.Center,
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                ArrowUpRightIcon(color = colors.onInk)
+                if (deadlineDaysRemaining != null) {
+                    DeadlinePill(daysRemaining = deadlineDaysRemaining)
+                }
+                Box(
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clip(CircleShape)
+                        .background(colors.onInk.copy(alpha = 0.12f)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    ArrowUpRightIcon(color = colors.onInk)
+                }
             }
         }
         Spacer(Modifier.height(14.dp))
@@ -269,6 +288,31 @@ private fun TodayPill(count: Int, modifier: Modifier = Modifier) {
             style = WidgetWordTheme.typography.meterValue,
             color = colors.onInk,
         )
+    }
+}
+
+/** 目標期限までの残り日数ピル（黒カード上）。期限当日・超過も表現。 */
+@Composable
+private fun DeadlinePill(daysRemaining: Long) {
+    val colors = WidgetWordTheme.colors
+    val expired = daysRemaining < 0
+    val label = DeadlineUtil.remainingLabel(daysRemaining)
+    val dotColor = if (expired) colors.onInk.copy(alpha = 0.5f) else colors.accent
+    Row(
+        modifier = Modifier
+            .clip(RoundedCornerShape(percent = 50))
+            .background(colors.onInk.copy(alpha = 0.12f))
+            .padding(horizontal = 10.dp, vertical = 5.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(5.dp),
+    ) {
+        CalendarIcon(color = colors.onInk.copy(alpha = 0.7f), size = 12.dp)
+        Text(
+            text = label,
+            style = WidgetWordTheme.typography.meterValue,
+            color = colors.onInk,
+        )
+        Box(Modifier.size(6.dp).clip(CircleShape).background(dotColor))
     }
 }
 

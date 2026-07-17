@@ -3,6 +3,7 @@ package jp.co.tsuqrea.designer_kmp_template.ui.screen.daily
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import jp.co.tsuqrea.designer_kmp_template.domain.CalendarUtil
+import jp.co.tsuqrea.designer_kmp_template.domain.DeadlineUtil
 import jp.co.tsuqrea.designer_kmp_template.domain.model.DailyCount
 import jp.co.tsuqrea.designer_kmp_template.domain.model.DayActivityLevel
 import jp.co.tsuqrea.designer_kmp_template.domain.model.Folder
@@ -42,6 +43,8 @@ data class DailyUiState(
     val todayEncounters: Int = 0,
     val weekdayChips: List<WeekdayChip> = emptyList(),
     val words: List<Word> = emptyList(),
+    /** 目標期限までの残り日数。期限未設定なら null。 */
+    val deadlineDaysRemaining: Long? = null,
 ) {
     /** 黒カードの進捗バー = Learned / 総数。 */
     val progress: Float get() = if (totalCount == 0) 0f else learnedCount.toFloat() / totalCount
@@ -122,6 +125,9 @@ class DailyViewModel(
             todayEncounters = countByDay[today]?.encounters ?: 0,
             weekdayChips = chips,
             words = words.sortedBy { it.order },
+            deadlineDaysRemaining = folder.deadline?.let {
+                DeadlineUtil.daysRemaining(DeadlineUtil.resolveEpochDay(it, folder.createdEpochDay), today)
+            },
         )
     }
 }

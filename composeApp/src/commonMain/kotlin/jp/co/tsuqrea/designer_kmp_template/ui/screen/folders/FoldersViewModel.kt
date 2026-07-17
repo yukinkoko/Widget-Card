@@ -2,8 +2,10 @@ package jp.co.tsuqrea.designer_kmp_template.ui.screen.folders
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import jp.co.tsuqrea.designer_kmp_template.domain.DeadlineUtil
 import jp.co.tsuqrea.designer_kmp_template.domain.model.Folder
 import jp.co.tsuqrea.designer_kmp_template.domain.repository.FolderRepository
+import jp.co.tsuqrea.designer_kmp_template.platform.todayEpochDay
 import jp.co.tsuqrea.designer_kmp_template.domain.repository.WordRepository
 import jp.co.tsuqrea.designer_kmp_template.widget.WidgetSelectionState
 import kotlinx.coroutines.flow.SharingStarted
@@ -16,6 +18,8 @@ data class FolderRow(
     val folder: Folder,
     val learnedCount: Int,
     val totalCount: Int,
+    /** 目標期限までの残り日数。期限未設定なら null。 */
+    val deadlineDaysRemaining: Long? = null,
 ) {
     val progress: Float get() = if (totalCount == 0) 0f else learnedCount.toFloat() / totalCount
 }
@@ -38,9 +42,17 @@ class FoldersViewModel(
             WidgetSelectionState.selectedFolderIds,
         ) { folders, words, selectedIds ->
             val byFolder = words.groupBy { it.folderId }
+            val today = todayEpochDay()
             val rows = folders.map { folder ->
                 val fw = byFolder[folder.id].orEmpty()
-                FolderRow(folder, fw.count { it.isLearned }, fw.size)
+                FolderRow(
+                    folder = folder,
+                    learnedCount = fw.count { it.isLearned },
+                    totalCount = fw.size,
+                    deadlineDaysRemaining = folder.deadline?.let {
+                        DeadlineUtil.daysRemaining(DeadlineUtil.resolveEpochDay(it, folder.createdEpochDay), today)
+                    },
+                )
             }
             // 「表示中」はウィジェットで選択されたフォルダのみ（手動トグルは廃止）。
             FoldersUiState(

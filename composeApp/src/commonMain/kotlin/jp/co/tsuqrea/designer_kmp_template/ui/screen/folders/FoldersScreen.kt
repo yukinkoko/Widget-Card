@@ -38,6 +38,7 @@ import jp.co.tsuqrea.designer_kmp_template.ui.component.ArrowUpRightIcon
 import jp.co.tsuqrea.designer_kmp_template.ui.component.BellIcon
 import jp.co.tsuqrea.designer_kmp_template.ui.component.CheckIcon
 import jp.co.tsuqrea.designer_kmp_template.ui.component.FolderGlyphIcon
+import jp.co.tsuqrea.designer_kmp_template.domain.DeadlineUtil
 import jp.co.tsuqrea.designer_kmp_template.ui.component.MeterBar
 import jp.co.tsuqrea.designer_kmp_template.ui.component.PencilIcon
 import jp.co.tsuqrea.designer_kmp_template.ui.component.SparkleIcon
@@ -189,7 +190,9 @@ private fun Header() {
 private fun subtitle(row: FolderRow): String {
     val desc = row.folder.description
     val count = "${row.totalCount} words"
-    return if (desc.isNullOrBlank()) count else "$desc · $count"
+    val base = if (desc.isNullOrBlank()) count else "$desc · $count"
+    val deadline = row.deadlineDaysRemaining?.let { DeadlineUtil.remainingLabel(it) }
+    return if (deadline == null) base else "$base · $deadline"
 }
 
 @Composable
