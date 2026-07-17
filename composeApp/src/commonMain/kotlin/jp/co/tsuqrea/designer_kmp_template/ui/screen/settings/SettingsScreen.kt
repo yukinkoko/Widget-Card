@@ -118,7 +118,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = koinViewModel()) {
                 onCheckedChange = viewModel::setICloud,
             )
             RowDivider()
-            NavRow(title = "単語データを書き出す", subtitle = "CSV形式")
+            NavRow(title = "単語データを書き出す", subtitle = "CSV形式", onClick = viewModel::exportCsv)
         }
 
         SectionLabel("その他")
