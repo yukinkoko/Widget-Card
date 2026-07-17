@@ -41,11 +41,13 @@ struct WordEntry: TimelineEntry {
     var showReading: Bool = true
     var showMeaning: Bool = true
     var showPlay: Bool = false
+    /// ウィジェット追加直後でフォルダが未選択の状態。true のときは案内プレースホルダーを表示する。
+    var isUnconfigured: Bool = false
 
     func with(words: [WordItem], date: Date) -> WordEntry {
         WordEntry(date: date, folderName: folderName, words: words, tone: tone,
                   showMeter: showMeter, showFolderName: showFolderName, showReading: showReading,
-                  showMeaning: showMeaning, showPlay: showPlay)
+                  showMeaning: showMeaning, showPlay: showPlay, isUnconfigured: isUnconfigured)
     }
 
     static let sample = WordEntry(
@@ -62,6 +64,20 @@ struct WordEntry: TimelineEntry {
 
 private func toneFrom(_ s: String) -> WidgetTone { s == "Dark" ? .dark : (s == "Light" ? .light : .color) }
 
+/// タイムライン再生成ごとに順番をシャッフルするための決定的乱数（SplitMix64）。
+/// 同じシードなら同じ並びになるので、1本のタイムライン内では安定して再現できる。
+struct SeededGenerator: RandomNumberGenerator {
+    private var state: UInt64
+    init(seed: UInt64) { state = seed == 0 ? 0x9E3779B97F4A7C15 : seed }
+    mutating func next() -> UInt64 {
+        state &+= 0x9E3779B97F4A7C15
+        var z = state
+        z = (z ^ (z >> 30)) &* 0xBF58476D1CE4E5B9
+        z = (z ^ (z >> 27)) &* 0x94D049BB133111EB
+        return z ^ (z >> 31)
+    }
+}
+
 // MARK: - Provider
 
 struct Provider: AppIntentTimelineProvider {
@@ -71,14 +87,30 @@ struct Provider: AppIntentTimelineProvider {
         makeEntry(for: configuration)
     }
 
+    /// 1コマの表示時間（分）。この間隔でウィジェットの単語が切り替わる。
+    /// iOS は「見た瞬間」の更新ができないため、細かい間隔のコマを多数並べて
+    /// 「見るたびに変わる」体験に近づける。
+    private static let stepMinutes = 1
+    /// 一度のタイムラインで用意するコマ数（stepMinutes × これ が次の再生成までの尺）。
+    /// 1分 × 180 = 約3時間分。末尾で .atEnd により再生成され、順番も入れ替わる。
+    private static let entryCount = 180
+
     func timeline(for configuration: ConfigureWidgetIntent, in context: Context) async -> Timeline<WordEntry> {
         let base = makeEntry(for: configuration)
         let now = Date()
-        let count = max(base.words.count, 1)
+        let words = base.words
+        let count = max(words.count, 1)
+
+        // 再生成のたびに開始位置を変え、さらに順番をシャッフルして代わり映えを出す。
+        // 乱数シードは now に紐づくので、同じタイムライン内では決定的（プレビュー安定）。
+        var rng = SeededGenerator(seed: UInt64(now.timeIntervalSince1970))
+        let shuffled = words.shuffled(using: &rng)
+
         var entries: [WordEntry] = []
-        for offset in 0 ..< count {
-            let date = Calendar.current.date(byAdding: .minute, value: offset * 30, to: now) ?? now
-            let rotated = Array(base.words[offset...] + base.words[..<offset])
+        for i in 0 ..< Self.entryCount {
+            let date = Calendar.current.date(byAdding: .minute, value: i * Self.stepMinutes, to: now) ?? now
+            let offset = i % count
+            let rotated = Array(shuffled[offset...] + shuffled[..<offset])
             entries.append(base.with(words: rotated, date: date))
         }
         return Timeline(entries: entries, policy: .atEnd)
@@ -97,6 +129,8 @@ struct Provider: AppIntentTimelineProvider {
         case .dark: tone = .dark
         case .light: tone = .light
         }
+        // フォルダを明示的に選んでいない＝追加直後の初期状態。案内プレースホルダーを出す。
+        let unconfigured = config.folder == nil
         return WordEntry(
             date: Date(),
             folderName: folder?.name ?? "",
@@ -106,7 +140,8 @@ struct Provider: AppIntentTimelineProvider {
             showFolderName: config.showFolderName,
             showReading: config.showReading,
             showMeaning: config.showMeaning,
-            showPlay: config.showPlay
+            showPlay: config.showPlay,
+            isUnconfigured: unconfigured
         )
     }
 }
@@ -236,22 +271,53 @@ struct LargeWidgetView: View {
     }
 }
 
+/// ウィジェット追加直後（フォルダ未選択）に出す案内プレースホルダー。
+/// 「長押しで表示内容を選択」と薄いグレーで促す。
+struct UnconfiguredView: View {
+    @Environment(\.widgetFamily) var family
+    let palette: TonePalette
+
+    private var isCompact: Bool { family == .systemSmall || family == .accessoryRectangular }
+
+    var body: some View {
+        VStack(spacing: isCompact ? 6 : 8) {
+            Image(systemName: "hand.tap")
+                .font(.system(size: isCompact ? 18 : 22, weight: .regular))
+                .foregroundColor(palette.track)
+            Text("長押しで\n表示内容を選択")
+                .font(.system(size: isCompact ? 12 : 14, weight: .medium))
+                .multilineTextAlignment(.center)
+                .foregroundColor(palette.meta)
+                .lineSpacing(2)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
 struct WordWidgetEntryView: View {
     @Environment(\.widgetFamily) var family
     let entry: WordEntry
     var body: some View {
         let p = TonePalette.of(entry.tone)
         Group {
-            switch family {
-            case .systemSmall: SmallWidgetView(entry: entry)
-            case .systemLarge: LargeWidgetView(entry: entry)
-            case .accessoryRectangular:
-                let word = entry.words.first ?? WordEntry.sample.words[0]
-                VStack(alignment: .leading, spacing: 1) {
-                    Text(word.term).font(.system(size: 15, weight: .semibold)).lineLimit(1)
-                    Text("\(word.reading) ・ \(word.meaning)").font(.system(size: 11)).lineLimit(1)
+            if entry.isUnconfigured {
+                if family == .accessoryRectangular {
+                    Text("長押しで表示内容を選択").font(.system(size: 13, weight: .medium)).lineLimit(2)
+                } else {
+                    UnconfiguredView(palette: p)
                 }
-            default: MediumWidgetView(entry: entry)
+            } else {
+                switch family {
+                case .systemSmall: SmallWidgetView(entry: entry)
+                case .systemLarge: LargeWidgetView(entry: entry)
+                case .accessoryRectangular:
+                    let word = entry.words.first ?? WordEntry.sample.words[0]
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(word.term).font(.system(size: 15, weight: .semibold)).lineLimit(1)
+                        Text("\(word.reading) ・ \(word.meaning)").font(.system(size: 11)).lineLimit(1)
+                    }
+                default: MediumWidgetView(entry: entry)
+                }
             }
         }
         .containerBackground(for: .widget) {

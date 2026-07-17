@@ -75,7 +75,6 @@ fun WordListScreen(
             learned = state.learnedCount,
             isActive = state.isActive,
             onBack = onBack,
-            onSetActive = viewModel::setActive,
             onEdit = { onEditFolder(folderId) },
         )
         Spacer(Modifier.height(12.dp))
@@ -134,7 +133,6 @@ private fun Header(
     learned: Int,
     isActive: Boolean,
     onBack: () -> Unit,
-    onSetActive: () -> Unit,
     onEdit: () -> Unit,
 ) {
     val colors = WidgetWordTheme.colors
@@ -159,35 +157,19 @@ private fun Header(
                 color = colors.secondary,
             )
         }
-        ActivePill(isActive = isActive, onSetActive = onSetActive)
+        // 表示中バッジはウィジェットで選択中のときだけ出す（読み取り専用）。
+        if (isActive) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                CheckIcon(color = colors.secondary)
+                Text(text = "表示中", style = WidgetWordTheme.typography.label, color = colors.secondary)
+            }
+        }
         Box(
             modifier = Modifier.size(38.dp).clip(CircleShape).background(colors.card)
                 .border(1.dp, colors.cardOutline, CircleShape).clickable(onClick = onEdit),
             contentAlignment = Alignment.Center,
         ) {
             PencilIcon(color = colors.ink, size = 15.dp)
-        }
-    }
-}
-
-@Composable
-private fun ActivePill(isActive: Boolean, onSetActive: () -> Unit) {
-    val colors = WidgetWordTheme.colors
-    if (isActive) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            CheckIcon(color = colors.secondary)
-            Text(text = "表示中", style = WidgetWordTheme.typography.label, color = colors.secondary)
-        }
-    } else {
-        Box(
-            modifier = Modifier
-                .clip(RoundedCornerShape(percent = 50))
-                .background(colors.card)
-                .border(1.dp, colors.cardOutline, RoundedCornerShape(percent = 50))
-                .clickable(onClick = onSetActive)
-                .padding(horizontal = 12.dp, vertical = 7.dp),
-        ) {
-            Text(text = "表示中にする", fontSize = 12.sp, fontWeight = FontWeight.Medium, color = colors.ink)
         }
     }
 }

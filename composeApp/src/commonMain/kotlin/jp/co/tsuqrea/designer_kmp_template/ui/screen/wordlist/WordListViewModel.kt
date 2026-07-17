@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import jp.co.tsuqrea.designer_kmp_template.domain.model.Word
 import jp.co.tsuqrea.designer_kmp_template.domain.repository.FolderRepository
 import jp.co.tsuqrea.designer_kmp_template.domain.repository.WordRepository
+import jp.co.tsuqrea.designer_kmp_template.widget.WidgetSelectionState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -51,27 +52,20 @@ class WordListViewModel(
         viewModelScope.launch { wordRepository.delete(id) }
     }
 
-    /** このフォルダを表示中（Daily・ウィジェット対象）にする。 */
-    fun setActive() {
-        val id = folderId.value ?: return
-        viewModelScope.launch { folderRepository.setActive(id) }
-    }
-
     @OptIn(ExperimentalCoroutinesApi::class)
     private val words = folderId.flatMapLatest { id ->
         if (id == null) flowOf(emptyList()) else wordRepository.observeWords(id)
     }
 
-    private val activeId = folderRepository.observeActiveFolder()
-
     val uiState: StateFlow<WordListUiState> =
-        combine(words, filter, folderName, activeId) { list, f, name, active ->
+        combine(words, filter, folderName, WidgetSelectionState.selectedFolderIds) { list, f, name, selectedIds ->
             WordListUiState(
                 folderName = name,
                 totalCount = list.size,
                 learnedCount = list.count { it.isLearned },
                 filter = f,
-                isActive = active?.id == folderId.value,
+                // 「表示中」はウィジェットで選択されているかどうか。
+                isActive = folderId.value != null && folderId.value in selectedIds,
                 words = if (f == WordFilter.Learned) list.filter { it.isLearned } else list,
             )
         }.stateIn(

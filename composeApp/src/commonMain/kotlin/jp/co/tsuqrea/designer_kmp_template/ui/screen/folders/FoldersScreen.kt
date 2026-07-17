@@ -54,7 +54,7 @@ fun FoldersScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val colors = WidgetWordTheme.colors
-    val isEmpty = state.active == null && state.others.isEmpty()
+    val isEmpty = state.active.isEmpty() && state.others.isEmpty()
 
     Column(
         modifier = Modifier
@@ -69,7 +69,7 @@ fun FoldersScreen(
         if (isEmpty) {
             EmptyState(onEntry = onCreateFolder)
         } else {
-            state.active?.let { row ->
+            state.active.forEach { row ->
                 ActiveFolderCard(row = row, onClick = { onOpenFolder(row.folder.id) })
                 Spacer(Modifier.height(12.dp))
             }

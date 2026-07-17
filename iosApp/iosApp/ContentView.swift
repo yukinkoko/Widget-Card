@@ -20,6 +20,8 @@ struct ContentView: View {
         ComposeView()
             .ignoresSafeArea()
             .task {
+                // ウィジェットの選択フォルダを取り込み、「表示中」表示を同期する。
+                WidgetSelectionSync.refresh()
                 // 起動直後の負荷を避けて、裏の準備を順に行う
                 try? await Task.sleep(for: .seconds(3))
                 // ウィジェット🔊用の発音ファイルを事前生成（生成済みはスキップ）
