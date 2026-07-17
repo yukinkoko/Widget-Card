@@ -190,11 +190,19 @@ class SqlWordRepository(
         withContext(Dispatchers.Default) { q.deleteWord(id) }
     }
 
+    override fun observeWordsForDay(epochDay: Long): Flow<List<Word>> =
+        q.selectWordsForDay(epochDay).asFlow().mapToList(Dispatchers.Default).map { it.map(WordEntity::toWord) }
+
     override suspend fun recordEncounter(id: String) {
         val changed = withContext(Dispatchers.Default) {
             val word = q.selectWordById(id).executeAsOneOrNull()?.toWord() ?: return@withContext false
             if (word.isLearned) return@withContext false
-            insert(MeterLogic.onEncounter(word))
+            val today = todayEpochDay()
+            q.transaction {
+                insert(MeterLogic.onEncounter(word))
+                val prev = q.selectDayWord(today, id).executeAsOneOrNull()?.encounters ?: 0L
+                q.upsertDayWord(today, id, prev + 1)
+            }
             true
         }
         if (changed) stats.incrementToday()

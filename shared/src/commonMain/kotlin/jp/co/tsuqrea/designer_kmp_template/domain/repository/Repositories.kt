@@ -40,7 +40,10 @@ interface WordRepository {
     suspend fun update(word: Word)
     suspend fun delete(id: String)
 
-    /** 出会った（メーター+1、閾値で Learned 化）。 */
+    /** 指定日に表示された単語（曜日チップのタップで過去日のデイリーを見る用）。 */
+    fun observeWordsForDay(epochDay: Long): Flow<List<Word>>
+
+    /** 出会った（メーター+1、閾値で Learned 化、日別ログにも記録）。 */
     suspend fun recordEncounter(id: String)
 
     /** 手動「覚えた」。 */
