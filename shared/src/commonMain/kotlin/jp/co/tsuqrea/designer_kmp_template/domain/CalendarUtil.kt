@@ -57,6 +57,13 @@ object DeadlineUtil {
     fun isExpired(deadlineEpochDay: Long, todayEpochDay: Long): Boolean =
         deadlineEpochDay < todayEpochDay
 
+    /** 残り日数の表示ラベル（当日=「今日まで」、超過=「期限超過」）。 */
+    fun remainingLabel(daysRemaining: Long): String = when {
+        daysRemaining > 0 -> "あと${daysRemaining}日"
+        daysRemaining == 0L -> "今日まで"
+        else -> "期限超過"
+    }
+
     /**
      * おすすめの語数。期限までの残り日数から 1日 [pacePerDay] 語ペースで提案。
      * 仕様の「14日から28語（1日2語ペース）」に対応。

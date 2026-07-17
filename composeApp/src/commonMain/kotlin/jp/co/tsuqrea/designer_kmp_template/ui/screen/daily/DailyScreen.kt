@@ -37,6 +37,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import jp.co.tsuqrea.designer_kmp_template.domain.model.DayActivityLevel
 import jp.co.tsuqrea.designer_kmp_template.domain.model.Word
 import androidx.compose.ui.text.style.TextOverflow
+import jp.co.tsuqrea.designer_kmp_template.domain.DeadlineUtil
 import jp.co.tsuqrea.designer_kmp_template.ui.component.ArrowUpRightIcon
 import jp.co.tsuqrea.designer_kmp_template.ui.component.CalendarIcon
 import jp.co.tsuqrea.designer_kmp_template.ui.component.BellIcon
@@ -294,11 +295,7 @@ private fun TodayPill(count: Int, modifier: Modifier = Modifier) {
 private fun DeadlinePill(daysRemaining: Long) {
     val colors = WidgetWordTheme.colors
     val expired = daysRemaining < 0
-    val label = when {
-        daysRemaining > 0 -> "あと${daysRemaining}日"
-        daysRemaining == 0L -> "今日まで"
-        else -> "期限超過"
-    }
+    val label = DeadlineUtil.remainingLabel(daysRemaining)
     val dotColor = if (expired) colors.onInk.copy(alpha = 0.5f) else colors.accent
     Row(
         modifier = Modifier
