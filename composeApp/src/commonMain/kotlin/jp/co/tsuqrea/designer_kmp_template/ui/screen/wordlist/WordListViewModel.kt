@@ -33,12 +33,14 @@ class WordListViewModel(
 
     private val folderId = MutableStateFlow<String?>(null)
     private val filter = MutableStateFlow(WordFilter.All)
-    private val folderName = MutableStateFlow("")
+
+    /** フォルダ名は編集で変わり得るのでリアクティブに追従する。 */
+    private val folderName = combine(folderRepository.observeFolders(), folderId) { folders, id ->
+        folders.firstOrNull { it.id == id }?.name ?: ""
+    }
 
     fun start(id: String) {
-        if (folderId.value == id) return
         folderId.value = id
-        viewModelScope.launch { folderName.value = folderRepository.getFolder(id)?.name ?: "" }
     }
 
     fun setFilter(value: WordFilter) {

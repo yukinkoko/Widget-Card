@@ -47,6 +47,10 @@ data class WordDetailRoute(val wordId: String)
 @Serializable
 object FolderCreateRoute
 
+/** フォルダ編集（作成画面を編集モードで再利用・プッシュ・ナビ非表示）。 */
+@Serializable
+data class FolderEditRoute(val folderId: String)
+
 /** 単語登録（自分で1語ずつ・プッシュ・ナビ非表示）。 */
 @Serializable
 data class WordEntryRoute(val folderId: String)
@@ -100,6 +104,8 @@ fun AppNavigation() {
                     onBack = { navController.popBackStack() },
                     onOpenWord = { wordId -> navController.navigate(WordDetailRoute(wordId)) },
                     onAddWord = { folderId -> navController.navigate(WordEntryRoute(folderId)) },
+                    onAddWordAi = { folderId -> navController.navigate(AiWordAddRoute(folderId)) },
+                    onEditFolder = { folderId -> navController.navigate(FolderEditRoute(folderId)) },
                 )
             }
             composable<FolderCreateRoute> {
@@ -113,6 +119,15 @@ fun AppNavigation() {
                             AddMethod.Ai -> navController.navigate(AiWordAddRoute(folderId))
                         }
                     },
+                )
+            }
+            composable<FolderEditRoute> { entry ->
+                val route = entry.toRoute<FolderEditRoute>()
+                FolderCreateScreen(
+                    onBack = { navController.popBackStack() },
+                    onCreated = { _, _ -> }, // 編集モードでは使わない
+                    editFolderId = route.folderId,
+                    onSaved = { navController.popBackStack() },
                 )
             }
             composable<WordEntryRoute> { entry ->

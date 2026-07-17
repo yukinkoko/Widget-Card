@@ -37,8 +37,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.foundation.layout.width
 import jp.co.tsuqrea.designer_kmp_template.ui.component.CheckIcon
 import jp.co.tsuqrea.designer_kmp_template.ui.component.ChevronLeftIcon
+import jp.co.tsuqrea.designer_kmp_template.ui.component.PencilIcon
+import jp.co.tsuqrea.designer_kmp_template.ui.component.SparkleIcon
 import jp.co.tsuqrea.designer_kmp_template.ui.component.TrashIcon
 import jp.co.tsuqrea.designer_kmp_template.ui.component.WordListItem
 import jp.co.tsuqrea.designer_kmp_template.ui.theme.WidgetWordTheme
@@ -52,6 +55,8 @@ fun WordListScreen(
     onBack: () -> Unit,
     onOpenWord: (String) -> Unit,
     onAddWord: (String) -> Unit,
+    onAddWordAi: (String) -> Unit,
+    onEditFolder: (String) -> Unit,
     viewModel: WordListViewModel = koinViewModel(),
 ) {
     LaunchedEffect(folderId) { viewModel.start(folderId) }
@@ -71,6 +76,7 @@ fun WordListScreen(
             isActive = state.isActive,
             onBack = onBack,
             onSetActive = viewModel::setActive,
+            onEdit = { onEditFolder(folderId) },
         )
         Spacer(Modifier.height(12.dp))
         SegmentedControl(selected = state.filter, onSelect = viewModel::setFilter)
@@ -112,7 +118,10 @@ fun WordListScreen(
                 }
             }
             Spacer(Modifier.height(16.dp))
-            AddWordButton(onClick = { onAddWord(folderId) })
+            AddWordButtons(
+                onAddAi = { onAddWordAi(folderId) },
+                onAddManual = { onAddWord(folderId) },
+            )
             Spacer(Modifier.height(120.dp)) // ボトムナビの余白
         }
     }
@@ -126,6 +135,7 @@ private fun Header(
     isActive: Boolean,
     onBack: () -> Unit,
     onSetActive: () -> Unit,
+    onEdit: () -> Unit,
 ) {
     val colors = WidgetWordTheme.colors
     Row(
@@ -150,6 +160,13 @@ private fun Header(
             )
         }
         ActivePill(isActive = isActive, onSetActive = onSetActive)
+        Box(
+            modifier = Modifier.size(38.dp).clip(CircleShape).background(colors.card)
+                .border(1.dp, colors.cardOutline, CircleShape).clickable(onClick = onEdit),
+            contentAlignment = Alignment.Center,
+        ) {
+            PencilIcon(color = colors.ink, size = 15.dp)
+        }
     }
 }
 
@@ -229,19 +246,39 @@ private fun DeleteBackground() {
     }
 }
 
+/** 単語追加ボタン（AIが主導線・手動が副導線）。 */
 @Composable
-private fun AddWordButton(onClick: () -> Unit) {
+private fun AddWordButtons(onAddAi: () -> Unit, onAddManual: () -> Unit) {
     val colors = WidgetWordTheme.colors
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = ScreenPadding)
-            .height(56.dp)
-            .clip(RoundedCornerShape(WidgetWordTheme.radius.button))
-            .background(colors.ink)
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center,
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = ScreenPadding),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Text(text = "＋ 単語を追加", color = colors.onInk, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+        Row(
+            modifier = Modifier
+                .weight(1f)
+                .height(56.dp)
+                .clip(RoundedCornerShape(WidgetWordTheme.radius.button))
+                .background(colors.ink)
+                .clickable(onClick = onAddAi),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            SparkleIcon(color = colors.onInk, size = 16.dp)
+            Spacer(Modifier.width(8.dp))
+            Text(text = "AIで追加", color = colors.onInk, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+        }
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .height(56.dp)
+                .clip(RoundedCornerShape(WidgetWordTheme.radius.button))
+                .background(colors.card)
+                .border(1.dp, colors.cardOutline, RoundedCornerShape(WidgetWordTheme.radius.button))
+                .clickable(onClick = onAddManual),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(text = "＋ 自分で追加", color = colors.ink, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+        }
     }
 }

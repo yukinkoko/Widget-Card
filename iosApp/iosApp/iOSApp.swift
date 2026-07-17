@@ -11,8 +11,11 @@ struct iOSApp: App {
         }
         .onChange(of: scenePhase) { _, phase in
             if phase != .active {
-                // Compose 側が App Group に書いた最新スナップショットでウィジェットを更新
-                WidgetCenter.shared.reloadAllTimelines()
+                Task {
+                    // ウィジェットの🔊用に発音ファイルを事前生成してからタイムライン更新
+                    await PronunciationStore.ensureAll(snapshot: SharedStore.loadFull())
+                    WidgetCenter.shared.reloadAllTimelines()
+                }
             }
         }
     }
