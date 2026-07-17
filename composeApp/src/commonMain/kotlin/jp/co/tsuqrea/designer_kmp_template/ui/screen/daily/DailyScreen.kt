@@ -62,7 +62,8 @@ fun DailyScreen(
             .verticalScroll(rememberScrollState()),
     ) {
         Header()
-        if (!state.widgetInstalled) {
+        // ウィジェット未設置、またはウィジェットでフォルダ未選択（＝表示中なし）のときは案内を出す。
+        if (!state.widgetInstalled || !state.hasActiveFolder) {
             DailyNoWidgetContent()
             Spacer(Modifier.height(120.dp)) // ボトムナビの余白
             return@Column

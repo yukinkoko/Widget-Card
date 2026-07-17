@@ -26,6 +26,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -64,10 +65,13 @@ private val ScreenPadding = 20.dp
 fun FolderCreateScreen(
     onBack: () -> Unit,
     onCreated: (folderId: String, method: AddMethod) -> Unit,
+    editFolderId: String? = null,
+    onSaved: () -> Unit = {},
     viewModel: FolderCreateViewModel = koinViewModel(),
 ) {
     val colors = WidgetWordTheme.colors
     val today = remember { todayEpochDay() }
+    val isEdit = editFolderId != null
 
     var name by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
@@ -76,13 +80,26 @@ fun FolderCreateScreen(
     var icon by remember { mutableStateOf(FolderIcon.Book) }
     var language by remember { mutableStateOf(WordLanguage.Korean) }
 
+    // 編集モード: 既存フォルダの内容をプリフィルする。
+    LaunchedEffect(editFolderId) {
+        if (editFolderId != null) {
+            viewModel.getFolder(editFolderId)?.let { folder ->
+                name = folder.name
+                description = folder.description.orEmpty()
+                deadline = folder.deadline
+                icon = folder.icon
+                language = folder.language
+            }
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(colors.background)
             .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Bottom)),
     ) {
-        Header(onBack = onBack)
+        Header(title = if (isEdit) "フォルダを編集" else "新しいフォルダ", onBack = onBack)
 
         Column(
             modifier = Modifier
@@ -102,24 +119,26 @@ fun FolderCreateScreen(
             )
             Spacer(Modifier.height(24.dp))
 
-            FieldLabel("単語の追加方法")
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                MethodCard(
-                    method = AddMethod.Ai,
-                    title = "AIで追加",
-                    subtitle = "フォルダ名から生成",
-                    selected = method == AddMethod.Ai,
-                    modifier = Modifier.weight(1f),
-                ) { method = AddMethod.Ai }
-                MethodCard(
-                    method = AddMethod.Manual,
-                    title = "自分で追加",
-                    subtitle = "1語ずつ入力",
-                    selected = method == AddMethod.Manual,
-                    modifier = Modifier.weight(1f),
-                ) { method = AddMethod.Manual }
+            if (!isEdit) {
+                FieldLabel("単語の追加方法")
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    MethodCard(
+                        method = AddMethod.Ai,
+                        title = "AIで追加",
+                        subtitle = "フォルダ名から生成",
+                        selected = method == AddMethod.Ai,
+                        modifier = Modifier.weight(1f),
+                    ) { method = AddMethod.Ai }
+                    MethodCard(
+                        method = AddMethod.Manual,
+                        title = "自分で追加",
+                        subtitle = "1語ずつ入力",
+                        selected = method == AddMethod.Manual,
+                        modifier = Modifier.weight(1f),
+                    ) { method = AddMethod.Manual }
+                }
+                Spacer(Modifier.height(24.dp))
             }
-            Spacer(Modifier.height(24.dp))
 
             FieldLabel("目標期限")
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -155,24 +174,37 @@ fun FolderCreateScreen(
 
         Footer(
             createEnabled = name.isNotBlank(),
+            primaryLabel = if (isEdit) "保存する" else "作成して単語を登録",
             onCancel = onBack,
             onCreate = {
-                viewModel.create(
-                    name = name,
-                    description = description.ifBlank { null },
-                    deadline = deadline,
-                    icon = icon,
-                    language = language,
-                    method = method,
-                    onCreated = onCreated,
-                )
+                if (editFolderId != null) {
+                    viewModel.update(
+                        folderId = editFolderId,
+                        name = name,
+                        description = description.ifBlank { null },
+                        deadline = deadline,
+                        icon = icon,
+                        language = language,
+                        onSaved = onSaved,
+                    )
+                } else {
+                    viewModel.create(
+                        name = name,
+                        description = description.ifBlank { null },
+                        deadline = deadline,
+                        icon = icon,
+                        language = language,
+                        method = method,
+                        onCreated = onCreated,
+                    )
+                }
             },
         )
     }
 }
 
 @Composable
-private fun Header(onBack: () -> Unit) {
+private fun Header(title: String, onBack: () -> Unit) {
     val colors = WidgetWordTheme.colors
     Row(
         modifier = Modifier.fillMaxWidth().padding(horizontal = ScreenPadding, vertical = 12.dp),
@@ -186,7 +218,7 @@ private fun Header(onBack: () -> Unit) {
         ) {
             ChevronLeftIcon(color = colors.ink)
         }
-        Text(text = "新しいフォルダ", style = WidgetWordTheme.typography.headerTitle, color = colors.ink)
+        Text(text = title, style = WidgetWordTheme.typography.headerTitle, color = colors.ink)
     }
 }
 
@@ -371,6 +403,7 @@ private fun IconTile(icon: FolderIcon, selected: Boolean, onClick: () -> Unit) {
 @Composable
 private fun Footer(
     createEnabled: Boolean,
+    primaryLabel: String,
     onCancel: () -> Unit,
     onCreate: () -> Unit,
 ) {
@@ -400,7 +433,7 @@ private fun Footer(
                 .clickable(enabled = createEnabled, onClick = onCreate),
             contentAlignment = Alignment.Center,
         ) {
-            Text(text = "作成して単語を登録", color = colors.onInk, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+            Text(text = primaryLabel, color = colors.onInk, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
         }
     }
 }

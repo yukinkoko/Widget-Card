@@ -5,11 +5,11 @@ import androidx.lifecycle.viewModelScope
 import jp.co.tsuqrea.designer_kmp_template.domain.model.Folder
 import jp.co.tsuqrea.designer_kmp_template.domain.repository.FolderRepository
 import jp.co.tsuqrea.designer_kmp_template.domain.repository.WordRepository
+import jp.co.tsuqrea.designer_kmp_template.widget.WidgetSelectionState
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 
 /** フォルダ1件分の集計。 */
 data class FolderRow(
@@ -21,7 +21,8 @@ data class FolderRow(
 }
 
 data class FoldersUiState(
-    val active: FolderRow? = null,
+    /** ウィジェットで選択中（＝表示中）のフォルダ。複数ウィジェットで複数になり得る。 */
+    val active: List<FolderRow> = emptyList(),
     val others: List<FolderRow> = emptyList(),
 )
 
@@ -34,24 +35,21 @@ class FoldersViewModel(
         combine(
             folderRepository.observeFolders(),
             wordRepository.observeAllWords(),
-        ) { folders, words ->
+            WidgetSelectionState.selectedFolderIds,
+        ) { folders, words, selectedIds ->
             val byFolder = words.groupBy { it.folderId }
             val rows = folders.map { folder ->
                 val fw = byFolder[folder.id].orEmpty()
                 FolderRow(folder, fw.count { it.isLearned }, fw.size)
             }
+            // 「表示中」はウィジェットで選択されたフォルダのみ（手動トグルは廃止）。
             FoldersUiState(
-                active = rows.firstOrNull { it.folder.isActive },
-                others = rows.filterNot { it.folder.isActive },
+                active = rows.filter { it.folder.id in selectedIds },
+                others = rows.filterNot { it.folder.id in selectedIds },
             )
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = FoldersUiState(),
         )
-
-    /** 表示中フォルダを切替。 */
-    fun selectFolder(id: String) {
-        viewModelScope.launch { folderRepository.setActive(id) }
-    }
 }

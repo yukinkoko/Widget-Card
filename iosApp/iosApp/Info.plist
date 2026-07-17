@@ -4,5 +4,11 @@
     <dict>
         <key>CADisableMinimumFrameDurationOnPhone</key>
         <true/>
+        <!-- ウィジェットの🔊(AudioPlaybackIntent)はアプリのバックグラウンドプロセスで
+             音を鳴らすため、audio バックグラウンドモードが必要（実機で無音になる主因） -->
+        <key>UIBackgroundModes</key>
+        <array>
+            <string>audio</string>
+        </array>
     </dict>
 </plist>

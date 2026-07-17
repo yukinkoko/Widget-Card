@@ -64,6 +64,6 @@ struct ConfigureWidgetIntent: WidgetConfigurationIntent {
     @Parameter(title: "意味", default: true)
     var showMeaning: Bool
 
-    @Parameter(title: "再生ボタン", default: false)
+    @Parameter(title: "再生ボタン", default: true)
     var showPlay: Bool
 }

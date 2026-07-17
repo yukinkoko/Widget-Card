@@ -12,6 +12,7 @@ import jp.co.tsuqrea.designer_kmp_template.domain.repository.SettingsRepository
 import jp.co.tsuqrea.designer_kmp_template.domain.repository.StatsRepository
 import jp.co.tsuqrea.designer_kmp_template.domain.repository.WordRepository
 import jp.co.tsuqrea.designer_kmp_template.platform.todayEpochDay
+import jp.co.tsuqrea.designer_kmp_template.widget.WidgetSelectionState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -55,13 +56,25 @@ class DailyViewModel(
     private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
 
+    /** flatMapLatest へ渡す中間状態（表示中フォルダ・実績・ウィジェット設置状況）。 */
+    private data class DailyInputs(
+        val folder: Folder?,
+        val counts: List<DailyCount>,
+        val widgetInstalled: Boolean,
+    )
+
     @OptIn(ExperimentalCoroutinesApi::class)
     val uiState: StateFlow<DailyUiState> =
         combine(
-            folderRepository.observeActiveFolder(),
+            folderRepository.observeFolders(),
+            WidgetSelectionState.selectedFolderIds,
             statsRepository.observeDailyCounts(),
             settingsRepository.observeAppSettings(),
-        ) { folder, counts, settings -> Triple(folder, counts, settings.widgetInstalled) }
+        ) { folders, selectedIds, counts, settings ->
+            // 表示中はウィジェットで選択中のフォルダ。複数あれば先頭を採用。未選択なら null（空状態）。
+            val folder = folders.firstOrNull { it.id in selectedIds }
+            DailyInputs(folder, counts, settings.widgetInstalled)
+        }
             .flatMapLatest { (folder, counts, widgetInstalled) ->
                 if (folder == null) {
                     flowOf(DailyUiState(hasActiveFolder = false, widgetInstalled = widgetInstalled))
