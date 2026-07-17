@@ -84,7 +84,10 @@ data class Word(
     }
 }
 
-/** その日のながら見回数の水準（曜日チップの状態: 0 / 1–9 / 10+）。 */
+/**
+ * その日のながら見回数の水準（曜日チップのドット形状）。
+ * None = 0回 → 枠だけの丸 / Some = 1〜9回 → 黒丸 / Full = 10回以上 → 緑丸。
+ */
 enum class DayActivityLevel { None, Some, Full }
 
 /** 日別のながら見回数。 */
@@ -100,7 +103,7 @@ data class DailyCount(
         }
 
     companion object {
-        /** 10回以上で「緑ドット」（暫定しきい値）。 */
+        /** 10回以上で緑丸。単語1つが Learned になる回数（Word.LEARN_THRESHOLD）と揃えている。 */
         const val FULL_THRESHOLD = 10
     }
 }
@@ -113,7 +116,7 @@ data class WidgetSettings(
     val showFolderName: Boolean = true,
     val showReading: Boolean = true,
     val showMeaning: Boolean = true,
-    val showPlayButton: Boolean = false,
+    val showPlayButton: Boolean = true,
 )
 
 /** アプリ全体の設定。 */

@@ -2,6 +2,7 @@ package jp.co.tsuqrea.designer_kmp_template.ui.screen.daily
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -72,19 +73,21 @@ fun DailyScreen(
             return@Column
         }
         Spacer(Modifier.height(16.dp))
-        WeekdayStrip(chips = state.weekdayChips)
+        WeekdayStrip(chips = state.weekdayChips, onDayClick = viewModel::onDaySelected)
         Spacer(Modifier.height(20.dp))
         FolderCard(
             folderName = state.folderName,
             learnedCount = state.learnedCount,
             totalCount = state.totalCount,
-            todayEncounters = state.todayEncounters,
+            encounters = state.selectedDayEncounters,
+            encountersLabel = state.selectedDateLabel ?: "TODAY",
             progress = state.progress,
             deadlineDaysRemaining = state.deadlineDaysRemaining,
         )
         Spacer(Modifier.height(24.dp))
-        TodayWordSection(
+        DayWordSection(
             words = state.words,
+            dateLabel = state.selectedDateLabel,
             onWordClick = onOpenWord,
         )
         Spacer(Modifier.height(120.dp)) // ボトムナビの余白
@@ -120,7 +123,7 @@ private fun Header() {
 }
 
 @Composable
-private fun WeekdayStrip(chips: List<WeekdayChip>) {
+private fun WeekdayStrip(chips: List<WeekdayChip>, onDayClick: (Long) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -128,33 +131,37 @@ private fun WeekdayStrip(chips: List<WeekdayChip>) {
         horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
         chips.forEach { chip ->
-            WeekdayChipView(chip = chip, modifier = Modifier.weight(1f))
+            WeekdayChipView(chip = chip, onClick = { onDayClick(chip.epochDay) }, modifier = Modifier.weight(1f))
         }
     }
 }
 
 @Composable
-private fun WeekdayChipView(chip: WeekdayChip, modifier: Modifier = Modifier) {
+private fun WeekdayChipView(chip: WeekdayChip, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val colors = WidgetWordTheme.colors
-    val background = if (chip.isToday) colors.ink else Color.Transparent
+    val shape = RoundedCornerShape(percent = 50)
+    val background = if (chip.isSelected) colors.ink else Color.Transparent
     val contentColor = when {
-        chip.isToday -> colors.onInk
+        chip.isSelected -> colors.onInk
         chip.isFuture -> colors.faint
         else -> colors.ink
     }
     Column(
         modifier = modifier
-            .clip(RoundedCornerShape(percent = 50))
+            .clip(shape)
             .background(background)
+            // 選択が別の日に移っても「今日」は枠線で分かるようにする
+            .then(if (chip.isToday && !chip.isSelected) Modifier.border(1.dp, colors.disabled, shape) else Modifier)
+            .clickable(enabled = !chip.isFuture, onClick = onClick)
             .padding(vertical = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
-        ActivityDot(level = chip.level, isToday = chip.isToday, isFuture = chip.isFuture)
+        ActivityDot(level = chip.level, onDark = chip.isSelected, isFuture = chip.isFuture)
         Text(
             text = chip.label,
             style = WidgetWordTheme.typography.label.copy(fontSize = 11.sp),
-            color = if (chip.isToday) colors.onInk else colors.secondary,
+            color = if (chip.isSelected) colors.onInk else colors.secondary,
         )
         Text(
             text = chip.dayOfMonth.toString(),
@@ -165,15 +172,19 @@ private fun WeekdayChipView(chip: WeekdayChip, modifier: Modifier = Modifier) {
     }
 }
 
+/**
+ * その日の表示量ドット。0回 = 枠だけの丸 / 1〜9回 = グレーの丸 / 10回以上 = 黒丸。
+ * 選択中チップ（黒地）の上では白系に反転する。
+ */
 @Composable
-private fun ActivityDot(level: DayActivityLevel, isToday: Boolean, isFuture: Boolean) {
+private fun ActivityDot(level: DayActivityLevel, onDark: Boolean, isFuture: Boolean) {
     val colors = WidgetWordTheme.colors
     val size = 7.dp
     when {
-        isToday -> Dot(size, colors.accent)
-        isFuture || level == DayActivityLevel.None -> RingDot(size, colors.disabled)
-        level == DayActivityLevel.Full -> Dot(size, colors.accent)
-        else -> Dot(size, colors.ink)
+        isFuture -> RingDot(size, colors.disabled)
+        level == DayActivityLevel.None -> RingDot(size, if (onDark) colors.onInk.copy(alpha = 0.45f) else colors.disabled)
+        level == DayActivityLevel.Some -> Dot(size, if (onDark) colors.onInk.copy(alpha = 0.55f) else colors.secondary)
+        else -> Dot(size, if (onDark) colors.onInk else colors.ink)
     }
 }
 
@@ -192,7 +203,8 @@ private fun FolderCard(
     folderName: String,
     learnedCount: Int,
     totalCount: Int,
-    todayEncounters: Int,
+    encounters: Int,
+    encountersLabel: String,
     progress: Float,
     deadlineDaysRemaining: Long?,
 ) {
@@ -256,8 +268,8 @@ private fun FolderCard(
                 modifier = Modifier.padding(bottom = 4.dp),
             )
             Spacer(Modifier.width(12.dp))
-            if (todayEncounters > 0) {
-                TodayPill(count = todayEncounters, modifier = Modifier.padding(bottom = 8.dp))
+            if (encounters > 0) {
+                EncounterPill(label = encountersLabel, count = encounters, modifier = Modifier.padding(bottom = 8.dp))
             }
         }
         Spacer(Modifier.height(14.dp))
@@ -271,8 +283,9 @@ private fun FolderCard(
     }
 }
 
+/** 選択日の表示回数ピル（今日は "TODAY +N"、過去日は "JUL 15 +N"）。 */
 @Composable
-private fun TodayPill(count: Int, modifier: Modifier = Modifier) {
+private fun EncounterPill(label: String, count: Int, modifier: Modifier = Modifier) {
     val colors = WidgetWordTheme.colors
     Row(
         modifier = modifier
@@ -284,7 +297,7 @@ private fun TodayPill(count: Int, modifier: Modifier = Modifier) {
     ) {
         Box(Modifier.size(6.dp).clip(CircleShape).background(colors.accent))
         Text(
-            text = "TODAY +$count",
+            text = "$label +$count",
             style = WidgetWordTheme.typography.meterValue,
             color = colors.onInk,
         )
@@ -316,8 +329,9 @@ private fun DeadlinePill(daysRemaining: Long) {
     }
 }
 
+/** 選択日の単語一覧。dateLabel が null なら今日（フォルダの単語）、過去日はその日に表示された単語。 */
 @Composable
-private fun TodayWordSection(words: List<Word>, onWordClick: (String) -> Unit) {
+private fun DayWordSection(words: List<Word>, dateLabel: String?, onWordClick: (String) -> Unit) {
     val colors = WidgetWordTheme.colors
     Column(Modifier.fillMaxWidth()) {
         Row(
@@ -327,7 +341,7 @@ private fun TodayWordSection(words: List<Word>, onWordClick: (String) -> Unit) {
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Text(
-                text = "TODAY WORD",
+                text = if (dateLabel != null) "$dateLabel WORD" else "TODAY WORD",
                 style = WidgetWordTheme.typography.label.copy(letterSpacing = 0.8.sp),
                 color = colors.secondary,
             )
@@ -338,6 +352,16 @@ private fun TodayWordSection(words: List<Word>, onWordClick: (String) -> Unit) {
             )
         }
         Spacer(Modifier.height(8.dp))
+        if (words.isEmpty() && dateLabel != null) {
+            Text(
+                text = "No words on this day",
+                style = WidgetWordTheme.typography.reading,
+                color = colors.faint,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = ScreenPadding, vertical = 24.dp),
+            )
+        }
         words.forEach { word ->
             WordListItem(
                 word = word,

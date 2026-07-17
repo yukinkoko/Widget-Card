@@ -77,6 +77,24 @@ SELECT * FROM dailyCountEntity WHERE epochDay = ?;
 upsertDailyCount:
 INSERT OR REPLACE INTO dailyCountEntity(epochDay, encounters) VALUES (?, ?);
 
+-- ── day word log（日別×単語の表示回数。過去日のデイリー表示用） ──
+CREATE TABLE dayWordEntity (
+    epochDay INTEGER NOT NULL,
+    wordId TEXT NOT NULL,
+    encounters INTEGER NOT NULL,
+    PRIMARY KEY (epochDay, wordId)
+);
+
+selectWordsForDay:
+SELECT w.* FROM dayWordEntity d JOIN wordEntity w ON w.id = d.wordId
+WHERE d.epochDay = ? ORDER BY w.orderIndex;
+
+selectDayWord:
+SELECT * FROM dayWordEntity WHERE epochDay = ? AND wordId = ?;
+
+upsertDayWord:
+INSERT OR REPLACE INTO dayWordEntity(epochDay, wordId, encounters) VALUES (?, ?, ?);
+
 -- ── app settings (single row, id = 0) ──
 CREATE TABLE appSettingsEntity (
     id INTEGER NOT NULL PRIMARY KEY,
