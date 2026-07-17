@@ -4,15 +4,22 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import jp.co.tsuqrea.designer_kmp_template.domain.model.AppSettings
 import jp.co.tsuqrea.designer_kmp_template.domain.model.ColorTone
+import jp.co.tsuqrea.designer_kmp_template.domain.repository.FolderRepository
 import jp.co.tsuqrea.designer_kmp_template.domain.repository.SettingsRepository
+import jp.co.tsuqrea.designer_kmp_template.domain.repository.WordRepository
+import jp.co.tsuqrea.designer_kmp_template.export.CsvExporterRegistry
+import jp.co.tsuqrea.designer_kmp_template.export.buildWordsCsv
 import jp.co.tsuqrea.designer_kmp_template.platform.requestNotificationPermission
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class SettingsViewModel(
     private val settingsRepository: SettingsRepository,
+    private val folderRepository: FolderRepository,
+    private val wordRepository: WordRepository,
 ) : ViewModel() {
 
     val uiState: StateFlow<AppSettings> =
@@ -21,6 +28,16 @@ class SettingsViewModel(
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = AppSettings(),
         )
+
+    /** 全単語を CSV にして共有シートで書き出す（ネイティブ未登録の環境では無効）。 */
+    fun exportCsv() {
+        val exporter = CsvExporterRegistry.instance ?: return
+        viewModelScope.launch {
+            val folders = folderRepository.observeFolders().first()
+            val words = wordRepository.observeAllWords().first()
+            exporter.export("word-widget.csv", buildWordsCsv(folders, words))
+        }
+    }
 
     private fun update(transform: (AppSettings) -> AppSettings) {
         viewModelScope.launch { settingsRepository.updateAppSettings(transform(uiState.value)) }

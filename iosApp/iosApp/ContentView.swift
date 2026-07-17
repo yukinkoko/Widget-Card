@@ -14,6 +14,8 @@ struct ContentView: View {
     init() {
         // Compose 側の AI（単語生成・読み方/意味の自動補完）へネイティブ実装を登録
         WordGeneratorRegistry.shared.instance = LlamaWordGenerator.shared
+        // 単語データの CSV 書き出し（共有シート）へネイティブ実装を登録
+        CsvExporterRegistry.shared.instance = CsvExporterBridge.shared
     }
 
     var body: some View {
