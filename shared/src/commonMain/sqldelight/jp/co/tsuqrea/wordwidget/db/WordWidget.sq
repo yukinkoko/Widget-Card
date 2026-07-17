@@ -7,7 +7,8 @@ CREATE TABLE folderEntity (
     deadlineType TEXT,
     deadlineEpochDay INTEGER,
     isActive INTEGER NOT NULL,
-    createdEpochDay INTEGER NOT NULL
+    createdEpochDay INTEGER NOT NULL,
+    language TEXT NOT NULL DEFAULT 'Korean'
 );
 
 selectAllFolders:
@@ -17,8 +18,8 @@ selectFolderById:
 SELECT * FROM folderEntity WHERE id = ?;
 
 insertFolder:
-INSERT OR REPLACE INTO folderEntity(id, name, description, icon, deadlineType, deadlineEpochDay, isActive, createdEpochDay)
-VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+INSERT OR REPLACE INTO folderEntity(id, name, description, icon, deadlineType, deadlineEpochDay, isActive, createdEpochDay, language)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 deleteFolder:
 DELETE FROM folderEntity WHERE id = ?;

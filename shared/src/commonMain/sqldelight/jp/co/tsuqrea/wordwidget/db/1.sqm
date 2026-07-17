@@ -1,0 +1,2 @@
+-- v1 → v2: フォルダに対象言語を追加（既存フォルダは韓国語扱い）
+ALTER TABLE folderEntity ADD COLUMN language TEXT NOT NULL DEFAULT 'Korean';

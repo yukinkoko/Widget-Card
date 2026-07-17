@@ -2,52 +2,65 @@ package jp.co.tsuqrea.designer_kmp_template.ui.screen.wordentry
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import jp.co.tsuqrea.designer_kmp_template.ai.MeaningTranslatorRegistry
+import jp.co.tsuqrea.designer_kmp_template.ai.WordGeneratorRegistry
 import jp.co.tsuqrea.designer_kmp_template.domain.model.Word
 import jp.co.tsuqrea.designer_kmp_template.domain.model.WordLanguage
+import jp.co.tsuqrea.designer_kmp_template.domain.repository.FolderRepository
 import jp.co.tsuqrea.designer_kmp_template.domain.repository.WordRepository
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import kotlin.coroutines.resume
+
+/** 自動補完の結果（読み方＋意味）。 */
+data class EntrySuggestion(val reading: String, val meaning: String)
 
 class WordEntryViewModel(
     private val wordRepository: WordRepository,
+    private val folderRepository: FolderRepository,
 ) : ViewModel() {
 
     private var folderId: String? = null
     private var nextOrder: Int = 0
 
-    /** 直近の自動補完で検出した言語（addWord で Word.language に反映）。 */
-    private var detectedLanguage: WordLanguage? = null
+    /** フォルダの対象言語。単語の language と自動補完のプロンプトに使う。 */
+    private var folderLanguage: WordLanguage = WordLanguage.Korean
+
+    private val json = Json { ignoreUnknownKeys = true }
 
     fun start(folderId: String) {
         if (this.folderId == folderId) return
         this.folderId = folderId
         viewModelScope.launch {
+            folderRepository.getFolder(folderId)?.let { folderLanguage = it.language }
             nextOrder = (wordRepository.observeWords(folderId).first().maxOfOrNull { it.order } ?: -1) + 1
         }
     }
 
+    /** 自動補完が使える状態か（生成バックエンドあり＋モデルDL済み）。 */
+    fun isAutofillReady(): Boolean = WordGeneratorRegistry.instance?.isReady() == true
+
     /**
-     * [term] の意味（日本語）を Apple Translation で自動補完する。
-     * 未登録（Android 等）・失敗・タイムアウト時は null。
+     * [term] の読み方（カタカナ）と意味（日本語）をオンデバイスLLMで自動補完する。
+     * モデル未DL・未登録（Android 等）・失敗・タイムアウト時は null。
      */
-    suspend fun autofillMeaning(term: String): String? {
-        val translator = MeaningTranslatorRegistry.instance ?: return null
-        // 前の単語の検出結果を持ち越さない（失敗時は既定言語に戻す）
-        detectedLanguage = null
-        return withTimeoutOrNull(AUTOFILL_TIMEOUT_MILLIS) {
-            suspendCancellableCoroutine { continuation ->
-                translator.translate(term) { meaning, languageCode ->
-                    if (continuation.isActive) {
-                        languageCode?.toWordLanguage()?.let { detectedLanguage = it }
-                        continuation.resume(meaning?.takeIf { it.isNotBlank() && it != term })
-                    }
+    suspend fun autofillEntry(term: String): EntrySuggestion? {
+        val generator = WordGeneratorRegistry.instance ?: return null
+        if (!generator.isReady()) return null
+        val raw = withTimeoutOrNull(AUTOFILL_TIMEOUT_MILLIS) {
+            suspendCancellableCoroutine<String?> { continuation ->
+                generator.generateEntry(term, folderLanguage.displayName) { output ->
+                    if (continuation.isActive) continuation.resume(output)
                 }
             }
-        }
+        } ?: return null
+        return runCatching { json.decodeFromString<GeneratedEntry>(raw) }
+            .getOrNull()
+            ?.takeIf { it.reading.isNotBlank() || it.meaning.isNotBlank() }
+            ?.let { EntrySuggestion(it.reading.trim(), it.meaning.trim()) }
     }
 
     /** 1語追加する。追加後に [onAdded] を呼ぶ。 */
@@ -63,25 +76,18 @@ class WordEntryViewModel(
                     reading = reading.trim(),
                     meaning = meaning.trim(),
                     order = nextOrder++,
-                    language = detectedLanguage ?: WordLanguage.Korean,
+                    language = folderLanguage,
                 ),
             )
-            detectedLanguage = null
             onAdded()
         }
     }
 
+    @Serializable
+    private data class GeneratedEntry(val reading: String = "", val meaning: String = "")
+
     companion object {
-        private const val AUTOFILL_TIMEOUT_MILLIS = 8_000L
+        /** 実機のオンデバイス生成は1語でも数十秒かかりうる。 */
+        private const val AUTOFILL_TIMEOUT_MILLIS = 60_000L
     }
 }
-
-/** BCP-47 言語コード → WordLanguage。日本語は原語になり得ないため null。 */
-private fun String.toWordLanguage(): WordLanguage? =
-    when (substringBefore('-').lowercase()) {
-        "ko" -> WordLanguage.Korean
-        "en" -> WordLanguage.English
-        "zh" -> WordLanguage.Chinese
-        "ja" -> null
-        else -> WordLanguage.Other
-    }

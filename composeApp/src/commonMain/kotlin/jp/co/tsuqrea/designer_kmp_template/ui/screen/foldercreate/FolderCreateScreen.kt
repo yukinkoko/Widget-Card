@@ -42,6 +42,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import jp.co.tsuqrea.designer_kmp_template.domain.CalendarUtil
 import jp.co.tsuqrea.designer_kmp_template.domain.DeadlineUtil
 import jp.co.tsuqrea.designer_kmp_template.domain.model.DeadlineTarget
+import jp.co.tsuqrea.designer_kmp_template.domain.model.WordLanguage
 import jp.co.tsuqrea.designer_kmp_template.domain.model.FolderIcon
 import jp.co.tsuqrea.designer_kmp_template.platform.todayEpochDay
 import jp.co.tsuqrea.designer_kmp_template.ui.component.BriefcaseIcon
@@ -52,6 +53,8 @@ import jp.co.tsuqrea.designer_kmp_template.ui.component.FolderGlyphIcon
 import jp.co.tsuqrea.designer_kmp_template.ui.component.PencilIcon
 import jp.co.tsuqrea.designer_kmp_template.ui.component.PlaneIcon
 import jp.co.tsuqrea.designer_kmp_template.ui.component.SparkleIcon
+import jp.co.tsuqrea.designer_kmp_template.ui.component.WwSelectBox
+import jp.co.tsuqrea.designer_kmp_template.ui.screen.aiwordadd.AiWordAddViewModel
 import jp.co.tsuqrea.designer_kmp_template.ui.theme.WidgetWordTheme
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -71,6 +74,7 @@ fun FolderCreateScreen(
     var method by remember { mutableStateOf(AddMethod.Ai) }
     var deadline by remember { mutableStateOf<DeadlineTarget?>(null) }
     var icon by remember { mutableStateOf(FolderIcon.Book) }
+    var language by remember { mutableStateOf(WordLanguage.Korean) }
 
     Column(
         modifier = Modifier
@@ -88,6 +92,14 @@ fun FolderCreateScreen(
         ) {
             FieldLabel("フォルダ名")
             InputField(value = name, placeholder = "例: 韓国旅行で使う単語", onValueChange = { name = it })
+            Spacer(Modifier.height(24.dp))
+
+            WwSelectBox(
+                label = "覚える言語",
+                value = language.displayName,
+                options = WordLanguage.selectable.map { it.displayName },
+                onSelect = { language = WordLanguage.ofDisplayName(it) },
+            )
             Spacer(Modifier.height(24.dp))
 
             FieldLabel("単語の追加方法")
@@ -150,6 +162,7 @@ fun FolderCreateScreen(
                     description = description.ifBlank { null },
                     deadline = deadline,
                     icon = icon,
+                    language = language,
                     method = method,
                     onCreated = onCreated,
                 )
@@ -323,6 +336,14 @@ private fun RecommendedCard(days: Long) {
             style = WidgetWordTheme.typography.reading,
             color = colors.ink,
         )
+        if (recommended > AiWordAddViewModel.MAX_COUNT) {
+            Spacer(Modifier.height(6.dp))
+            Text(
+                text = "AI生成は1回につき最大${AiWordAddViewModel.MAX_COUNT}語。足りない分は「もう一度生成」で追加できます。",
+                style = WidgetWordTheme.typography.label,
+                color = colors.faint,
+            )
+        }
     }
 }
 

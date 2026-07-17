@@ -6,7 +6,9 @@ import jp.co.tsuqrea.designer_kmp_template.ai.WordGeneratorRegistry
 import jp.co.tsuqrea.designer_kmp_template.domain.model.Word
 import jp.co.tsuqrea.designer_kmp_template.domain.model.WordLanguage
 import jp.co.tsuqrea.designer_kmp_template.domain.repository.FolderRepository
+import jp.co.tsuqrea.designer_kmp_template.domain.DeadlineUtil
 import jp.co.tsuqrea.designer_kmp_template.domain.repository.WordRepository
+import jp.co.tsuqrea.designer_kmp_template.platform.todayEpochDay
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -25,27 +27,30 @@ data class Candidate(
     val selected: Boolean = true,
 )
 
-/** AI単語登録の画面状態。 */
+/** AI単語登録の画面状態。[language] は表示名（韓国語/英語/中国語）、[count] は生成語数。 */
 sealed interface AiWordAddState {
     val theme: String
     val language: String
+    val count: Int
 
     /** 初回のみ: 生成モデル（約1.1GB）をダウンロード中。 */
     data class PreparingModel(
         override val theme: String,
         override val language: String,
+        override val count: Int,
         val progress: Float,
     ) : AiWordAddState
 
     data class Generating(
         override val theme: String,
         override val language: String,
-        val count: Int,
+        override val count: Int,
     ) : AiWordAddState
 
     data class Results(
         override val theme: String,
         override val language: String,
+        override val count: Int,
         val candidates: List<Candidate>,
     ) : AiWordAddState {
         val selectedCount: Int get() = candidates.count { it.selected }
@@ -56,6 +61,7 @@ sealed interface AiWordAddState {
     data class Failed(
         override val theme: String,
         override val language: String,
+        override val count: Int,
     ) : AiWordAddState
 }
 
@@ -70,13 +76,28 @@ class AiWordAddViewModel(
 
     private var folderId: String? = null
     private var themeText: String = ""
-    private val language = "韓国語"
+    private var language = DEFAULT_LANGUAGE
+    private var count = DEFAULT_COUNT
     private val json = Json { ignoreUnknownKeys = true }
 
     private val _state = MutableStateFlow<AiWordAddState>(
-        AiWordAddState.Generating("", language, GENERATE_COUNT),
+        AiWordAddState.Generating("", DEFAULT_LANGUAGE, DEFAULT_COUNT),
     )
     val state: StateFlow<AiWordAddState> = _state.asStateFlow()
+
+    /** 言語を切り替えて再生成する。 */
+    fun setLanguage(value: String) {
+        if (value == language) return
+        language = value
+        generate()
+    }
+
+    /** 語数を切り替えて再生成する。 */
+    fun setCount(value: Int) {
+        if (value == count) return
+        count = value
+        generate()
+    }
 
     fun start(folderId: String) {
         if (this.folderId == folderId) return
@@ -86,6 +107,13 @@ class AiWordAddViewModel(
             themeText = listOfNotNull(folder?.name, folder?.description)
                 .filter { it.isNotBlank() }
                 .joinToString("、")
+            // フォルダの対象言語・締切からの推奨語数を初期値にする
+            folder?.language?.let { language = it.displayName }
+            folder?.deadline?.let { dl ->
+                val today = todayEpochDay()
+                val days = DeadlineUtil.daysRemaining(DeadlineUtil.resolveEpochDay(dl, today), today)
+                count = DeadlineUtil.recommendedWordCount(days).coerceIn(MIN_COUNT, MAX_COUNT)
+            }
             generate()
         }
     }
@@ -99,32 +127,32 @@ class AiWordAddViewModel(
         viewModelScope.launch {
             // 初回のみ: モデルをダウンロード
             if (!generator.isReady()) {
-                _state.value = AiWordAddState.PreparingModel(themeText, language, 0f)
+                _state.value = AiWordAddState.PreparingModel(themeText, language, count, 0f)
                 val downloaded = suspendCancellableCoroutine { continuation ->
                     generator.downloadModel(
                         onProgress = { progress ->
-                            _state.value = AiWordAddState.PreparingModel(themeText, language, progress)
+                            _state.value = AiWordAddState.PreparingModel(themeText, language, count, progress)
                         },
                         onComplete = { ok -> if (continuation.isActive) continuation.resume(ok) },
                     )
                 }
                 if (!downloaded) {
-                    _state.value = AiWordAddState.Failed(themeText, language)
+                    _state.value = AiWordAddState.Failed(themeText, language, count)
                     return@launch
                 }
             }
 
-            _state.value = AiWordAddState.Generating(themeText, language, GENERATE_COUNT)
+            _state.value = AiWordAddState.Generating(themeText, language, count)
             val result = suspendCancellableCoroutine { continuation ->
-                generator.generate(themeText, language, GENERATE_COUNT) { output ->
+                generator.generate(themeText, language, count) { output ->
                     if (continuation.isActive) continuation.resume(output)
                 }
             }
             val candidates = result?.let(::parseCandidates)
             _state.value = if (candidates.isNullOrEmpty()) {
-                AiWordAddState.Failed(themeText, language)
+                AiWordAddState.Failed(themeText, language, count)
             } else {
-                AiWordAddState.Results(themeText, language, candidates)
+                AiWordAddState.Results(themeText, language, count, candidates)
             }
         }
     }
@@ -134,7 +162,7 @@ class AiWordAddViewModel(
         _state.value = AiWordAddState.Generating(themeText, language, STUB.size)
         viewModelScope.launch {
             delay(1200)
-            _state.value = AiWordAddState.Results(themeText, language, STUB)
+            _state.value = AiWordAddState.Results(themeText, language, STUB.size, STUB)
         }
     }
 
@@ -166,6 +194,7 @@ class AiWordAddViewModel(
         val current = _state.value as? AiWordAddState.Results ?: return
         val selected = current.candidates.filter { it.selected }
         if (selected.isEmpty()) return
+        val wordLanguage = WordLanguage.ofDisplayName(language)
         viewModelScope.launch {
             wordRepository.createAll(
                 selected.mapIndexed { index, c ->
@@ -176,7 +205,7 @@ class AiWordAddViewModel(
                         reading = c.reading,
                         meaning = c.meaning,
                         order = index,
-                        language = WordLanguage.Korean,
+                        language = wordLanguage,
                     )
                 },
             )
@@ -194,10 +223,17 @@ class AiWordAddViewModel(
         val meaning: String = "",
     )
 
-    private companion object {
-        const val GENERATE_COUNT = 8
+    companion object {
+        val LANGUAGE_OPTIONS: List<String> get() = WordLanguage.selectable.map { it.displayName }
+        val COUNT_OPTIONS = listOf(5, 8, 10, 15, 20)
+        private const val DEFAULT_LANGUAGE = "韓国語"
+        private const val DEFAULT_COUNT = 8
 
-        val STUB = listOf(
+        /** 1回のオンデバイス生成で扱う語数の範囲（生成時間・品質とのバランス）。 */
+        const val MIN_COUNT = 5
+        const val MAX_COUNT = 20
+
+        private val STUB = listOf(
             Candidate("감사합니다", "カムサハムニダ", "ありがとうございます"),
             Candidate("안녕하세요", "アンニョンハセヨ", "こんにちは"),
             Candidate("어디예요?", "オディエヨ", "どこですか"),

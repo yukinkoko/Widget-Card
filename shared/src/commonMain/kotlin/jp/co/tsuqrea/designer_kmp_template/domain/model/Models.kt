@@ -8,8 +8,32 @@ package jp.co.tsuqrea.designer_kmp_template.domain.model
 /** フォルダのアイコン（作成画面の4タイル）。表現はUI層で解決。 */
 enum class FolderIcon { Book, Plane, Briefcase, Coffee }
 
-/** 単語の言語。 */
-enum class WordLanguage { Korean, English, Chinese, Other }
+/** 単語の言語。DB には name（TEXT）で保存するため、追加は後方互換。 */
+enum class WordLanguage(val displayName: String) {
+    Korean("韓国語"),
+    English("英語"),
+    Chinese("中国語"),
+    Spanish("スペイン語"),
+    French("フランス語"),
+    German("ドイツ語"),
+    Italian("イタリア語"),
+    Portuguese("ポルトガル語"),
+    Vietnamese("ベトナム語"),
+    Thai("タイ語"),
+    Indonesian("インドネシア語"),
+    Russian("ロシア語"),
+    Other("その他"),
+    ;
+
+    companion object {
+        /** 選択肢として出す言語（その他を除く）。 */
+        val selectable: List<WordLanguage> get() = entries.filter { it != Other }
+
+        /** 表示名 → WordLanguage。 */
+        fun ofDisplayName(displayName: String): WordLanguage =
+            entries.firstOrNull { it.displayName == displayName } ?: Other
+    }
+}
 
 /** アプリ/ウィジェットのカラートーン。UI層の AppTone に対応。 */
 enum class ColorTone { Color, Dark, Light }
@@ -29,6 +53,8 @@ data class Folder(
     val description: String? = null,
     val icon: FolderIcon = FolderIcon.Book,
     val deadline: DeadlineTarget? = null,
+    /** このフォルダの対象言語。AI生成・自動補完・発音の既定になる。 */
+    val language: WordLanguage = WordLanguage.Korean,
     /** 表示中（Daily / ウィジェットの対象）。同時に1つ。 */
     val isActive: Boolean = false,
     val createdEpochDay: Long,

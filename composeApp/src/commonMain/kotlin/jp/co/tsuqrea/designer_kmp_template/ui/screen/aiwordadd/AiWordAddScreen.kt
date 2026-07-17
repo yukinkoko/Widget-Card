@@ -25,10 +25,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,6 +49,7 @@ import jp.co.tsuqrea.designer_kmp_template.ui.component.ChevronLeftIcon
 import jp.co.tsuqrea.designer_kmp_template.ui.component.CheckIcon
 import jp.co.tsuqrea.designer_kmp_template.ui.component.MeterBar
 import jp.co.tsuqrea.designer_kmp_template.ui.component.SparkleIcon
+import jp.co.tsuqrea.designer_kmp_template.ui.component.WwSelectBox
 import jp.co.tsuqrea.designer_kmp_template.ui.theme.WidgetWordTheme
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -84,6 +90,8 @@ fun AiWordAddScreen(
                 ResultsBody(
                     state = s,
                     onThemeChange = viewModel::updateTheme,
+                    onLanguageChange = viewModel::setLanguage,
+                    onCountChange = viewModel::setCount,
                     onToggle = viewModel::toggle,
                     modifier = Modifier.weight(1f),
                 )
@@ -278,6 +286,8 @@ private fun SkeletonBar(width: androidx.compose.ui.unit.Dp) {
 private fun ResultsBody(
     state: AiWordAddState.Results,
     onThemeChange: (String) -> Unit,
+    onLanguageChange: (String) -> Unit,
+    onCountChange: (Int) -> Unit,
     onToggle: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -295,8 +305,20 @@ private fun ResultsBody(
         Spacer(Modifier.height(16.dp))
 
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            SelectBox(label = "言語", value = state.language, modifier = Modifier.weight(1f))
-            SelectBox(label = "語数", value = "${state.total}語", modifier = Modifier.weight(1f))
+            WwSelectBox(
+                label = "言語",
+                value = state.language,
+                options = AiWordAddViewModel.LANGUAGE_OPTIONS,
+                onSelect = onLanguageChange,
+                modifier = Modifier.weight(1f),
+            )
+            WwSelectBox(
+                label = "語数",
+                value = "${state.count}語",
+                options = AiWordAddViewModel.COUNT_OPTIONS.map { "${it}語" },
+                onSelect = { onCountChange(it.removeSuffix("語").toInt()) },
+                modifier = Modifier.weight(1f),
+            )
         }
         Spacer(Modifier.height(10.dp))
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -307,6 +329,12 @@ private fun ResultsBody(
                 color = colors.secondary,
             )
         }
+        Spacer(Modifier.height(4.dp))
+        Text(
+            text = "生成は1回につき最大${AiWordAddViewModel.MAX_COUNT}語。足りない分はもう一度生成で追加できます。",
+            style = WidgetWordTheme.typography.label,
+            color = colors.faint,
+        )
         Spacer(Modifier.height(20.dp))
 
         Row(
@@ -391,26 +419,6 @@ private fun ThemeBox(text: String, onChange: ((String) -> Unit)? = null, editabl
             )
         } else {
             Text(text = text, fontSize = 15.sp, color = colors.ink, lineHeight = 22.sp)
-        }
-    }
-}
-
-@Composable
-private fun SelectBox(label: String, value: String, modifier: Modifier = Modifier) {
-    val colors = WidgetWordTheme.colors
-    Column(modifier = modifier) {
-        FieldLabel(label, Modifier.padding(bottom = 8.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth()
-                .clip(RoundedCornerShape(WidgetWordTheme.radius.select))
-                .background(colors.card)
-                .border(1.dp, colors.fieldOutline, RoundedCornerShape(WidgetWordTheme.radius.select))
-                .padding(horizontal = 14.dp, vertical = 13.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(text = value, fontSize = 15.sp, color = colors.ink)
-            ChevronDownIcon(color = colors.secondary, size = 16.dp)
         }
     }
 }

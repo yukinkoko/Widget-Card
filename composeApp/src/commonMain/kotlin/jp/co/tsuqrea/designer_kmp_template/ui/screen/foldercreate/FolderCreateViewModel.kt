@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import jp.co.tsuqrea.designer_kmp_template.domain.model.DeadlineTarget
 import jp.co.tsuqrea.designer_kmp_template.domain.model.Folder
 import jp.co.tsuqrea.designer_kmp_template.domain.model.FolderIcon
+import jp.co.tsuqrea.designer_kmp_template.domain.model.WordLanguage
 import jp.co.tsuqrea.designer_kmp_template.domain.repository.FolderRepository
 import jp.co.tsuqrea.designer_kmp_template.platform.todayEpochDay
 import kotlinx.coroutines.launch
@@ -25,6 +26,7 @@ class FolderCreateViewModel(
         description: String?,
         deadline: DeadlineTarget?,
         icon: FolderIcon,
+        language: WordLanguage,
         onCreated: (folderId: String, method: AddMethod) -> Unit,
         method: AddMethod,
     ) {
@@ -38,6 +40,7 @@ class FolderCreateViewModel(
                     description = description?.trim()?.ifBlank { null },
                     icon = icon,
                     deadline = deadline,
+                    language = language,
                     isActive = false,
                     createdEpochDay = todayEpochDay(),
                 ),

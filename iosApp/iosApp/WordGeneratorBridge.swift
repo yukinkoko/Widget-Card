@@ -21,6 +21,10 @@ final class LlamaWordGenerator: NSObject, WordGenerator {
     private var progressHandlers: [(Float) -> Void] = []
     private var completeHandlers: [(Bool) -> Void] = []
 
+    /// 生成は直列化する。並行実行するとモデル（約1.2GB）が二重ロードされ、
+    /// 6GB RAM 端末では jetsam に殺されうる。
+    private static let generationQueue = DispatchQueue(label: "jp.co.tsuqrea.wordwidget.llama", qos: .userInitiated)
+
     func isReady() -> Bool {
         FileManager.default.fileExists(atPath: Self.modelLocalURL.path)
     }
@@ -68,12 +72,31 @@ final class LlamaWordGenerator: NSObject, WordGenerator {
         onResult: @escaping (String?) -> Void
     ) {
         let modelPath = Self.modelLocalURL.path
-        DispatchQueue.global(qos: .userInitiated).async {
+        Self.generationQueue.async {
             let prompt = Self.buildPrompt(theme: theme, language: language, count: count)
             let output = LlamaRunner.generate(
                 modelPath: modelPath,
                 prompt: prompt,
-                grammar: Self.wordsGrammar
+                grammar: Self.wordsGrammar,
+                maxTokens: 2048
+            )
+            onResult(output)
+        }
+    }
+
+    func generateEntry(
+        term: String,
+        language: String,
+        onResult: @escaping (String?) -> Void
+    ) {
+        let modelPath = Self.modelLocalURL.path
+        Self.generationQueue.async {
+            let prompt = Self.buildEntryPrompt(term: term, language: language)
+            let output = LlamaRunner.generate(
+                modelPath: modelPath,
+                prompt: prompt,
+                grammar: Self.entryGrammar,
+                maxTokens: 128
             )
             onResult(output)
         }
@@ -83,13 +106,16 @@ final class LlamaWordGenerator: NSObject, WordGenerator {
     /// 続きを GBNF 文法で拘束して純粋な JSON だけを生成させる。
     private static func buildPrompt(theme: String, language: String, count: Int32) -> String {
         let system = "あなたは語学学習アプリの単語リスト作成アシスタントです。テーマに合った実用的な単語・フレーズを選び、指定されたJSON形式のみで出力します。"
+        // few-shot は対象言語に合わせる（他言語の例に生成が引きずられないように）
+        let pair = Self.examplePairs[language] ?? ("감사합니다", "カムサハムニダ", "ありがとうございます", "물", "ムル")
+        let example = #"{"words":[{"term":"\#(pair.0)","reading":"\#(pair.1)","meaning":"\#(pair.2)"},{"term":"\#(pair.3)","reading":"\#(pair.4)","meaning":"水"}]}"#
         let user = """
         テーマ:「\(theme)」
         対象言語: \(language)
         テーマに合う\(language)の単語・フレーズを\(count)語、JSONで出力してください。
         term は\(language)の表記、reading は必ずカタカナ、meaning は日本語の意味。
         出力例:
-        {"words":[{"term":"감사합니다","reading":"カムサハムニダ","meaning":"ありがとうございます"},{"term":"물","reading":"ムル","meaning":"水"}]}
+        \(example)
         """
         return """
         <|im_start|>system
@@ -103,6 +129,52 @@ final class LlamaWordGenerator: NSObject, WordGenerator {
 
         """
     }
+
+    /// 言語ごとの few-shot 例:（ありがとう term/reading/meaning, 水 term/reading）。
+    private static let examplePairs: [String: (String, String, String, String, String)] = [
+        "韓国語": ("감사합니다", "カムサハムニダ", "ありがとうございます", "물", "ムル"),
+        "英語": ("thank you", "サンキュー", "ありがとう", "water", "ウォーター"),
+        "中国語": ("谢谢", "シエシエ", "ありがとう", "水", "シュイ"),
+        "スペイン語": ("gracias", "グラシアス", "ありがとう", "agua", "アグア"),
+        "フランス語": ("merci", "メルシー", "ありがとう", "eau", "オー"),
+        "ドイツ語": ("danke", "ダンケ", "ありがとう", "Wasser", "ヴァッサー"),
+        "イタリア語": ("grazie", "グラツィエ", "ありがとう", "acqua", "アックア"),
+        "ポルトガル語": ("obrigado", "オブリガード", "ありがとう", "água", "アグア"),
+        "ベトナム語": ("cảm ơn", "カムオン", "ありがとう", "nước", "ヌォック"),
+        "タイ語": ("ขอบคุณ", "コープクン", "ありがとう", "น้ำ", "ナーム"),
+        "インドネシア語": ("terima kasih", "トゥリマカシ", "ありがとう", "air", "アイル"),
+        "ロシア語": ("спасибо", "スパシーバ", "ありがとう", "вода", "ヴァダー"),
+    ]
+
+    /// 1語の読み方・意味の補完用プロンプト（手動の単語登録画面）。
+    private static func buildEntryPrompt(term: String, language: String) -> String {
+        let system = "あなたは語学学習アプリのアシスタントです。単語の読み方と意味を指定されたJSON形式のみで出力します。"
+        let pair = Self.examplePairs[language] ?? ("감사합니다", "カムサハムニダ", "ありがとうございます", "물", "ムル")
+        let user = """
+        \(language)の単語「\(term)」について、readingは必ずカタカナの読み方、meaningは日本語の意味をJSONで出力してください。
+        出力例（\(language)の「\(pair.0)」の場合）:
+        {"reading":"\(pair.1)","meaning":"\(pair.2)"}
+        """
+        return """
+        <|im_start|>system
+        \(system)<|im_end|>
+        <|im_start|>user
+        \(user)<|im_end|>
+        <|im_start|>assistant
+        <think>
+
+        </think>
+
+        """
+    }
+
+    /// 1語補完の出力構造を保証する GBNF。
+    private static let entryGrammar = #"""
+    root ::= "{" ws "\"reading\"" ws ":" ws katakana ws "," ws "\"meaning\"" ws ":" ws string ws "}"
+    katakana ::= "\"" [ァ-ヶー・ 　]+ "\""
+    string ::= "\"" ( [^"\\\x7F\x00-\x1F] | "\\" (["\\bfnrt] | "u" [0-9a-fA-F] [0-9a-fA-F] [0-9a-fA-F] [0-9a-fA-F]) )* "\""
+    ws ::= [ \t\n]*
+    """#
 
     /// 出力構造を保証する GBNF（llama.cpp 公式 json.gbnf の文字定義を踏襲）。
     /// reading はカタカナ（＋長音・中点・空白）だけに拘束してローマ字読みの混入を防ぐ。
@@ -236,7 +308,9 @@ private enum LlamaRunner {
         var batch = llama_batch_get_one(&tokens, Int32(tokens.count))
         guard llama_decode(context, batch) == 0 else { return nil }
 
-        var output = ""
+        // マルチバイト文字はトークン境界で分断されることがあるため、
+        // ピースごとに文字列化せず、バイト列を貯めて最後に一括デコードする。
+        var outputBytes: [UInt8] = []
         var pieceBuffer = [CChar](repeating: 0, count: 256)
         for _ in 0..<maxTokens {
             var token = llama_sampler_sample(chain, context, -1)
@@ -244,13 +318,13 @@ private enum LlamaRunner {
 
             let pieceLength = llama_token_to_piece(vocab, token, &pieceBuffer, Int32(pieceBuffer.count), 0, false)
             if pieceLength > 0 {
-                let bytes = pieceBuffer[0..<Int(pieceLength)].map { UInt8(bitPattern: $0) }
-                output += String(decoding: bytes, as: UTF8.self)
+                outputBytes.append(contentsOf: pieceBuffer[0..<Int(pieceLength)].map { UInt8(bitPattern: $0) })
             }
 
             batch = llama_batch_get_one(&token, 1)
             guard llama_decode(context, batch) == 0 else { break }
         }
+        let output = String(decoding: outputBytes, as: UTF8.self)
         return output.isEmpty ? nil : output
     }
 }

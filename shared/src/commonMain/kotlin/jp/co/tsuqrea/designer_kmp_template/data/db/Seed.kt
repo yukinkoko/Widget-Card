@@ -17,9 +17,9 @@ fun seedIfEmpty(db: WordWidgetDatabase) {
     val today = todayEpochDay()
 
     q.transaction {
-        q.insertFolder(SAMPLE_FOLDER_ID, "韓国旅行で使う単語", "カフェ・買い物・交通", FolderIcon.Plane.name, "OnDate", today + 14, 1L, today)
-        q.insertFolder(FOLDER_MEETING, "英語会議", "仕事で使う表現", FolderIcon.Briefcase.name, null, null, 0L, today)
-        q.insertFolder(FOLDER_DESIGNER, "デザイナー英語", "制作で使う言葉", FolderIcon.Book.name, null, null, 0L, today)
+        q.insertFolder(SAMPLE_FOLDER_ID, "韓国旅行で使う単語", "カフェ・買い物・交通", FolderIcon.Plane.name, "OnDate", today + 14, 1L, today, WordLanguage.Korean.name)
+        q.insertFolder(FOLDER_MEETING, "英語会議", "仕事で使う表現", FolderIcon.Briefcase.name, null, null, 0L, today, WordLanguage.English.name)
+        q.insertFolder(FOLDER_DESIGNER, "デザイナー英語", "制作で使う言葉", FolderIcon.Book.name, null, null, 0L, today, WordLanguage.English.name)
 
         val words = buildList {
             add(w(SAMPLE_FOLDER_ID, "sample-w1", "감사합니다", "カムサハムニダ", "ありがとうございます", 5, 0, WordLanguage.Korean))
