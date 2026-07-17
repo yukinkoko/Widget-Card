@@ -190,7 +190,18 @@ struct SmallWidgetView: View {
         let p = TonePalette.of(entry.tone)
         let word = entry.words.first ?? WordEntry.sample.words[0]
         VStack(alignment: .leading, spacing: 4) {
-            if entry.showFolderName { Text(entry.folderName).font(.system(size: 11)).foregroundColor(p.meta).lineLimit(1) }
+            HStack(alignment: .top) {
+                if entry.showFolderName {
+                    Text(entry.folderName).font(.system(size: 11)).foregroundColor(p.meta).lineLimit(1)
+                }
+                Spacer(minLength: 0)
+                if entry.showPlay {
+                    Button(intent: SpeakWordIntent(text: word.term, languageTag: word.languageTag)) {
+                        SpeakerChip(palette: p)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
             Spacer(minLength: 0)
             Text(word.term).font(.system(size: 20, weight: .bold)).foregroundColor(p.text).lineLimit(2).minimumScaleFactor(0.5)
             if entry.showReading { Text(word.reading).font(.system(size: 11)).foregroundColor(p.meta).lineLimit(1) }
