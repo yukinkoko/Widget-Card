@@ -18,12 +18,13 @@ import kotlinx.serialization.json.Json
 /**
  * iCloud（KVS）と端末データの同期。
  * - ローカル変更 → スナップショットを KVS へ push（内容が変わったときだけ）。
- * - 他端末由来の KVS 変更 → ローカルへ pull（取り込み）。
- * - 競合は Last-Writer-Wins（外部変更＝相手が新しいとみなす）。有効化直後はローカルが
- *   空なら iCloud から復元、そうでなければローカルを push（＝ローカル優先）。
+ * - 他端末由来の KVS 変更 → タイムスタンプが新しければ pull（取り込み）。
+ * - 有効化直後は「iCloud にデータがあれば復元（クラウド優先）」。これにより、初回起動の
+ *   シードデータが実バックアップを上書きしてしまう事故を防ぐ。クラウドが空なら
+ *   ローカルを push する。
  *
- * ループ防止のため、最後に同期した内容（タイムスタンプ除く JSON）を保持し、
- * 一致するときは push も import もしない。
+ * ループ防止のため、最後に同期した内容（タイムスタンプ除く JSON）と更新時刻を保持し、
+ * 内容一致・古い更新時刻は無視する。
  */
 class ICloudSyncer(
     private val settingsRepository: SettingsRepository,
@@ -34,6 +35,7 @@ class ICloudSyncer(
     private val json = Json { encodeDefaults = true; ignoreUnknownKeys = true }
     private val mutex = Mutex()
     private var lastSyncedContent: String? = null
+    private var lastSyncedAtMillis: Long = 0L
     private var enabled = false
     private var wasEnabled = false
 
@@ -48,63 +50,70 @@ class ICloudSyncer(
             folderRepository.observeFolders(),
             wordRepository.observeAllWords(),
         ) { settings, _, _ -> settings.iCloudEnabled }
-            .onEach { icloudEnabled ->
-                val justEnabled = icloudEnabled && !wasEnabled
-                wasEnabled = icloudEnabled
-                enabled = icloudEnabled
-                if (icloudEnabled) {
-                    if (justEnabled) reconcileOnEnable()
-                    pushIfChanged()
-                }
-            }
+            .onEach { icloudEnabled -> onEnabledOrDataChanged(icloudEnabled) }
             .launchIn(scope)
+    }
+
+    private suspend fun onEnabledOrDataChanged(icloudEnabled: Boolean) {
+        mutex.withLock {
+            val justEnabled = icloudEnabled && !wasEnabled
+            wasEnabled = icloudEnabled
+            enabled = icloudEnabled
+            if (!icloudEnabled) return
+            if (justEnabled && restoreFromCloudIfPresent()) return // 復元したら push しない
+            pushIfChangedLocked()
+        }
     }
 
     /** タイムスタンプを除いた内容 JSON（比較用）。 */
     private fun contentOf(s: BackupSnapshot): String =
         json.encodeToString(s.copy(updatedAtMillis = 0L))
 
-    private suspend fun pushIfChanged() {
-        mutex.withLock {
-            if (!enabled || !ICloudKeyValueStore.isAvailable()) return@withLock
-            val snapshot = backupRepository.exportSnapshot()
-            val content = contentOf(snapshot)
-            if (content == lastSyncedContent) return@withLock
-            lastSyncedContent = content
-            val payload = snapshot.copy(updatedAtMillis = currentEpochMillis())
-            ICloudKeyValueStore.putString(KEY, json.encodeToString(payload))
-        }
+    /** 有効化直後: クラウドにデータがあれば復元する。復元したら true。 */
+    private suspend fun restoreFromCloudIfPresent(): Boolean {
+        val remote = readRemote() ?: return false
+        if (remote.folders.isEmpty() && remote.words.isEmpty()) return false
+        lastSyncedContent = contentOf(remote)
+        lastSyncedAtMillis = remote.updatedAtMillis
+        backupRepository.importSnapshot(remote)
+        return true
+    }
+
+    private suspend fun pushIfChangedLocked() {
+        if (!ICloudKeyValueStore.isAvailable()) return
+        val snapshot = backupRepository.exportSnapshot()
+        val content = contentOf(snapshot)
+        if (content == lastSyncedContent) return
+        val now = currentEpochMillis()
+        val payloadJson = json.encodeToString(snapshot.copy(updatedAtMillis = now))
+        // KVS の1キー上限(~1MB)超は同期しない。日本語は UTF-8 で3バイト/字なのでバイト数で判定。
+        if (payloadJson.encodeToByteArray().size > MAX_PAYLOAD_BYTES) return
+        lastSyncedContent = content
+        lastSyncedAtMillis = now
+        ICloudKeyValueStore.putString(KEY, payloadJson)
     }
 
     private suspend fun pull() {
         mutex.withLock {
-            if (!enabled) return@withLock
-            val remote = readRemote() ?: return@withLock
+            if (!enabled) return
+            val remote = readRemote() ?: return
+            // 自分が最後に同期した時刻より古い外部変更は無視（LWW）
+            if (remote.updatedAtMillis <= lastSyncedAtMillis) return
             val remoteContent = contentOf(remote)
-            if (remoteContent == lastSyncedContent) return@withLock
-            val local = backupRepository.exportSnapshot()
-            if (remoteContent == contentOf(local)) {
-                lastSyncedContent = remoteContent
-                return@withLock
+            if (remoteContent == lastSyncedContent) {
+                lastSyncedAtMillis = remote.updatedAtMillis
+                return
             }
-            // 外部変更＝相手が新しい。取り込み前に lastSynced を更新し、取り込みで発火する
-            // push が同内容で弾かれるようにする（エコー防止）。
+            if (remoteContent == contentOf(backupRepository.exportSnapshot())) {
+                lastSyncedContent = remoteContent
+                lastSyncedAtMillis = remote.updatedAtMillis
+                return
+            }
+            // 取り込み前に lastSynced を更新し、取り込みで発火する push を弾く（エコー防止）
             lastSyncedContent = remoteContent
+            lastSyncedAtMillis = remote.updatedAtMillis
             backupRepository.importSnapshot(remote)
         }
-    }
-
-    /** 有効化直後の初期同期。ローカルが空で iCloud にデータがあれば復元。 */
-    private suspend fun reconcileOnEnable() {
-        val remote = readRemote() ?: return
-        val local = backupRepository.exportSnapshot()
-        val localEmpty = local.folders.isEmpty() && local.words.isEmpty()
-        val remoteHasData = remote.folders.isNotEmpty() || remote.words.isNotEmpty()
-        if (localEmpty && remoteHasData) {
-            lastSyncedContent = contentOf(remote)
-            backupRepository.importSnapshot(remote)
-        }
-        // それ以外はローカル優先（続く pushIfChanged がアップロード）
     }
 
     private fun readRemote(): BackupSnapshot? {
@@ -115,5 +124,7 @@ class ICloudSyncer(
 
     private companion object {
         const val KEY = "word_widget_backup_v1"
+        /** NSUbiquitousKeyValueStore の1キー上限（1MB）。安全側で少し小さめに。 */
+        const val MAX_PAYLOAD_BYTES = 900_000
     }
 }

@@ -59,6 +59,8 @@ class SqlBackupRepository(private val db: WordWidgetDatabase) : BackupRepository
         // 端末ローカルの設定は現在値を保持する
         val current = q.selectAppSettings().executeAsOneOrNull()
         q.transaction {
+            // 単語の入れ替えで参照が切れる日別ログも消す（dailyCount は語に依存しないので保持）
+            q.deleteAllDayWords()
             q.deleteAllWords()
             q.deleteAllFolders()
             snapshot.folders.forEach { f ->

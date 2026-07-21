@@ -95,6 +95,9 @@ selectWordsForDay:
 SELECT w.* FROM dayWordEntity d JOIN wordEntity w ON w.id = d.wordId
 WHERE d.epochDay = ? ORDER BY w.orderIndex;
 
+deleteAllDayWords:
+DELETE FROM dayWordEntity;
+
 selectDayWord:
 SELECT * FROM dayWordEntity WHERE epochDay = ? AND wordId = ?;
 
