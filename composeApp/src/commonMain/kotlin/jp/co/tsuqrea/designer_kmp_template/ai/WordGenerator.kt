@@ -17,11 +17,11 @@ interface WordGenerator {
 
     /**
      * [theme]（例:「韓国旅行、カフェ・買い物」）から [count] 語の候補を生成する。
-     * [language] は対象言語名（例:「韓国語」）。
+     * [language] は対象言語名（例:「韓国語」）。[exclude] は既出の単語（重複回避のためプロンプトで除外）。
      * 結果は JSON 文字列 `{"words":[{"term":"...","reading":"...","meaning":"..."}]}`、失敗時 null。
      * 構造は llama.cpp の GBNF 文法で保証される。
      */
-    fun generate(theme: String, language: String, count: Int, onResult: (String?) -> Unit)
+    fun generate(theme: String, language: String, count: Int, exclude: List<String>, onResult: (String?) -> Unit)
 
     /**
      * 1語 [term]（[language] の単語）の読み方（カタカナ）と意味（日本語）を生成する。
