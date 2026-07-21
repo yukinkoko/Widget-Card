@@ -5,6 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import jp.co.tsuqrea.designer_kmp_template.backup.ICloudSyncer
 import jp.co.tsuqrea.designer_kmp_template.notify.ReminderScheduler
 import jp.co.tsuqrea.designer_kmp_template.widget.WidgetSyncer
 import jp.co.tsuqrea.designer_kmp_template.di.appModule
@@ -39,6 +40,9 @@ fun App() {
         // リマインダー通知の予約を設定・遭遇状況に追従させる
         val reminderScheduler = koinInject<ReminderScheduler>()
         LaunchedEffect(Unit) { reminderScheduler.start(syncScope) }
+        // iCloud（KVS）バックアップ同期を開始（設定の iCloud 有効時のみ実際に同期）
+        val iCloudSyncer = koinInject<ICloudSyncer>()
+        LaunchedEffect(Unit) { iCloudSyncer.start(syncScope) }
         AppTheme(tone = settings.appTone.toAppTone()) {
             if (settings.onboardingCompleted) {
                 AppNavigation()

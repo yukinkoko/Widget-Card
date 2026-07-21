@@ -24,6 +24,9 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
 deleteFolder:
 DELETE FROM folderEntity WHERE id = ?;
 
+deleteAllFolders:
+DELETE FROM folderEntity;
+
 clearActiveFolders:
 UPDATE folderEntity SET isActive = 0;
 
@@ -61,6 +64,9 @@ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 deleteWord:
 DELETE FROM wordEntity WHERE id = ?;
+
+deleteAllWords:
+DELETE FROM wordEntity;
 
 -- ── daily count ──
 CREATE TABLE dailyCountEntity (
