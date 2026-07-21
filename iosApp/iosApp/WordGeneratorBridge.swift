@@ -69,11 +69,12 @@ final class LlamaWordGenerator: NSObject, WordGenerator {
         theme: String,
         language: String,
         count: Int32,
+        exclude: [String],
         onResult: @escaping (String?) -> Void
     ) {
         let modelPath = Self.modelLocalURL.path
         Self.generationQueue.async {
-            let prompt = Self.buildPrompt(theme: theme, language: language, count: count)
+            let prompt = Self.buildPrompt(theme: theme, language: language, count: count, exclude: exclude)
             let output = LlamaRunner.generate(
                 modelPath: modelPath,
                 prompt: prompt,
@@ -104,16 +105,19 @@ final class LlamaWordGenerator: NSObject, WordGenerator {
 
     /// Qwen3 の ChatML。thinking は空ブロックをプリフィルして無効化し、
     /// 続きを GBNF 文法で拘束して純粋な JSON だけを生成させる。
-    private static func buildPrompt(theme: String, language: String, count: Int32) -> String {
+    private static func buildPrompt(theme: String, language: String, count: Int32, exclude: [String] = []) -> String {
         let system = "あなたは語学学習アプリの単語リスト作成アシスタントです。テーマに合った実用的な単語・フレーズを選び、指定されたJSON形式のみで出力します。"
         // few-shot は対象言語に合わせる（他言語の例に生成が引きずられないように）
         let pair = Self.examplePairs[language] ?? ("감사합니다", "カムサハムニダ", "ありがとうございます", "물", "ムル")
         let example = #"{"words":[{"term":"\#(pair.0)","reading":"\#(pair.1)","meaning":"\#(pair.2)"},{"term":"\#(pair.3)","reading":"\#(pair.4)","meaning":"水"}]}"#
+        // 既出語はプロンプトに列挙して重複を避ける（末尾40語に制限してコンテキスト圧迫を防ぐ）
+        let excludeLine = exclude.isEmpty ? "" :
+            "次の単語は既に登録済みなので使わないでください: " + exclude.suffix(40).joined(separator: "、") + "\n"
         let user = """
         テーマ:「\(theme)」
         対象言語: \(language)
         テーマに合う\(language)の単語・フレーズを\(count)語、JSONで出力してください。
-        term は\(language)の表記、reading は必ずカタカナ、meaning は日本語の意味。
+        \(excludeLine)term は\(language)の表記、reading は必ずカタカナ、meaning は日本語の意味。
         出力例:
         \(example)
         """

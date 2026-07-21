@@ -93,6 +93,7 @@ fun AiWordAddScreen(
                     onLanguageChange = viewModel::setLanguage,
                     onCountChange = viewModel::setCount,
                     onToggle = viewModel::toggle,
+                    onGenerateMore = viewModel::generateMore,
                     modifier = Modifier.weight(1f),
                 )
                 FooterAdd(
@@ -148,7 +149,7 @@ private fun PreparingModelBody(state: AiWordAddState.PreparingModel, modifier: M
         Row(
             modifier = Modifier.fillMaxWidth()
                 .clip(RoundedCornerShape(WidgetWordTheme.radius.card))
-                .background(colors.ink)
+                .background(colors.inkSurface)
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -159,11 +160,16 @@ private fun PreparingModelBody(state: AiWordAddState.PreparingModel, modifier: M
                 strokeWidth = 2.dp,
             )
             Column {
-                Text(text = "生成AIを準備しています…", color = colors.onInk, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                Text(
+                    text = "生成AIを準備しています…",
+                    color = colors.onInkSurface,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.SemiBold,
+                )
                 Spacer(Modifier.height(2.dp))
                 Text(
                     text = "初回のみモデルをダウンロード · ${(state.progress * 100).toInt()}%",
-                    color = colors.onInk.copy(alpha = 0.6f),
+                    color = colors.onInkSurface.copy(alpha = 0.6f),
                     style = WidgetWordTheme.typography.reading,
                 )
             }
@@ -224,7 +230,7 @@ private fun GeneratingBody(state: AiWordAddState.Generating, modifier: Modifier 
         Row(
             modifier = Modifier.fillMaxWidth()
                 .clip(RoundedCornerShape(WidgetWordTheme.radius.card))
-                .background(colors.ink)
+                .background(colors.inkSurface)
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -235,11 +241,16 @@ private fun GeneratingBody(state: AiWordAddState.Generating, modifier: Modifier 
                 strokeWidth = 2.dp,
             )
             Column {
-                Text(text = "候補を生成しています…", color = colors.onInk, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                Text(
+                    text = "候補を生成しています…",
+                    color = colors.onInkSurface,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.SemiBold,
+                )
                 Spacer(Modifier.height(2.dp))
                 Text(
                     text = "${state.count}語 · ${state.language} · だいたい10秒くらい",
-                    color = colors.onInk.copy(alpha = 0.6f),
+                    color = colors.onInkSurface.copy(alpha = 0.6f),
                     style = WidgetWordTheme.typography.reading,
                 )
             }
@@ -289,6 +300,7 @@ private fun ResultsBody(
     onLanguageChange: (String) -> Unit,
     onCountChange: (Int) -> Unit,
     onToggle: (Int) -> Unit,
+    onGenerateMore: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colors = WidgetWordTheme.colors
@@ -331,7 +343,7 @@ private fun ResultsBody(
         }
         Spacer(Modifier.height(4.dp))
         Text(
-            text = "生成は1回につき最大${AiWordAddViewModel.MAX_COUNT}語。足りない分はもう一度生成で追加できます。",
+            text = "生成は1回につき最大${AiWordAddViewModel.MAX_COUNT}語。足りない分は下の「さらに生成」で追加できます。",
             style = WidgetWordTheme.typography.label,
             color = colors.faint,
         )
@@ -365,6 +377,35 @@ private fun ResultsBody(
             Box(Modifier.fillMaxWidth().height(1.dp).background(colors.hairlineRow))
         }
         Spacer(Modifier.height(16.dp))
+        GenerateMoreButton(loading = state.appending, onClick = onGenerateMore)
+        Spacer(Modifier.height(16.dp))
+    }
+}
+
+/** 候補の下の「＋ さらに生成」ボタン（実行中はスピナー）。 */
+@Composable
+private fun GenerateMoreButton(loading: Boolean, onClick: () -> Unit) {
+    val colors = WidgetWordTheme.colors
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(48.dp)
+            .clip(RoundedCornerShape(WidgetWordTheme.radius.button))
+            .background(colors.card)
+            .border(1.dp, colors.cardOutline, RoundedCornerShape(WidgetWordTheme.radius.button))
+            .clickable(enabled = !loading, onClick = onClick),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        if (loading) {
+            CircularProgressIndicator(modifier = Modifier.size(16.dp), color = colors.secondary, strokeWidth = 2.dp)
+            Spacer(Modifier.width(8.dp))
+            Text(text = "生成中…", color = colors.secondary, fontSize = 15.sp)
+        } else {
+            SparkleIcon(color = colors.ink, size = 14.dp)
+            Spacer(Modifier.width(6.dp))
+            Text(text = "さらに生成", color = colors.ink, fontSize = 15.sp, fontWeight = FontWeight.Medium)
+        }
     }
 }
 

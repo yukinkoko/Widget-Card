@@ -52,6 +52,8 @@ sealed interface AiWordAddState {
         override val language: String,
         override val count: Int,
         val candidates: List<Candidate>,
+        /** 「さらに生成」の実行中。 */
+        val appending: Boolean = false,
     ) : AiWordAddState {
         val selectedCount: Int get() = candidates.count { it.selected }
         val total: Int get() = candidates.size
@@ -144,7 +146,7 @@ class AiWordAddViewModel(
 
             _state.value = AiWordAddState.Generating(themeText, language, count)
             val result = suspendCancellableCoroutine { continuation ->
-                generator.generate(themeText, language, count) { output ->
+                generator.generate(themeText, language, count, emptyList()) { output ->
                     if (continuation.isActive) continuation.resume(output)
                 }
             }
@@ -154,6 +156,33 @@ class AiWordAddViewModel(
             } else {
                 AiWordAddState.Results(themeText, language, count, candidates)
             }
+        }
+    }
+
+    /**
+     * 既存の候補を保ったまま、さらに [MORE_BATCH] 語を生成して追記する。
+     * 既出の単語は除外リストで渡し、返ってきた分も term で重複排除する。
+     */
+    fun generateMore() {
+        val generator = WordGeneratorRegistry.instance ?: return
+        val current = _state.value as? AiWordAddState.Results ?: return
+        if (current.appending) return
+        _state.value = current.copy(appending = true)
+        viewModelScope.launch {
+            val existingTerms = current.candidates.map { it.term }
+            val result = suspendCancellableCoroutine<String?> { continuation ->
+                generator.generate(themeText, language, MORE_BATCH, existingTerms) { output ->
+                    if (continuation.isActive) continuation.resume(output)
+                }
+            }
+            // 待機中に選択トグルされている可能性があるので最新状態にマージする
+            val latest = _state.value as? AiWordAddState.Results ?: return@launch
+            val existing = latest.candidates.map { it.term }.toSet()
+            val fresh = result?.let(::parseCandidates).orEmpty().filter { it.term !in existing }
+            _state.value = latest.copy(
+                candidates = latest.candidates + fresh,
+                appending = false,
+            )
         }
     }
 
@@ -232,6 +261,9 @@ class AiWordAddViewModel(
         /** 1回のオンデバイス生成で扱う語数の範囲（生成時間・品質とのバランス）。 */
         const val MIN_COUNT = 5
         const val MAX_COUNT = 20
+
+        /** 「さらに生成」1回で追加する語数（待ち時間を短く）。 */
+        private const val MORE_BATCH = 10
 
         private val STUB = listOf(
             Candidate("감사합니다", "カムサハムニダ", "ありがとうございます"),
