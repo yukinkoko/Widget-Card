@@ -378,6 +378,15 @@ private fun ResultsBody(
         }
         Spacer(Modifier.height(16.dp))
         GenerateMoreButton(loading = state.appending, onClick = onGenerateMore)
+        if (state.moreEmpty) {
+            Spacer(Modifier.height(8.dp))
+            Text(
+                text = "これ以上の候補は見つかりませんでした。",
+                style = WidgetWordTheme.typography.label,
+                color = colors.faint,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
         Spacer(Modifier.height(16.dp))
     }
 }

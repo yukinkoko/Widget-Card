@@ -110,9 +110,13 @@ final class LlamaWordGenerator: NSObject, WordGenerator {
         // few-shot は対象言語に合わせる（他言語の例に生成が引きずられないように）
         let pair = Self.examplePairs[language] ?? ("감사합니다", "カムサハムニダ", "ありがとうございます", "물", "ムル")
         let example = #"{"words":[{"term":"\#(pair.0)","reading":"\#(pair.1)","meaning":"\#(pair.2)"},{"term":"\#(pair.3)","reading":"\#(pair.4)","meaning":"水"}]}"#
-        // 既出語はプロンプトに列挙して重複を避ける（末尾40語に制限してコンテキスト圧迫を防ぐ）
-        let excludeLine = exclude.isEmpty ? "" :
-            "次の単語は既に登録済みなので使わないでください: " + exclude.suffix(40).joined(separator: "、") + "\n"
+        // 既出語はプロンプトに列挙して重複を避ける（末尾40語に制限してコンテキスト圧迫を防ぐ）。
+        // 特殊トークン等が混じっても ChatML を乱さないようサニタイズする。
+        let sanitized = exclude.suffix(40).map { term in
+            term.replacingOccurrences(of: "<|", with: "").replacingOccurrences(of: "|>", with: "").prefix(40)
+        }
+        let excludeLine = sanitized.isEmpty ? "" :
+            "次の単語は既に登録済みなので使わないでください: " + sanitized.joined(separator: "、") + "\n"
         let user = """
         テーマ:「\(theme)」
         対象言語: \(language)

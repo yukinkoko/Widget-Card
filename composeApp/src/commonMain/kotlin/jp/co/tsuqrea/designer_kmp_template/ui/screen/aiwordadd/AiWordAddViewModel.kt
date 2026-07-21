@@ -54,6 +54,8 @@ sealed interface AiWordAddState {
         val candidates: List<Candidate>,
         /** 「さらに生成」の実行中。 */
         val appending: Boolean = false,
+        /** 直近の「さらに生成」で新しい候補が得られなかった。 */
+        val moreEmpty: Boolean = false,
     ) : AiWordAddState {
         val selectedCount: Int get() = candidates.count { it.selected }
         val total: Int get() = candidates.size
@@ -167,7 +169,7 @@ class AiWordAddViewModel(
         val generator = WordGeneratorRegistry.instance ?: return
         val current = _state.value as? AiWordAddState.Results ?: return
         if (current.appending) return
-        _state.value = current.copy(appending = true)
+        _state.value = current.copy(appending = true, moreEmpty = false)
         viewModelScope.launch {
             val existingTerms = current.candidates.map { it.term }
             val result = suspendCancellableCoroutine<String?> { continuation ->
@@ -182,6 +184,7 @@ class AiWordAddViewModel(
             _state.value = latest.copy(
                 candidates = latest.candidates + fresh,
                 appending = false,
+                moreEmpty = fresh.isEmpty(),
             )
         }
     }
