@@ -42,4 +42,12 @@ val sharedModule =
 
         // ── リマインダー通知 ──
         single { jp.co.tsuqrea.designer_kmp_template.notify.ReminderScheduler(get(), get()) }
+
+        // ── iCloud（KVS）バックアップ同期 ──
+        single<jp.co.tsuqrea.designer_kmp_template.backup.BackupRepository> {
+            jp.co.tsuqrea.designer_kmp_template.data.db.SqlBackupRepository(get())
+        }
+        single {
+            jp.co.tsuqrea.designer_kmp_template.backup.ICloudSyncer(get(), get(), get(), get())
+        }
     }
