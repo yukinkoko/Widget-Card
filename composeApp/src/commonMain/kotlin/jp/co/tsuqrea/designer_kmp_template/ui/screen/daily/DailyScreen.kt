@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -139,33 +140,39 @@ private fun WeekdayStrip(chips: List<WeekdayChip>, onDayClick: (Long) -> Unit) {
 @Composable
 private fun WeekdayChipView(chip: WeekdayChip, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val colors = WidgetWordTheme.colors
-    val shape = RoundedCornerShape(percent = 50)
+    val shape = CircleShape
     val background = if (chip.isSelected) colors.ink else Color.Transparent
     val contentColor = when {
         chip.isSelected -> colors.onInk
         chip.isFuture -> colors.faint
         else -> colors.ink
     }
+    // 未選択チップは薄い円の輪郭を出す。「今日」だけは少し濃い枠で分かるようにする。
+    val borderColor = when {
+        chip.isSelected -> null
+        chip.isToday -> colors.disabled
+        else -> colors.cardOutline
+    }
     Column(
         modifier = modifier
+            .aspectRatio(1f)
             .clip(shape)
             .background(background)
-            // 選択が別の日に移っても「今日」は枠線で分かるようにする
-            .then(if (chip.isToday && !chip.isSelected) Modifier.border(1.dp, colors.disabled, shape) else Modifier)
-            .clickable(enabled = !chip.isFuture, onClick = onClick)
-            .padding(vertical = 12.dp),
+            .then(if (borderColor != null) Modifier.border(1.dp, borderColor, shape) else Modifier)
+            .clickable(enabled = !chip.isFuture, onClick = onClick),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(6.dp),
+        verticalArrangement = Arrangement.Center,
     ) {
         ActivityDot(level = chip.level, onDark = chip.isSelected, isFuture = chip.isFuture)
+        Spacer(Modifier.height(3.dp))
         Text(
             text = chip.label,
-            style = WidgetWordTheme.typography.label.copy(fontSize = 11.sp),
+            style = WidgetWordTheme.typography.label.copy(fontSize = 10.sp),
             color = if (chip.isSelected) colors.onInk else colors.secondary,
         )
         Text(
             text = chip.dayOfMonth.toString(),
-            fontSize = 14.sp,
+            fontSize = 13.sp,
             fontWeight = FontWeight.SemiBold,
             color = contentColor,
         )

@@ -110,6 +110,7 @@ fun WordDetailScreen(
             var tone by remember { mutableStateOf(ColorTone.Color) }
             HeroCard(
                 word = word,
+                folderName = state?.folderName.orEmpty(),
                 tone = tone,
                 onSpeak = { speak(word.term, languageTag(word.language)) },
             )
@@ -153,7 +154,7 @@ private fun DetailHeader(folderName: String, onBack: () -> Unit) {
 }
 
 @Composable
-private fun HeroCard(word: Word, tone: ColorTone, onSpeak: () -> Unit) {
+private fun HeroCard(word: Word, folderName: String, tone: ColorTone, onSpeak: () -> Unit) {
     val pc = previewColorsFor(tone)
     Column(
         modifier = Modifier
@@ -171,7 +172,7 @@ private fun HeroCard(word: Word, tone: ColorTone, onSpeak: () -> Unit) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
                 FolderGlyphIcon(color = pc.meta)
                 Text(
-                    text = "韓国旅行",
+                    text = folderName,
                     style = WidgetWordTheme.typography.reading,
                     color = pc.meta,
                 )
