@@ -149,7 +149,7 @@ private fun PreparingModelBody(state: AiWordAddState.PreparingModel, modifier: M
         Row(
             modifier = Modifier.fillMaxWidth()
                 .clip(RoundedCornerShape(WidgetWordTheme.radius.card))
-                .background(colors.ink)
+                .background(colors.inkSurface)
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -162,14 +162,14 @@ private fun PreparingModelBody(state: AiWordAddState.PreparingModel, modifier: M
             Column {
                 Text(
                     text = "生成AIを準備しています…",
-                    color = colors.onInk,
+                    color = colors.onInkSurface,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.SemiBold,
                 )
                 Spacer(Modifier.height(2.dp))
                 Text(
                     text = "初回のみモデルをダウンロード · ${(state.progress * 100).toInt()}%",
-                    color = colors.onInk.copy(alpha = 0.6f),
+                    color = colors.onInkSurface.copy(alpha = 0.6f),
                     style = WidgetWordTheme.typography.reading,
                 )
             }
@@ -230,7 +230,7 @@ private fun GeneratingBody(state: AiWordAddState.Generating, modifier: Modifier 
         Row(
             modifier = Modifier.fillMaxWidth()
                 .clip(RoundedCornerShape(WidgetWordTheme.radius.card))
-                .background(colors.ink)
+                .background(colors.inkSurface)
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -243,14 +243,14 @@ private fun GeneratingBody(state: AiWordAddState.Generating, modifier: Modifier 
             Column {
                 Text(
                     text = "候補を生成しています…",
-                    color = colors.onInk,
+                    color = colors.onInkSurface,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.SemiBold,
                 )
                 Spacer(Modifier.height(2.dp))
                 Text(
                     text = "${state.count}語 · ${state.language} · だいたい10秒くらい",
-                    color = colors.onInk.copy(alpha = 0.6f),
+                    color = colors.onInkSurface.copy(alpha = 0.6f),
                     style = WidgetWordTheme.typography.reading,
                 )
             }
