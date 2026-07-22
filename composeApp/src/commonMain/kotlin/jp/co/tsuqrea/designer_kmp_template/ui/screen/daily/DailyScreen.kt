@@ -221,7 +221,7 @@ private fun FolderCard(
             .fillMaxWidth()
             .padding(horizontal = ScreenPadding)
             .clip(RoundedCornerShape(WidgetWordTheme.radius.card))
-            .background(colors.ink)
+            .background(colors.inkSurface)
             .padding(20.dp),
     ) {
         Row(
@@ -234,11 +234,11 @@ private fun FolderCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
             ) {
-                FolderGlyphIcon(color = colors.onInk.copy(alpha = 0.6f))
+                FolderGlyphIcon(color = colors.onInkSurface.copy(alpha = 0.6f))
                 Text(
                     text = folderName,
                     style = WidgetWordTheme.typography.reading,
-                    color = colors.onInk.copy(alpha = 0.65f),
+                    color = colors.onInkSurface.copy(alpha = 0.65f),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -254,10 +254,10 @@ private fun FolderCard(
                     modifier = Modifier
                         .size(32.dp)
                         .clip(CircleShape)
-                        .background(colors.onInk.copy(alpha = 0.12f)),
+                        .background(colors.onInkSurface.copy(alpha = 0.12f)),
                     contentAlignment = Alignment.Center,
                 ) {
-                    ArrowUpRightIcon(color = colors.onInk)
+                    ArrowUpRightIcon(color = colors.onInkSurface)
                 }
             }
         }
@@ -266,12 +266,12 @@ private fun FolderCard(
             Text(
                 text = learnedCount.toString(),
                 style = WidgetWordTheme.typography.stat,
-                color = colors.onInk,
+                color = colors.onInkSurface,
             )
             Text(
                 text = " / $totalCount",
                 style = WidgetWordTheme.typography.headerTitle,
-                color = colors.onInk.copy(alpha = 0.5f),
+                color = colors.onInkSurface.copy(alpha = 0.5f),
                 modifier = Modifier.padding(bottom = 4.dp),
             )
             Spacer(Modifier.width(12.dp))
@@ -284,7 +284,7 @@ private fun FolderCard(
             progress = progress,
             modifier = Modifier.fillMaxWidth(),
             height = 8.dp,
-            trackColor = colors.onInk.copy(alpha = 0.16f),
+            trackColor = colors.onInkSurface.copy(alpha = 0.16f),
             progressColor = colors.accent,
         )
     }
@@ -297,7 +297,7 @@ private fun EncounterPill(label: String, count: Int, modifier: Modifier = Modifi
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(percent = 50))
-            .background(colors.onInk.copy(alpha = 0.12f))
+            .background(colors.onInkSurface.copy(alpha = 0.12f))
             .padding(horizontal = 10.dp, vertical = 5.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(5.dp),
@@ -306,7 +306,7 @@ private fun EncounterPill(label: String, count: Int, modifier: Modifier = Modifi
         Text(
             text = "$label +$count",
             style = WidgetWordTheme.typography.meterValue,
-            color = colors.onInk,
+            color = colors.onInkSurface,
         )
     }
 }
@@ -317,20 +317,20 @@ private fun DeadlinePill(daysRemaining: Long) {
     val colors = WidgetWordTheme.colors
     val expired = daysRemaining < 0
     val label = DeadlineUtil.remainingLabel(daysRemaining)
-    val dotColor = if (expired) colors.onInk.copy(alpha = 0.5f) else colors.accent
+    val dotColor = if (expired) colors.onInkSurface.copy(alpha = 0.5f) else colors.accent
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(percent = 50))
-            .background(colors.onInk.copy(alpha = 0.12f))
+            .background(colors.onInkSurface.copy(alpha = 0.12f))
             .padding(horizontal = 10.dp, vertical = 5.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(5.dp),
     ) {
-        CalendarIcon(color = colors.onInk.copy(alpha = 0.7f), size = 12.dp)
+        CalendarIcon(color = colors.onInkSurface.copy(alpha = 0.7f), size = 12.dp)
         Text(
             text = label,
             style = WidgetWordTheme.typography.meterValue,
-            color = colors.onInk,
+            color = colors.onInkSurface,
         )
         Box(Modifier.size(6.dp).clip(CircleShape).background(dotColor))
     }

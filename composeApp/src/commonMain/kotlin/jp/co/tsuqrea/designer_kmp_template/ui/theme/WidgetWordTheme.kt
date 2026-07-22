@@ -33,10 +33,14 @@ data class WwColors(
     val card: Color,
     val cardOutline: Color,
     val fieldOutline: Color,
-    /** 主要テキスト・アクティブ・黒カード・ONトグル。 */
+    /** 主要テキスト・アクティブ・ボタン/ナビピル。ダークでは白へ反転する。 */
     val ink: Color,
     /** ink 面の上に載る文字。 */
     val onInk: Color,
+    /** 常に暗い面（Daily 進捗カード・AI 生成中カード）。ダークでも暗いカードを維持する。 */
+    val inkSurface: Color,
+    /** inkSurface の上に載る文字。 */
+    val onInkSurface: Color,
     val secondary: Color,
     val faint: Color,
     val disabled: Color,
@@ -57,6 +61,8 @@ val colorToneColors = WwColors(
     fieldOutline = WwPalette.FieldOutline,
     ink = WwPalette.Ink,
     onInk = WwPalette.OnInk,
+    inkSurface = WwPalette.Ink,
+    onInkSurface = WwPalette.OnInk,
     secondary = WwPalette.Secondary,
     faint = WwPalette.Faint,
     disabled = WwPalette.Disabled,
@@ -76,6 +82,8 @@ val darkToneColors = WwColors(
     fieldOutline = WwPalette.DarkOutline,
     ink = WwPalette.DarkText,
     onInk = WwPalette.Ink,
+    inkSurface = WwPalette.DarkCard,
+    onInkSurface = WwPalette.DarkText,
     secondary = WwPalette.DarkSecondary,
     faint = WwPalette.DarkSecondary,
     disabled = WwPalette.MeterTrackOnDark,
